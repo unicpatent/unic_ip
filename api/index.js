@@ -121,13 +121,14 @@ module.exports = async (req, res) => {
             return res.status(404).send(`Template not found: ${viewName}.ejs`);
         }
         
-        // Use renderFile with views directory setting for proper include resolution
+        // Use renderFile with filename option for proper include resolution
         const viewsDir = path.dirname(viewPath);
         const html = await ejs.renderFile(viewPath, {
             title: title,
             // Add any other template variables if needed
         }, {
-            views: [viewsDir], // Set views directory for includes
+            filename: viewPath, // Critical for include path resolution
+            views: [viewsDir],
             root: viewsDir
         });
         
