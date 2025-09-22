@@ -1,0 +1,21 @@
+나는 application.ejs와 관련 현재 사용하는 api를 일부 변경하려고 해, registered.ejs 에 특허정보를 찾아오는 api를 참고하여 1단계 기본정보 조회는 registered.ejs 처럼
+1. https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=120230740981
+를 활용해서 정보를 가져오는 것으로 수정해줘
+
+1단계에서 변경된 api 통해 가져오는 정보는   출원번호, 등록번호, 출원인명, 출원일, 등록일, 발명의 명칭, 청구항수, 등록상태 가져와서 화면에 뿌려주는 것으로(registed.ejs 와 관련된 모듈 참조, 동일하게 구현)
+수정해줘  
+
+
+  가능한 해결방안:
+
+  1. 현재 구조 유지 (키프리스 API 계속 사용)
+    - 미등록 출원특허도 조회 가능
+  2. 출원특허 페이지 의미 변경
+    - "출원했지만 등록된 특허"로 범위 축소
+    - 특허청 API 사용 가능
+  3. 하이브리드 방식
+    - 특허청 API + 키프리스 API 병행 사용
+
+  어떤 방향으로 진행하시겠습니까?
+
+> 아 그렇구나, 문제가 있네요.. 다시 요구ㅎ사항 줄테니 기다려줘요, 코드 수정하지 말고

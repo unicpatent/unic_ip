@@ -1,0 +1,20 @@
+🔄 납부의뢰 스크립트 로드됨 - 버전: 2025.08.21.v2
+registered.js?v=2025.09.19.v12:2 🔄 등록특허 검색 스크립트 로드됨 - 버전: 2025.09.19.v12
+registered.js?v=2025.09.19.v12:831 ✅ 등록특허 검색 스크립트 로드 완료
+registered.js?v=2025.09.19.v12:15 ✅ DOM 로드 완료 - 등록특허 검색 초기화
+registered.js?v=2025.09.19.v12:21 ✅ 검색 폼 이벤트 리스너 등록 완료
+registered.js?v=2025.09.19.v12:65 🔍 검색 시작
+registered.js?v=2025.09.19.v12:85 📝 검색 유형: 2 검색 값: 120230740981
+registered.js?v=2025.09.19.v12:92 🔍 회원 검증 시작
+api/verify-member:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+registered.js?v=2025.09.19.v12:152  ❌ 검색 오류: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+handleSearch @ registered.js?v=2025.09.19.v12:152
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn more
+
+
+        오류가 발생했습니다
+Failed to lookup view "thanks" in views directory "C:\ip\unic-patent-status\views"
+기술적 세부사항

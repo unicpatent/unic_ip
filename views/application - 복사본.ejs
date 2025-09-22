@@ -1,0 +1,258 @@
+<%- include('partials/header') %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-title">
+            <h1>출원특허 현황</h1>
+            <p>고객번호로 출원 중인 특허 목록을 조회합니다</p>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <section class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="customerNumber" class="form-label">고객번호</label>
+                    <input 
+                        type="text" 
+                        id="customerNumber" 
+                        name="customerNumber" 
+                        class="form-input"
+                        placeholder="예: 120190612244"
+                        maxlength="12"
+                        pattern="[0-9]{12}"
+                        required
+                    >
+                    <div class="form-hint">12자리 숫자 입력하세요</div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="searchBtn">
+                    🔍 검색하기
+                </button>
+            </form>
+        </section>
+
+        <!-- 결과 섹션 -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div class="results-info">
+                    <div class="info-item">
+                        <span class="info-label">고객번호:</span>
+                        <span class="info-value" id="resultCustomerNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">출원인:</span>
+                        <span class="info-value" id="resultApplicantName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">출원특허 수:</span>
+                        <span class="info-value" id="resultTotalCount">0</span>건
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        📊 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="patent-table" id="patentTable">
+                    <thead>
+                        <tr>
+                            <th>출원번호</th>
+                            <th>등록번호</th>
+                            <th>출원인</th>
+                            <th>발명자</th>
+                            <th>출원일</th>
+                            <th>우선권 출원번호</th>
+                            <th>PCT마감일</th>
+                            <th>발명의 명칭</th>
+                            <th>의견통지서</th>
+                            <th>현재상태</th>
+                            <th>공개전문</th>
+                            <th>공고전문</th>
+                            <th>PCT출원번호</th>
+                            <th>Family특허번호</th>
+                            <th>연차료납부</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patentTableBody">
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📄</div>
+                <div class="empty-title">출원특허가 없습니다</div>
+                <div class="empty-description">해당 고객번호로 출원 중인 특허를 찾을 수 없습니다.</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+let currentPatents = [];
+
+// 폼 제출 이벤트
+document.getElementById('searchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerNumber = document.getElementById('customerNumber').value.trim();
+    const searchBtn = document.getElementById('searchBtn');
+    const originalText = searchBtn.innerHTML;
+    
+    // 입력 검증 (12자리 숫자)
+    if (!/^\d{12}$/.test(customerNumber)) {
+        showError('고객번호는 12자리 숫자여야 합니다.');
+        return;
+    }
+    
+    hideError();
+    showLoading(searchBtn);
+    
+    try {
+        const response = await fetch('/api/search-application', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerNumber })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+        }
+        
+        displayResults(data);
+        
+    } catch (error) {
+        console.error('검색 오류:', error);
+        showError(error.message);
+        hideResults();
+    } finally {
+        hideLoading(searchBtn, originalText);
+    }
+});
+
+// 결과 표시
+function displayResults(data) {
+    currentPatents = data.patents || [];
+    
+    
+    document.getElementById('resultCustomerNumber').textContent = data.customerNumber;
+    document.getElementById('resultApplicantName').textContent = data.applicantName;
+    document.getElementById('resultTotalCount').textContent = data.totalCount;
+    
+    const tableBody = document.getElementById('patentTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    tableBody.innerHTML = '';
+    
+    if (currentPatents.length === 0) {
+        emptyState.style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+    } else {
+        emptyState.style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        
+        currentPatents.forEach(patent => {
+            const row = document.createElement('tr');
+            const statusBadge = getStatusBadge(patent.examStatus);
+            const progressBadge = getProgressBadge(patent.registrationStatus);
+            
+            row.innerHTML = `
+                <td>${patent.applicationNumber}</td>
+                <td>${patent.registrationNumber || '-'}</td>
+                <td>${patent.applicantName}</td>
+                <td>${patent.inventorName}</td>
+                <td>${formatDate(patent.applicationDate)}</td>
+                <td>${patent.priorityNumber || '-'}</td>
+                <td>${formatDate(patent.pctDeadline) || '-'}</td>
+                <td style="max-width: 300px; word-break: break-word;">${patent.inventionTitle}</td>
+                <td>${patent.opinionNotice || '-'}</td>
+                <td>${patent.currentStatus || '심사중'}</td>
+                <td>${createFileLink(patent.publicationFullText, patent.publicationDocName, '공개전문')}</td>
+                <td>${createFileLink(patent.announcementFullText, patent.announcementDocName, '공고전문')}</td>
+                <td>${patent.pctApplicationNumber || '-'}</td>
+                <td>${patent.familyPatentNumber || '-'}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    resultsSection.style.display = 'block';
+}
+
+// 심사상태 배지
+function getStatusBadge(status) {
+    if (!status || status === '-') return '-';
+    
+    let badgeClass = 'badge-info';
+    if (status.includes('등록')) badgeClass = 'badge-success';
+    else if (status.includes('거절')) badgeClass = 'badge-warning';
+    
+    return `<span class="badge ${badgeClass}">${status}</span>`;
+}
+
+// 진행상태 배지
+function getProgressBadge(status) {
+    if (!status || status === '-') return '-';
+    
+    let badgeClass = 'badge-warning';
+    if (status === '등록') badgeClass = 'badge-success';
+    
+    return `<span class="badge ${badgeClass}">${status}</span>`;
+}
+
+// 결과 숨기기
+function hideResults() {
+    document.getElementById('resultsSection').style.display = 'none';
+}
+
+// 파일 링크 생성 함수 (개선된 버전)
+function createFileLink(filePath, docName, linkText) {
+    // 파일 경로가 없거나 기본값인 경우
+    if (!filePath || filePath === '-' || filePath.trim() === '') {
+        return `<span class="no-file">-</span>`;
+    }
+    
+    // URL이 유효한지 확인
+    try {
+        const url = new URL(filePath);
+        const displayName = docName && docName !== '-' ? docName : linkText;
+        
+        return `<a href="${filePath}" target="_blank" class="file-link" title="${displayName}">
+                    <span class="file-icon">📄</span> ${linkText}
+                </a>`;
+    } catch (e) {
+        // URL이 유효하지 않은 경우
+        console.warn('유효하지 않은 파일 URL:', filePath);
+        return `<span class="invalid-file" title="파일 URL이 유효하지 않습니다">❌ ${linkText}</span>`;
+    }
+}
+
+// 엑셀 다운로드
+function exportToExcel() {
+    if (currentPatents.length === 0) {
+        showError('다운로드할 데이터가 없습니다.');
+        return;
+    }
+    
+    downloadExcel(currentPatents, 'application');
+}
+
+// Event listeners setup (avoiding CSP issues with inline onclick)
+document.addEventListener('DOMContentLoaded', function() {
+    // Export button
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportToExcel);
+    }
+});
+</script>

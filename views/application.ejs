@@ -1,0 +1,587 @@
+<%- include('partials/header') %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-title">
+            <h1>출원특허 현황</h1>
+            <p>고객번호로 출원 중인 특허 목록을 조회합니다</p>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <section class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="customerNumber" class="form-label">고객번호</label>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="customerNumber"
+                            name="customerNumber"
+                            class="form-input customer-number-input"
+                            placeholder="예: 120190612244"
+                            maxlength="12"
+                            pattern="[0-9]{12}"
+                            required
+                        >
+                        <button type="submit" class="btn btn-primary" id="searchBtn">
+                            🔍 검색하기
+                        </button>
+                    </div>
+                    <div class="form-hint">12자리 숫자 입력하세요</div>
+                </div>
+                <button type="button" class="btn btn-secondary find-customer-btn" id="findCustomerBtn">
+                    고객번호 찾기
+                </button>
+            </form>
+        </section>
+
+        <!-- 결과 섹션 -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div class="results-info">
+                    <div class="info-item">
+                        <span class="info-label">고객번호:</span>
+                        <span class="info-value" id="resultCustomerNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">출원인:</span>
+                        <span class="info-value" id="resultApplicantName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">출원특허 수:</span>
+                        <span class="info-value" id="resultTotalCount">0</span>건
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" id="pctRequestBtn">
+                        🌐 PCT 납부의뢰
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        📊 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="patent-table" id="patentTable">
+                    <thead>
+                        <tr>
+                            <th>출원번호</th>
+                            <th>등록번호</th>
+                            <th>출원인</th>
+                            <th>발명자</th>
+                            <th>출원일</th>
+                            <th>우선일</th>
+                            <th>PCT마감일</th>
+                            <th>발명의 명칭</th>
+                            <th>현재상태</th>
+                            <th>공개전문</th>
+                            <th>공고전문</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patentTableBody">
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📄</div>
+                <div class="empty-title">출원특허가 없습니다</div>
+                <div class="empty-description">해당 고객번호로 출원 중인 특허를 찾을 수 없습니다.</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+let currentPatents = [];
+let currentPage = 1;
+const itemsPerPage = 5;
+
+// 폼 제출 이벤트
+document.getElementById('searchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerNumber = document.getElementById('customerNumber').value.trim();
+    const searchBtn = document.getElementById('searchBtn');
+    const originalText = searchBtn.innerHTML;
+    
+    // 입력 검증 (12자리 숫자)
+    if (!/^\d{12}$/.test(customerNumber)) {
+        showError('고객번호는 12자리 숫자여야 합니다.');
+        return;
+    }
+    
+    hideError();
+    showLoading(searchBtn);
+    
+    try {
+        const response = await fetch('/api/search-application', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerNumber })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+        }
+        
+        displayResults(data);
+        
+    } catch (error) {
+        console.error('검색 오류:', error);
+        showError(error.message);
+        hideResults();
+    } finally {
+        hideLoading(searchBtn, originalText);
+    }
+});
+
+// 결과 표시
+function displayResults(data) {
+    currentPatents = data.patents || [];
+    currentPage = 1; // 검색 시 첫 페이지로 초기화
+    
+    document.getElementById('resultCustomerNumber').textContent = data.customerNumber;
+    document.getElementById('resultApplicantName').textContent = data.applicantName;
+    document.getElementById('resultTotalCount').textContent = data.totalCount;
+    
+    const resultsSection = document.getElementById('resultsSection');
+    
+    if (currentPatents.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+    } else {
+        document.getElementById('emptyState').style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        displayPaginatedResults();
+    }
+    
+    resultsSection.style.display = 'block';
+}
+
+// 페이지네이션된 결과 표시
+function displayPaginatedResults() {
+    const tableBody = document.getElementById('patentTableBody');
+    const totalPages = Math.ceil(currentPatents.length / itemsPerPage);
+    
+    // 테이블 초기화
+    tableBody.innerHTML = '';
+    
+    // 현재 페이지에 해당하는 데이터 계산
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, currentPatents.length);
+    const paginatedPatents = currentPatents.slice(startIndex, endIndex);
+    
+    console.log('📊 페이지네이션 데이터 생성 중...', `${currentPage}/${totalPages} 페이지, ${paginatedPatents.length}건`);
+    
+    paginatedPatents.forEach((patent, index) => {
+        const row = document.createElement('tr');
+        
+        // 안전한 문자열 처리
+        const safeValue = (value) => value && value !== '-' ? value : '-';
+        
+        const applicantName = safeValue(patent.applicantName);
+        const inventionTitle = safeValue(patent.inventionTitle);
+        
+        row.innerHTML = `
+            <td class="patent-number">${safeValue(patent.applicationNumber)}</td>
+            <td class="patent-number">${safeValue(patent.registrationNumber)}</td>
+            <td class="applicant-name-clean applicant-name">${applicantName}</td>
+            <td>${safeValue(patent.inventorName)}</td>
+            <td>${formatDate(patent.applicationDate)}</td>
+            <td>${safeValue(patent.priorityApplicationDate)}</td>
+            <td>${formatDate(patent.pctDeadline) || '-'}</td>
+            <td class="invention-title-natural invention-title">${inventionTitle}</td>
+            <td>${safeValue(patent.currentStatus) || '심사중'}</td>
+            <td>${createFileLink(patent.publicationFullText, patent.publicationDocName, '공개전문')}</td>
+            <td>${createFileLink(patent.announcementFullText, patent.announcementDocName, '공고전문')}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    // 페이지네이션 컨트롤 생성/업데이트
+    createPaginationControls(totalPages);
+    
+    console.log('✅ 페이지네이션 테이블 생성 완료:', `${currentPage}/${totalPages} 페이지, ${paginatedPatents.length}건`);
+}
+
+// 페이지네이션 컨트롤 생성
+function createPaginationControls(totalPages) {
+    let paginationContainer = document.getElementById('paginationContainer');
+    
+    // 페이지네이션 컨테이너가 없으면 생성
+    if (!paginationContainer) {
+        paginationContainer = document.createElement('div');
+        paginationContainer.id = 'paginationContainer';
+        paginationContainer.className = 'pagination-container';
+        
+        // 테이블 컨테이너 다음에 삽입
+        const tableContainer = document.querySelector('.table-container');
+        tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+    }
+    
+    // 페이지가 1개 이하면 숨김
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+    
+    paginationContainer.style.display = 'flex';
+    
+    let paginationHTML = '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
+    paginationHTML += '<div class="pagination-controls">';
+    
+    // 이전 버튼
+    if (currentPage > 1) {
+        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ 이전</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">‹ 이전</button>';
+    }
+    
+    // 페이지 번호 (최대 5개 표시)
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        if (i === currentPage) {
+            paginationHTML += '<button class="pagination-btn active">' + i + '</button>';
+        } else {
+            paginationHTML += '<button class="pagination-btn" data-page="' + i + '">' + i + '</button>';
+        }
+    }
+    
+    // 다음 버튼
+    if (currentPage < totalPages) {
+        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">다음 ›</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">다음 ›</button>';
+    }
+    
+    paginationHTML += '</div>';
+    paginationContainer.innerHTML = paginationHTML;
+    
+    // 페이지네이션 버튼에 이벤트 리스너 추가
+    const paginationBtns = paginationContainer.querySelectorAll('.pagination-btn[data-page]');
+    paginationBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetPage = parseInt(this.getAttribute('data-page'));
+            if (targetPage && targetPage !== currentPage) {
+                changePage(targetPage);
+            }
+        });
+    });
+}
+
+// 페이지 변경
+function changePage(page) {
+    if (page < 1 || page > Math.ceil(currentPatents.length / itemsPerPage)) return;
+    
+    currentPage = page;
+    displayPaginatedResults();
+    
+    // 테이블 상단으로 스크롤
+    document.querySelector('.table-container').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+    });
+}
+
+// 심사상태 배지
+function getStatusBadge(status) {
+    if (!status || status === '-') return '-';
+    
+    let badgeClass = 'badge-info';
+    if (status.includes('등록')) badgeClass = 'badge-success';
+    else if (status.includes('거절')) badgeClass = 'badge-warning';
+    
+    return `<span class="badge ${badgeClass}">${status}</span>`;
+}
+
+// 진행상태 배지
+function getProgressBadge(status) {
+    if (!status || status === '-') return '-';
+    
+    let badgeClass = 'badge-warning';
+    if (status === '등록') badgeClass = 'badge-success';
+    
+    return `<span class="badge ${badgeClass}">${status}</span>`;
+}
+
+// 결과 숨기기
+function hideResults() {
+    document.getElementById('resultsSection').style.display = 'none';
+}
+
+// 파일 링크 생성 함수 (개선된 버전)
+function createFileLink(filePath, docName, linkText) {
+    // 파일 경로가 없거나 기본값인 경우
+    if (!filePath || filePath === '-' || filePath.trim() === '') {
+        return `<span class="no-file">-</span>`;
+    }
+
+    // URL이 유효한지 확인
+    try {
+        const url = new URL(filePath);
+        const displayName = docName && docName !== '-' ? docName : linkText;
+
+        return `<a href="${filePath}" target="_blank" class="file-link"
+                   title="클릭: 새창 열기 | 더블클릭: 다운로드"
+                   ondblclick="downloadFile('${filePath}', '${displayName}'); event.preventDefault();">
+                    <span class="file-icon">📄</span> ${linkText}
+                </a>`;
+    } catch (e) {
+        // URL이 유효하지 않은 경우
+        console.warn('유효하지 않은 파일 URL:', filePath);
+        return `<span class="invalid-file" title="파일 URL이 유효하지 않습니다">❌ ${linkText}</span>`;
+    }
+}
+
+// 파일 다운로드 함수 (프록시 API 사용)
+async function downloadFile(fileUrl, fileName) {
+    try {
+        console.log('📥 파일 다운로드 시작:', { fileUrl, fileName });
+
+        // 로딩 표시
+        const originalTitle = document.title;
+        document.title = '📥 다운로드 중...';
+
+        // 프록시 API를 통한 파일 다운로드
+        const response = await fetch('/api/download-file', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fileUrl: fileUrl,
+                fileName: fileName || '특허문서.pdf'
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '파일 다운로드에 실패했습니다.');
+        }
+
+        // 파일 다운로드 처리
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName || '특허문서.pdf';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // URL 객체 해제
+        window.URL.revokeObjectURL(downloadUrl);
+
+        // 제목 복원
+        document.title = originalTitle;
+
+        console.log('✅ 파일 다운로드 완료');
+
+        // 성공 메시지 표시
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 10000;
+            background: #10b981; color: white; padding: 12px 20px;
+            border-radius: 6px; font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        successMsg.textContent = '✅ 파일 다운로드 완료';
+        document.body.appendChild(successMsg);
+
+        setTimeout(() => {
+            if (successMsg.parentNode) {
+                successMsg.remove();
+            }
+        }, 3000);
+
+    } catch (error) {
+        console.error('❌ 파일 다운로드 실패:', error);
+
+        // 제목 복원
+        document.title = document.title.replace('📥 다운로드 중...', '');
+
+        // 에러 메시지 표시
+        showError('파일 다운로드에 실패했습니다: ' + error.message);
+    }
+}
+
+// 엑셀 다운로드
+function exportToExcel() {
+    if (currentPatents.length === 0) {
+        showError('다운로드할 데이터가 없습니다.');
+        return;
+    }
+    
+    downloadExcel(currentPatents, 'application');
+}
+
+// PCT 납부의뢰 함수
+function requestPCTFiling() {
+    console.log('🌐 PCT 납부의뢰 버튼 클릭');
+    
+    if (currentPatents.length === 0) {
+        showError('PCT 납부의뢰할 특허가 없습니다.');
+        return;
+    }
+    
+    // 고객번호와 첫 번째 출원인 이름 가져오기
+    const customerNumber = document.getElementById('resultCustomerNumber').textContent;
+    const applicantName = document.getElementById('resultApplicantName').textContent;
+    
+    console.log('고객정보:', { customerNumber, applicantName });
+    
+    showPCTRequestModal(customerNumber, applicantName);
+}
+
+// PCT 납부의뢰 모달 표시
+function showPCTRequestModal(customerNumber, applicantName) {
+    // 모달 닫기 함수를 전역으로 등록
+    window.closePCTModal = function() {
+        const modal = document.getElementById('pctModal');
+        if (modal) {
+            modal.remove();
+        }
+    };
+    
+    // PCT 안내문 텍스트
+    const pctGuidanceText = `
+        <h3 style="color: #0F172A; font-size: 1.2rem; font-weight: 600; margin: 0 0 1rem 0;">PCT/해외출원(마감일) 안내</h3>
+        <div style="line-height: 1.6; color: #374151;">
+            <p style="margin: 0 0 0.5rem 0;"><strong>기간:</strong> 국내 출원일 또는 우선일부터 1년 이내</p>
+            <p style="margin: 0 0 0.5rem 0;"><strong>PCT 협약:</strong> 200여개 국가에 대한 출원의 소급 인정 (해외 출원을 위한 한국 출원일로 소급)</p>
+            <p style="margin: 0 0 0.5rem 0;"><strong>제출 요건:</strong> PCT 출원 이후, 국내 출원일부터 30개월 이내에 해외 각국에 번역하여 제출하여야 함</p>
+            <p style="margin: 0 0 0.5rem 0;"><strong>번역문:</strong> 원칙적으로 각국 언어로 번역문을 제출하여야 하며, 각국 대리인을 통하여 제출하여야 하지만, PCT 출원을 통해 우선 2년 6개월 연장하여 해외 출원을 준비할 수 있음</p>
+            <p style="margin: 0 0 0.5rem 0;"><strong>소급 효과:</strong> 미국, 유럽, 중국, 일본 등 주요국 출원일은 한국 출원일로 소급됨</p>
+            <p style="margin: 0 0 1rem 0;"><strong>비용:</strong> 관납료 2,070,000원, 대리인 수수료 700,000원</p>
+        </div>
+    `;
+    
+    // 모달 HTML 생성
+    const modalHTML = `
+        <div id="pctModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+            <div class="modal-content" style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="border-bottom: 2px solid #3B82F6; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">PCT 출원의뢰</h2>
+                </div>
+                
+                <div class="guidance-text" style="background: #eff6ff; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #3B82F6;">
+                    ${pctGuidanceText}
+                </div>
+                
+                <form action="https://api.web3forms.com/submit" method="POST" id="pctRequestForm">
+                    <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                    <input type="hidden" name="redirect" value="${window.location.origin}/thanks">
+                    <input type="hidden" name="subject" value="PCT 출원의뢰">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호</label>
+                        <input type="text" name="customer_number" id="customer_number" value="${customerNumber}" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름 (1번째 목록 출원인)</label>
+                        <input type="text" name="name" id="applicant_name" value="${applicantName}" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label>
+                        <input type="email" name="email" id="email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="example@email.com">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
+                        <input type="tel" name="phone" id="phone" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="010-0000-0000">
+                    </div>
+                    
+                    <textarea name="message" style="display: none;">PCT 출원의뢰 - 고객번호: ${customerNumber}, 고객명: ${applicantName}
+                    
+수신자: ljunhyek@naver.com
+제목: PCT 출원의뢰</textarea>
+                    <input type="hidden" name="to" value="ljunhyek@naver.com">
+                    
+                    <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
+                        <p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>
+                        <p style="margin: 0 0 0.5rem 0;">수집·이용 목적: PCT 출원 대행 처리</p>
+                        <p style="margin: 0 0 0.5rem 0;">수집 항목: 특허 고객번호, 이름, 연락처, 이메일</p>
+                        <p style="margin: 0 0 0.75rem 0;">보유 및 이용 기간: PCT 출원 대행처리 완료 시</p>
+                        <label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">
+                            <input type="checkbox" name="privacy_consent" id="privacy_consent" required style="margin-right: 0.5rem; width: 16px; height: 16px;">
+                            개인정보 수집 및 이용에 동의합니다.
+                        </label>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" onclick="closePCTModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>
+                        <button type="submit" style="padding: 0.75rem 1.5rem; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">PCT 출원의뢰</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    console.log('✅ PCT 납부의뢰 모달 생성 완료 - Web3Forms 연동');
+}
+
+// 고객번호 찾기 버튼 기능
+function openCustomerSearchPopup() {
+    const url = 'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do';
+    const popupOptions = 'width=1000,height=800,scrollbars=yes,resizable=yes,status=yes,menubar=no,toolbar=no,location=no';
+
+    // 팝업창 열기
+    const popup = window.open(url, 'customerSearch', popupOptions);
+
+    // 팝업창이 블록되었는지 확인
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        alert('팝업 창이 차단되었습니다.\n브라우저의 팝업 차단 설정을 확인해주세요.\n\n또는 다음 링크를 직접 열어주세요:\n' + url);
+        return;
+    }
+
+    // 팝업창 중앙 정렬
+    if (popup.moveTo) {
+        const left = (screen.width - 1000) / 2;
+        const top = (screen.height - 800) / 2;
+        popup.moveTo(left, top);
+    }
+
+    // 팝업창 포커스
+    popup.focus();
+}
+
+// Event listeners setup (avoiding CSP issues with inline onclick)
+document.addEventListener('DOMContentLoaded', function() {
+    // PCT 납부의뢰 버튼
+    const pctRequestBtn = document.getElementById('pctRequestBtn');
+    if (pctRequestBtn) {
+        pctRequestBtn.addEventListener('click', requestPCTFiling);
+    }
+
+    // Export button
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportToExcel);
+    }
+
+    // 고객번호 찾기 버튼
+    const findCustomerBtn = document.getElementById('findCustomerBtn');
+    if (findCustomerBtn) {
+        findCustomerBtn.addEventListener('click', openCustomerSearchPopup);
+    }
+});
+</script>

@@ -1,0 +1,38 @@
+해당 연차료 납부 마감일 올바른 예시가 연차료2.png 에 있어 , 현재_연차료화면.png는 현재 나오고 있는 코드야, 아래 해당연차료 납부마감일 로직만 수정해줘
+1. 해당연차료 납부마감일 중  월일을 하루전이 아니라 등록일의 얼일로 맞춰야 함
+2. 해당차료 납부마감일 중 년도는 (등록일의 연도 + 해당연차수)-1 로 해야 됨, 
+
+<< 네가 구현했다고 했으나 여전히 안되는 부분 >>
+
+● 변경사항이 정확히 적용되었습니다. 이제 수정된 핵심 부분을 요약해보겠습니다:
+
+  수정된 해당연차료 납부마감일 계산 로직:
+
+  1. 4년차 납부마감일 (등록일+3년 이전인 경우):
+  // 기존: const fourthYearDueDate = new Date(threeYearsAfterRegistration);
+  // 수정:
+  const fourthYearDueDate = new Date(registrationDate);
+  fourthYearDueDate.setFullYear(registrationDate.getFullYear() + 4 - 1); // (등록일 연도 + 4) - 1
+  2. 일반적인 다음 연차 납부마감일:
+  // 기존: nextDueDate.setFullYear(registrationDate.getFullYear() + nextYear);
+  // 수정:
+  nextDueDate.setFullYear(registrationDate.getFullYear() + nextYear - 1); // (등록일 연도 + 해당연차수) - 1
+
+  변경된 계산 공식:
+  - 년도: (등록일 연도 + 해당연차수) - 1
+  - 월일: 등록일과 동일 (기존에도 new Date(registrationDate)로 월일은 유지되고 있었음)
+
+  이제 해당연차료 납부마감일이 요구사항에 맞게 계산됩니다.
+
+● 해당연차료 납부마감일 계산 로직이 요구사항에 맞게 수정되었습니다:
+
+  ✅ 수정 완료 사항:
+  1. 년도 계산: (등록일 연도 + 해당연차수) - 1로 변경
+  2. 월일: 등록일과 동일하게 유지 (하루 전이 아니라)
+
+  예시:
+  - 등록일: 2016-12-01
+  - 해당연차수: 10년차
+  - 납부마감일: (2016 + 10) - 1 = 2025년 12월 01일
+
+  서버가 실행 중이므로 브라우저에서 테스트하여 올바르게 계산되는지 확인할 수 있습니다.

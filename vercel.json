@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "functions": {
+    "api/verify-member.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/download-file.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/export-excel.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/search-registered.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/search-application.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/get-payment-history.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/get-patent-details.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/send-renewal-request.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/.*).*)",
+      "destination": "/api/index"
+    }
+  ]
+}

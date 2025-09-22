@@ -1,0 +1,52 @@
+원인은 상대 경로가 잘못되어 로컬 모듈(파일)을 못 찾는 것입니다.
+Vercel 로그에 “/var/task/api/server.js → require('./routes/api')”가 보이는데, 이 의미는 Vercel이 /api/server.js를 함수 엔트리로 실행하고 있고, 그 파일이 현재 파일 기준(./)으로 routes/api를 찾으려 한다는 뜻입니다. 그런데 저장소 구조를 보면 routes/는 프로젝트 루트에 있고(routes/), api/ 디렉터리와는 형제 폴더입니다. 따라서 /api/server.js에서 ./routes/api는 존재하지 않고, 경로가 ../routes/api 여야 맞습니다. 저장소 루트에 routes/, api/, server.js, vercel.json이 있는 점은 깃헙 트리에서 확인됩니다. 
+GitHub
+
+즉, “Did you forget to add it to dependencies?”라는 문구는 오해의 소지일 뿐이고, npm 패키지 누락이 아니라 파일 경로 문제가 직접 원인입니다.
+
+빠른 해결책(택1)
+
+경로 수정(권장)
+/api/server.js에서:
+
+// 현재: 잘못된 경로
+const apiRoutes = require('./routes/api');
+
+// 수정: 형제 폴더의 routes를 가리키도록
+const apiRoutes = require('../routes/api');
+
+
+또는 path를 써서 안전하게:
+
+const path = require('path');
+const apiRoutes = require(path.join(__dirname, '..', 'routes', 'api'));
+
+
+폴더 이동
+routes/ 폴더를 api/routes/ 로 옮깁니다. 그러면 기존 코드 require('./routes/api')가 그대로 동작합니다. (단, 다른 파일들의 import 경로도 함께 재점검)
+
+루트 서버를 엔트리로 사용
+vercel.json을 사용해 루트의 server.js를 엔트리로 지정하고 @vercel/node 빌더를 쓰면, 루트 기준 경로(./routes/api)가 일관됩니다. 예:
+
+{
+  "version": 2,
+  "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "server.js" }]
+}
+
+
+(이미 vercel.json이 있다면 내용이 루트 server.js 를 가리키는지 확인하세요. 그렇지 않으면 Vercel은 /api 폴더를 자동 서버리스 함수로 인식합니다.) 
+GitHub
+
+추가 점검 체크리스트
+
+파일 존재/대소문자: routes/api.js(또는 routes/api/index.js)가 실제 커밋되어 있고, 파일명 대소문자가 코드와 완전히 일치하는지(리눅스에서는 대소문자 구분).
+
+중복 server.js: 루트 server.js와 api/server.js가 동시에 있을 경우, 어떤 엔트리를 의도하는지 정리. 충돌을 피하려면 하나만 쓰고 vercel.json으로 명확히 지정. 
+GitHub
+
+로컬 테스트: 로컬에서 node api/server.js로 실행 시 경로가 맞는지 바로 재현됩니다(상대 경로 오류면 동일하게 터집니다).
+
+위 중 경로 수정(../routes/api) 가 가장 간단하고 확실합니다. 수정 후 재배포하면 Cannot find module './routes/api' 오류는 해소됩니다.
+
+ChatGPT는 실수를 할 수 있습니다. 중요한 정보는 재차 확인하세

@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-title">오류가 발생했습니다</div>
+            <div class="empty-description">
+                <%= message %>
+            </div>
+            <% if (error && error.stack) { %>
+            <div style="margin-top: 2rem;">
+                <details style="text-align: left; max-width: 600px; margin: 0 auto;">
+                    <summary style="cursor: pointer; color: #6b7280;">기술적 세부사항</summary>
+                    <pre style="background: #f3f4f6; padding: 1rem; border-radius: 8px; font-size: 0.875rem; overflow-x: auto; margin-top: 1rem;"><%= error.stack %></pre>
+                </details>
+            </div>
+            <% } %>
+            <div style="margin-top: 2rem;">
+                <a href="/" class="btn btn-primary">홈으로 돌아가기</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

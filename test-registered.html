@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>등록특허 테스트</title>
+    <meta charset="UTF-8">
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>등록특허 데이터 테스트</h1>
+    <button onclick="testAPI()">API 테스트</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:3001/api/search-registered', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerNumber: '120230740981' })
+                });
+
+                const data = await response.json();
+                console.log('API 응답:', data);
+
+                if (data.patents && data.patents[0]) {
+                    const patent = data.patents[0];
+                    const html = `
+                        <h2>첫 번째 특허 데이터</h2>
+                        <table>
+                            <tr><th>필드명</th><th>값</th></tr>
+                            <tr><td>출원번호</td><td>${patent.applicationNumber}</td></tr>
+                            <tr><td>등록번호</td><td>${patent.registrationNumber}</td></tr>
+                            <tr><td>출원인</td><td>${patent.applicantName}</td></tr>
+                            <tr><td>발명의명칭</td><td>${patent.inventionTitle}</td></tr>
+                            <tr><td>존속기간만료일</td><td>${patent.expirationDate}</td></tr>
+                            <tr><td>청구항수</td><td>${patent.claimCount}</td></tr>
+                            <tr><td style="background: yellow;">등록상태</td><td style="background: yellow;">${patent.registrationStatus}</td></tr>
+                        </table>
+                        <h3>전체 데이터 (JSON)</h3>
+                        <pre>${JSON.stringify(patent, null, 2)}</pre>
+                    `;
+                    document.getElementById('result').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('오류:', error);
+                document.getElementById('result').innerHTML = '<p style="color: red;">오류: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

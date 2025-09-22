@@ -1,0 +1,101 @@
+나는 application.ejs와 관련 현재 사용하는 api를 일부 변경하려고 해, registered.ejs 에 특허정보를 찾아오는 api를 참고하여 1단계 기본정보 조회는 registered.ejs 처럼
+1. https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=120230740981
+를 활용해서 정보를 가져오는 것으로 수정해줘
+
+1단계에서 변경된 api 통해 가져오는 정보는   출원번호, 등록번호, 출원인명, 출원일, 등록일, 발명의 명칭, 청구항수, 등록상태 가져와서 화면에 뿌려주는 것으로(registed.ejs 와 관련된 모듈 참조, 동일하게 구현)
+수정해줘  
+
+
+ 1단계에서 가져오는 정보
+
+  기본 특허 정보
+
+  - 출원번호 (applicationNumber)
+  - 등록번호 (registerNumber)
+  - 출원인명 (applicantName)
+  - 발명자명 (inventorName)
+  - 출원일 (applicationDate) - YYYY.MM.DD 형식
+  - 등록일 (registerDate) - YYYY.MM.DD 형식
+  - 공개일 (publicationDate)
+  - 권리존속기간만료일 (rightDuration)
+  - 발명의 명칭 (inventionTitle)
+  - 청구항수 (claimCount)
+  - 등록상태 (registerStatus) - "등록", "심사중" 등
+  - 심사상태 (examStatus)
+  - IPC 코드 (ipcCode)
+  - 요약 (abstract)
+
+
+
+그리고 키프리스 api를 registered.ejs에서는 사용하지 않고, 대신 아래 api를 쓰려고 함(샘플), 그러므로 키프리스 api를 쓰는 코드를 아래 api를 호출하는 것으로 변경해줘
+단, 출원특허 현황(application.ejs)에서는 키프리스 특허정보를 사용할 예정이니, 등록특허 현황에서만 관련 로직 삭제하고 아래 거로 대체
+1. https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=120230740981
+파라미터
+serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484
+searchType=2 (특허고객번호 유형임)
+searchVal=120230740981(사용자가 입력한 특허고객번호임)
+
+2.네가 방금전에 설명한 이미 구현된 1단계 기본정보 조회, 2단계 등록특허 필터링, 3단계 특허목록 조회가 모두 필요없으므로 모두 삭제
+그리고 위 1번의 api 를 호출하여 결과로 받는 값들을 화면에 각 항목에 매칭
+출원번호, 등록번호, 출원인명, 발명명칭, 등록일, 청구항수, 존속기간 만료일
+
+3. 연차료 정보: 별도 계산 로직으로 처리 (이 로직은 그대로 둠)
+
+< 다음은 위 api의 응답구조임 >, 특허청_등록원부_오픈API활용자가이드_V1.0.pdf 의 39 ~40 페이지 참고
+resultCode 결과코드 3 1 000 결과코드
+resultMsg 결과 메시지 100 1 REQUEST_SUCCESS 결과 메시지
+items
+numOfRows 한 페이지 
+결과수 4 1 10 페이지 번호
+pageNo 페이지번호 4 1 1 한 페이지 결과 수
+righ
+tList
+rn 순번 5 1..n 1 권리정보목록의 
+- 40 -
+※ 항목구분 : 필수(1), 옵션(0), 1건 이상 복수건(1..n), 0건 또는 복수건(0..n)
+순번
+rgstNo 등록번호 13 1..n 1001309800000 등록번호
+rgstDate 등록일자 8 0..n 19971125 등록일자
+applNo 출원번호 13 0..n 1019940029334 출원번호
+gstNo 등록번호 13 1..n 1001309800000 등록번호
+rgstDate 등록일자 8 0..n 19971125 등록일자
+applNo 출원번호 13 0..n 1019940029334 출원번호
+applDate 출원일자 8 0..n 19941109 출원일자
+pubNo 공고번호 13 0..n 1019970010746 공고번호
+pubDate 공고일자 8 0..n 19970630 공고일자
+claimCount 청구항수 5 0..n 4 청구항수
+title 명칭 1000 0..n 직진식유압크레인
+의과부하방지장치 명칭
+cndrtExptnDate 존속기간만료일 8 0..n 20141109 존속기간만료일
+pertDiv 해당란정보 30 0..n 권리자란 해당란정보
+rkNo 권리순위 2 1..n 2 권리순위
+applicantCd 출원인번호 12 0..n 119980001863 출원인번호
+designSeq 디자인 
+일련번호 4 0..n 디자인 일련번호
+indvCorpTpcd 개인법인구분 40 1..n 국내법인 개인법인구분
+businessNo 사업자등록번호 12 0..n 301-81-08302 사업자등록번호
+corpRgstno 법인등록번호 15 0..n 000000-0000000 법인등록번호
+rgstStatus 등록상태 50 0..n 존속기간만료(존속
+기간만료) 등록상태
+agentInfo 대리인정보 1000 0..n 대리인정보
+applicantInfo 출원인정보 1000 0..n 광림기계 주식회사 출원인정보
+rightHolderInfo 권리자정보 1000 0..n 광림기계주식회사,주
+식회사 광림 권리자정보
+totalCount 총건수 5 1 90
+권리목록(rightLis
+t)의 총 건
+
+
+1. 등록특허_화면.png를 읽고 다음을 수정해줘
+1. 출원인은 1번째 1명만 나오도록 할것
+2. 존속기간 만료일(cndrtExptnDate)이 잘못 나오고 있음, 재대로 표시
+3.발명의 명칭(title)을 제대로 표시 
+4. 목록의 제목 줄 위의 등록특허 수  앞에 '출원인:'을 권리자로 수정하고 rightHolderInfo 표시
+5. 목록 제목줄 중 '청구항수' 다음에 '등록상태' 추가 (직전년도 납부연월 앞에)
+- 그리고 각각의 목록에 등록상태 값 rgstStatus 표시
+
+
+  2. 처음에 고객번호를 사용자  입력받는 것을 '사업자번호'(숫자 10자리)와 '고객번호'를 라디오 버튼으로 선택한 다음 해당 값을 입력받게 해줘, 나머지 특허로 api 활용하여 화면에 데이터 표시하는 것은
+   동일
+   만약에 사업자 번호를 선택한 경우 아래 예시처럼 searchType=1 (고객번호는 searchType=2 )
+https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=1&searchVal=사업자번호입력값

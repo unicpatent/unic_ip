@@ -1,0 +1,29 @@
+
+
+
+<< 출원특허 현황에서 다음 내용을 수정해줘 >>
+
+- 출원특허 현황에서 출원인, 발명의 명칭 데이타 값이 지금은 3~5줄 나오는데 1~2줄씩 나오도록 처리해줘
+
+- "고객번호로 출원 중인 특허 목록을 조회합니다"를 검색버튼이 실행되면 '해당 특허 고객번호로 특허청에 출원된 실시간 특허상태 정보입니다"로 변경해줘
+ 
+
+/sc:implement --think 등록특허 현황에서 error.txt 내용을 수정해줘 
+1. :3001/images/favicon.ico:1   GET http://localhost:3001/images/favicon.ico 404 (Not Found) 에러가 나니 수정
+2. 연차료 납부의뢰 버튼이 눌러지고, 전송이 끝나면 a_thank.ejs가 화면에 표시되도록 해줘
+3. 출원자와 발명의 명칭 데이타가 1~2줄로 표시 되도록 해줘
+4. 1개 화면에 5개씩 표시되고, 데이타가 많으면 페이지네이션 처리를 해줘
+5. 연차료 납부의로 창에서 '안내사항' 이라는 말 삭제,     - 세금 계산서와 영수증 송부(작고 흐린글씨) 다음 줄에 "3. 특허청 특허로에 접속하시거나 특허청으로부터 받으신 지로용지로 직접 납부하실 수 있습니다" 추가
+6. 납부의뢰 버튼 누르면 다음 에러가 나옴 Refused to send form data to 'https://api.web3forms.com/submit' because it violates the following Content Security Policy directive: "form-action 'self'".
+참고로 web3forms의 my Public Access Key is: dd3c9ad5-1802-4bd1-b7e6-397002308afa
+
+
+Refused to send form data to 'https://api.web3forms.com/submit' because it violates the following Content Security Policy directive: "form-action 'self'".
+
+/sc:implement --think  등록특허 현황에서 1.출원자와 발명의 명칭 데이타가 1~2줄로 표시 되도록 처리해달라고 했더니 전체 데이타가 나오지 않고 잘리는 현상이 나타나, 다시 수정해줘
+2. 등록특허 현황에서 많은 양의 데이터를 여러 페이지로 나누어 볼 수 있게 한 화면에 5개씩 표시되도록 페이지네이션 처리를 해줘, 그리고 고객번호 '120010054571' 의 데이타 목록이 74개이니 이것으로 테스트해줘
+ 
+ /sc:implement --think  등록특허 현황에서 여전히 출원인과 발명의 명칭이 전체 데이타가 표시되지 않음. 1~2줄로 표시될 수 있도록 해결책 2번(CSS를 수정해서 더 자연스럽게 표시하기)으로 해줘, 
+ 그리고 출원번호와 등록번호도 2줄에 걸쳐서 자연스럽게 나오도록 수정해줘
+ 그리고 고객번호 '120010054571' 눌러 7개의 데이타가 나타나고 페이지 2번을 누르면 아래 오류 메시지가 뜨니 수정해줘
+ Refused to execute inline event handler because it violates the following Content Security Policy directive: "script-src-attr 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present.

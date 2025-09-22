@@ -1,0 +1,190 @@
+json : 연차료 정책 테이블
+{
+  "name": "KIPO-default",
+  "currency": "KRW",
+  "grace_months": 6,
+  "recovery_months": 3,
+  "late_fee_table": {
+    "1": 0.03,
+    "2": 0.06,
+    "3": 0.09,
+    "4": 0.12,
+    "5": 0.15,
+    "6": 0.18
+  },
+  "recovery_policy": { "type": "multiplier", "value": 2.0 },
+  "rounding": "nearest_10",
+  "reminder_rules": [
+    { "months_before_due": 6, "label": "사전예고-6개월" },
+    { "months_before_due": 3, "label": "사전예고-3개월" },
+    { "months_before_due": 1, "label": "사전예고-1개월" }
+  ]
+}
+
+// annuity-engine.js (ESM)
+// 언어/플랫폼 불문 공통 로직: KIPO/EPO/USPTO 등 정책 테이블만 교체하면 동작.
+
+function endOfMonthSafeAddMonths(d, months) {
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth(); // 0~11
+  const targetY = y + Math.floor((m + months) / 12);
+  const targetM = (m + months) % 12;
+  // 다음 달 1일에서 1일 빼서 말일 계산
+  const nextMonth = new Date(Date.UTC(
+    targetM === 11 ? targetY + 1 : targetY,
+    targetM === 11 ? 0 : targetM + 1,
+    1
+  ));
+  const lastDay = new Date(nextMonth.getTime() - 24 * 60 * 60 * 1000).getUTCDate();
+  const day = Math.min(d.getUTCDate(), lastDay);
+  return new Date(Date.UTC(targetY, targetM, day));
+}
+
+function wholeMonthsOverdue(due, today) {
+  // due/today: Date (UTC 기준 사용 권장)
+  if (today <= due) return 0;
+  let delta = (today.getUTCFullYear() - due.getUTCFullYear()) * 12
+            + (today.getUTCMonth() - due.getUTCMonth());
+  if (today.getUTCDate() <= due.getUTCDate()) delta -= 1;
+  return Math.max(1, delta);
+}
+
+function computeStatus(dueDate, today, policy) {
+  const graceEnd = endOfMonthSafeAddMonths(dueDate, policy.grace_months);
+  const recoveryEnd = endOfMonthSafeAddMonths(graceEnd, policy.recovery_months);
+  if (today <= dueDate) return "open";
+  if (dueDate < today && today <= graceEnd) return "in_grace";
+  if (graceEnd < today && today <= recoveryEnd) return "lapsed_recoverable";
+  return "expired";
+}
+
+function applyRounding(amount, policy) {
+  const mode = policy.rounding || "none";
+  if (mode === "nearest_10") return Math.round(amount / 10) * 10;
+  if (mode === "down_1") return Math.floor(amount);
+  return Math.round(amount); // 기본
+}
+
+function computeLateFee(baseFee, monthsOverdue, policy) {
+  // 우선 late_fee_table 사용
+  const table = policy.late_fee_table || {};
+  const key = String(Math.max(1, Math.min(monthsOverdue, 999)));
+  const rate = table[key];
+  if (!rate) return 0;
+  return applyRounding(baseFee * rate, policy);
+}
+
+function computeRecoverySurcharge(baseFee, policy) {
+  const rp = policy.recovery_policy || { type: "none" };
+  if (rp.type === "multiplier") {
+    const mult = rp.value || 1.0;
+    const extra = baseFee * (mult - 1.0);
+    return applyRounding(extra, policy);
+  }
+  if (rp.type === "surcharge") {
+    // 정률: rp.value가 0.15이면 15%; 정액: rp.amount 사용
+    if (typeof rp.value === "number") return applyRounding(baseFee * rp.value, policy);
+    if (typeof rp.amount === "number") return applyRounding(rp.amount, policy);
+  }
+  if (rp.type === "table") {
+    // 필요 시 회복 구간별 테이블 구현
+    // 예: return applyRounding(lookupAmount(...), policy);
+    return 0;
+  }
+  return 0;
+}
+
+function computeInvoiceAmounts(invoice, today, policy) {
+  const status = computeStatus(invoice.due_date, today, policy);
+  invoice.status = status;
+  invoice.late_fee = 0;
+  invoice.recovery_surcharge = 0;
+
+  if (status === "in_grace") {
+    const m = wholeMonthsOverdue(invoice.due_date, today);
+    invoice.late_fee = computeLateFee(invoice.base_fee, m, policy);
+  } else if (status === "lapsed_recoverable") {
+    invoice.recovery_surcharge = computeRecoverySurcharge(invoice.base_fee, policy);
+  } else if (status === "expired") {
+    invoice.total_due = 0;
+    return invoice;
+  }
+  invoice.total_due = applyRounding(invoice.base_fee + invoice.late_fee + invoice.recovery_surcharge, policy);
+  return invoice;
+}
+
+function buildInvoices(schedule, today, policy) {
+  // schedule: [{year_index, due_date: Date, base_fee: number}, ...]
+  return schedule.map(s => {
+    const inv = {
+      year_index: s.year_index,
+      base_fee: s.base_fee,
+      due_date: s.due_date,
+      grace_end: endOfMonthSafeAddMonths(s.due_date, policy.grace_months),
+      recovery_end: endOfMonthSafeAddMonths(endOfMonthSafeAddMonths(s.due_date, policy.grace_months), policy.recovery_months),
+      status: "open",
+      late_fee: 0,
+      recovery_surcharge: 0,
+      total_due: 0,
+      paid_amount: 0,
+      shortage: 0,
+      notes: []
+    };
+    return computeInvoiceAmounts(inv, today, policy);
+  });
+}
+
+function settlePayments(invoices, payments) {
+  // invoices 정렬: 오래된 due_date 우선
+  invoices.sort((a, b) => a.due_date - b.due_date);
+  // payments 정렬: 오래된 pay_date 우선
+  payments.sort((a, b) => a.pay_date - b.pay_date);
+
+  for (const p of payments) {
+    let remaining = p.amount;
+    for (const inv of invoices) {
+      if (inv.status === "expired") continue;
+      const dueNow = Math.max(inv.total_due - inv.paid_amount, 0);
+      if (dueNow <= 0) continue;
+      const alloc = Math.min(remaining, dueNow);
+      inv.paid_amount += alloc;
+      remaining -= alloc;
+      if (inv.paid_amount >= inv.total_due && inv.total_due > 0) {
+        inv.status = "paid";
+        inv.notes.push(`완납(${p.pay_date.toISOString().slice(0,10)})`);
+      }
+      if (remaining === 0) break;
+    }
+    // remaining > 0 이면 초과 납부 처리(환불/선납 등) 정책 후크 지점
+  }
+  for (const inv of invoices) {
+    if (inv.status !== "paid" && inv.status !== "expired") {
+      inv.shortage = Math.max(inv.total_due - inv.paid_amount, 0);
+    }
+  }
+  return invoices;
+}
+
+function plannedReminders(dueDate, reminderRules) {
+  const out = [];
+  for (const r of reminderRules || []) {
+    const remindOn = endOfMonthSafeAddMonths(dueDate, -r.months_before_due);
+    out.push({ label: r.label, remind_on: remindOn });
+  }
+  out.sort((a, b) => a.remind_on - b.remind_on);
+  return out;
+}
+
+// 내보내기
+export {
+  endOfMonthSafeAddMonths as addMonths,
+  wholeMonthsOverdue,
+  computeStatus,
+  computeInvoiceAmounts,
+  buildInvoices,
+  settlePayments,
+  plannedReminders,
+  applyRounding,
+  computeLateFee,
+  computeRecoverySurcharge
+};

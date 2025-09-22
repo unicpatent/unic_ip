@@ -1,0 +1,221 @@
+<%- include('partials/header') %>
+
+<style>
+    .page-header {
+        background-color: #EDFBE2;
+        margin-top: -80px; /* 헤더의 pt-80px 상쇄 */
+        padding: 8rem 0 4rem 0; /* 헤더 높이만큼 안쪽 패딩 추가 */
+    }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+
+    .btn-primary {
+        background: #54B435;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background: #469b2d;
+    }
+    
+    .contact-info-card {
+        background-color: #ffffff;
+        padding: 2.5rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+    
+    .info-block {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.75rem;
+    }
+
+    .info-block .icon {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        background-color: #f0fdf4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.5rem;
+    }
+    
+    .info-block .icon i {
+        color: #54B435;
+        font-size: 1.5rem;
+    }
+    
+    .info-block .info-text h4 {
+        color: #0F172A;
+        font-weight: 700;
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-block .info-text p, .info-block .info-text a {
+        color: #2F3B40;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .map-container {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+    }
+</style>
+
+<!-- 페이지 헤더 -->
+<section class="page-header text-center">
+    <div class="container mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-[#0F172A]">Contact Us</h1>
+        <p class="text-lg mt-4 text-[#2F3B40]">궁금한 점이 있으신가요? 언제든지 문의해주세요.</p>
+    </div>
+</section>
+
+<!-- 메인 컨텐츠 (문의폼 + 연락처 정보) -->
+<section id="contact-main" class="py-16 bg-f9fafb">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <!-- 왼쪽: 상담 신청 폼 -->
+            <div class="contact-info-card">
+                <h3 class="text-2xl font-bold mb-6 text-[#0F172A]">상담 신청하기</h3>
+                <form action="https://api.web3forms.com/submit" method="POST">
+            
+                    <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                    <input type="hidden" name="redirect" value=""https://unicpat.com/thanks"">
+                    <p class="text-xs text-gray-500 mb-4"></p>
+            
+                    <div class="mb-4">
+                        <label for="name" class="block text-[#2F3B40] mb-2 font-medium">이름 *</label>
+                        <input type="text" id="name" name="name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="block text-[#2F3B40] mb-2 font-medium">이메일 *</label>
+                        <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="phone" class="block text-[#2F3B40] mb-2 font-medium">연락처</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="inquiry-type" class="block text-[#2F3B40] mb-2 font-medium">문의 유형 *</label>
+                        <select id="inquiry-type" name="inquiry_type" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                            <option value="">선택해주세요</option>
+                            <option value="patent">특허/상표/디자인</option>
+                            <option value="startup">창업/스타트업</option>
+                            <option value="dispute">분쟁/소송</option>
+                            <option value="biz">기술사업화</option>
+                            <option value="other">기타 문의</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="message" class="block text-[#2F3B40] mb-2 font-medium">문의 내용 *</label>
+                        <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required></textarea>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-[#2F3B40] mb-2 font-medium">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></label>
+                        <div class="border rounded-md bg-gray-50 text-sm text-gray-700">
+                            <textarea rows="3" id="privacy-policy-textarea" class="w-full p-3 bg-transparent border-0 resize-none focus:outline-none leading-relaxed" readonly>본 동의는 거부할 수 있으며 거부 시 상담서비스가 제한됩니다.
+
+수집·이용 목적 - 상담신청 답변 처리 등
+수집 항목 - 이름, 연락처, 이메일
+보유 및 이용 기간 - 상담완료 시</textarea>
+                        </div>
+                        <div class="mt-3 flex items-center">
+                            <input type="checkbox" id="privacy-consent" name="privacy_consent" class="h-4 w-4 text-[#54B435] focus:ring-[#54B435] border-gray-300 rounded" required>
+                            <label for="privacy-consent" class="ml-2 block text-sm text-[#2F3B40]">개인정보 수집 및 이용에 동의합니다.</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full text-lg">상담 신청하기</button>
+            
+                </form>
+            </div>
+            
+            <div class="contact-info-card">
+                <h3 class="text-2xl font-bold mb-8 text-[#0F172A]">유니크 특허사무소 정보</h3>
+                
+                <div class="info-block">
+                    <div class="icon"><i class="fas fa-phone-alt"></i></div>
+                    <div class="info-text">
+                        <h4>전화상담 및 예약</h4>
+                        <p class="font-semibold">
+                            <a href="tel:032-288-7960" class="hover:text-[#54B435]">032-288-7960</a>, 
+                            <a href="tel:010-3131-7960" class="hover:text-[#54B435]">010-3131-7960</a>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-1">평일 09:00 ~ 18:00, 예약시 야간/주말상담도 가능합니다.</p>
+                    </div>
+                </div>
+
+                <div class="info-block">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <div class="info-text">
+                        <h4>메일상담 및 예약</h4>
+                        <p class="font-semibold">
+                            <a href="mailto:ljunhyek@naver.com" class="hover:text-[#54B435]">ljunhyek@naver.com</a>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-1">메일로 상담시 전문 변리사가 24시간 내 답변드립니다.</p>
+                    </div>
+                </div>
+
+                <div class="info-block">
+                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="info-text">
+                        <h4>찾아오시는 길</h4>
+                        <p>인천 서구 청라커낼로 260번길 27 202호<br>(한신더휴 커낼웨이 상가)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    // 페이지 로드 시 개인정보 동의란의 스크롤을 약간 아래로 이동시켜 내용을 인지할 수 있도록 돕는 스크립트
+    document.addEventListener('DOMContentLoaded', function() {
+        const privacyTextarea = document.getElementById('privacy-policy-textarea');
+        if (privacyTextarea) {
+            const style = window.getComputedStyle(privacyTextarea);
+            const lineHeight = parseFloat(style.lineHeight);
+            // 두 번째 줄이 보이도록 스크롤을 이동시킵니다.
+            privacyTextarea.scrollTop = lineHeight * 2;
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annuity Calculation Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug { background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; }
+        .error { background: #f8d7da; padding: 10px; margin: 10px 0; border-left: 4px solid #dc3545; }
+        .success { background: #d1edff; padding: 10px; margin: 10px 0; border-left: 4px solid #28a745; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+        #results { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Annuity Calculation Debug Test</h1>
+    
+    <div class="debug">
+        <h3>Test Scenario:</h3>
+        <p>1. Search for customer number '120130560561'</p>
+        <p>2. Fetch detailed patent information</p>
+        <p>3. Click annuity calculation button</p>
+        <p>4. Check if results show up</p>
+    </div>
+    
+    <button onclick="runDebugTest()">🧪 Run Debug Test</button>
+    <button onclick="clearResults()">🗑️ Clear Results</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        let currentPatents = [];
+        let debugLog = [];
+        
+        function log(message) {
+            console.log(message);
+            debugLog.push(new Date().toLocaleTimeString() + ': ' + message);
+            updateDebugDisplay();
+        }
+        
+        function updateDebugDisplay() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Debug Log:</h3>' + 
+                debugLog.map(entry => `<div class="debug">${entry}</div>`).join('');
+        }
+        
+        function clearResults() {
+            debugLog = [];
+            currentPatents = [];
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function runDebugTest() {
+            clearResults();
+            log('🔍 Starting debug test...');
+            
+            try {
+                // Step 1: Search for patents
+                log('1. Searching for customer number 120130560561...');
+                const searchResponse = await fetch('/api/search-registered', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerNumber: '120130560561' })
+                });
+                
+                const searchData = await searchResponse.json();
+                log(`✅ Search successful: ${searchData.totalCount} patents found`);
+                currentPatents = searchData.patents || [];
+                
+                // Step 2: Fetch detailed information
+                log('2. Fetching detailed patent information...');
+                const applicationNumbers = currentPatents.map(p => p.applicationNumber).filter(num => num && num !== '-');
+                log(`Application numbers: ${applicationNumbers.join(', ')}`);
+                
+                const detailsResponse = await fetch('/api/get-patent-details', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ applicationNumbers })
+                });
+                
+                const detailsData = await detailsResponse.json();
+                log(`✅ Details fetched for ${Object.keys(detailsData.details || {}).length} patents`);
+                
+                // Update currentPatents with detailed information
+                currentPatents.forEach((patent, index) => {
+                    const detail = detailsData.details[patent.applicationNumber];
+                    if (detail) {
+                        if (detail.registrationDate && detail.registrationDate !== '-') {
+                            currentPatents[index].registrationDate = detail.registrationDate;
+                            log(`Updated ${patent.applicationNumber} with registration date: ${detail.registrationDate}`);
+                        }
+                    }
+                });
+                
+                // Step 3: Test annuity calculation
+                log('3. Testing annuity calculation...');
+                testAnnuityCalculation();
+                
+                // Show current patents data
+                showPatentsData();
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+            }
+        }
+        
+        function testAnnuityCalculation() {
+            log('🧮 Running annuity calculation...');
+            
+            if (currentPatents.length === 0) {
+                log('❌ No patents to calculate');
+                return;
+            }
+            
+            const today = new Date();
+            let calculatedCount = 0;
+            
+            currentPatents.forEach((patent, index) => {
+                log(`Checking patent ${index + 1}: ${patent.applicationNumber}`);
+                log(`- Registration date: ${patent.registrationDate}`);
+                
+                if (patent.registrationDate && patent.registrationDate !== '-') {
+                    const registrationDate = new Date(patent.registrationDate);
+                    const annualYear = calculateAnnualYear(patent.registrationDate, today);
+                    
+                    log(`- Calculated annual year: ${annualYear}`);
+                    
+                    if (annualYear <= 20) {
+                        const KIPO_ANNUITY_FEES = {
+                            1: 45000, 2: 45000, 3: 45000,
+                            4: 120000, 5: 120000, 6: 120000,
+                            7: 360000, 8: 360000, 9: 360000,
+                            10: 480000, 11: 480000, 12: 480000,
+                            13: 720000, 14: 720000, 15: 720000,
+                            16: 960000, 17: 960000, 18: 960000,
+                            19: 1200000, 20: 1200000
+                        };
+                        
+                        const baseFee = KIPO_ANNUITY_FEES[annualYear] || 0;
+                        log(`- Base fee: ${baseFee.toLocaleString()}원`);
+                        calculatedCount++;
+                    } else {
+                        log(`- Patent expired (year ${annualYear})`);
+                    }
+                } else {
+                    log(`- No registration date available`);
+                }
+            });
+            
+            log(`✅ Annuity calculation completed for ${calculatedCount} patents`);
+        }
+        
+        function calculateAnnualYear(registrationDate, currentDate) {
+            const regDate = new Date(registrationDate);
+            const today = new Date(currentDate);
+            const yearDiff = today.getFullYear() - regDate.getFullYear();
+            const monthDiff = today.getMonth() - regDate.getMonth();
+            const dayDiff = today.getDate() - regDate.getDate();
+            
+            let annualYear = yearDiff;
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                annualYear--;
+            }
+            
+            return Math.max(1, annualYear + 1);
+        }
+        
+        function showPatentsData() {
+            log('📊 Current patents data:');
+            const tableHtml = `
+                <h3>Patents Data:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application Number</th>
+                            <th>Invention Title</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${currentPatents.map(patent => `
+                            <tr>
+                                <td>${patent.applicationNumber}</td>
+                                <td>${patent.inventionTitle || '-'}</td>
+                                <td>${patent.registrationDate || '-'}</td>
+                                <td>${patent.registrationDate && patent.registrationDate !== '-' ? '✅ Ready for calculation' : '❌ No registration date'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('results').innerHTML += tableHtml;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1139 @@
+
+C:\ip\unic-patent-status>
+C:\ip\unic-patent-status>
+C:\ip\unic-patent-status>start-dev
+========================================
+?뱁뿀 愿由??쒖뒪??媛쒕컻 ?쒕쾭 ?쒖옉
+========================================
+
+1. error.txt ?뺤씤 以?..
+??error.txt 諛쒓껄 - ?댁쟾 ?ㅻ쪟媛 ?덉뿀?듬땲??
+
+2. ?ы듃 3001 ?ъ슜 以묒씤 ?꾨줈?몄뒪 ?뺤씤 諛?醫낅즺...
+
+3. 湲곗〈 Node.js ?꾨줈?몄뒪 ?뺣━...
+Node.js ?꾨줈?몄뒪 醫낅즺 ?꾨즺
+
+4. ?ы듃 ?댁젣 ?湲?以?.. (3珥?
+
+5. ?ы듃 3001 ?곹깭 ?뺤씤...
+???ы듃 3001???ъ슜 媛?ν빀?덈떎
+
+6. 媛쒕컻 ?쒕쾭 ?쒖옉...
+
+
+> unic-patent-status@1.0.1 start
+> node server.local.js
+
+🔧 PatentService 초기화: {
+  baseUrl: 'http://plus.kipris.or.kr/kipo-api/kipi',
+  apiKeySet: true,
+  nodeEnv: 'development',
+  sslVerification: false
+}
+
+        ╔════════════════════════════════════════╗
+        ║   유니크 특허 현황 조회 시스템          ║
+        ╠════════════════════════════════════════╣
+        ║   환경: development                  ║
+        ║   서버: http://localhost:3001          ║
+        ║   시간: 2025. 9. 19. 오후 3:19:49      ║
+        ╚════════════════════════════════════════╝
+
+GET / 200 24.150 ms - 44464
+GET /css/style.css 200 14.556 ms - 13766
+GET /js/registered.js?v=2025.09.19.v12 200 5.556 ms - 32821
+GET /js/main.js 200 11.118 ms - 3898
+GET /.well-known/appspecific/com.chrome.devtools.json 404 6.905 ms - 3382
+GET /images/favicon.svg 200 2.067 ms - 249
+GET /images/favicon.svg 304 1.432 ms - -
+GET / 200 9.255 ms - 44464
+GET /css/style.css 200 3.148 ms - 13766
+GET /js/main.js 200 4.088 ms - 3898
+GET /js/registered.js?v=2025.09.19.v12 200 9.071 ms - 32821
+GET /images/favicon.svg 200 1.807 ms - 249
+GET /images/favicon.svg 304 0.915 ms - -
+🔍 API 호출 시작: { searchType: '2', searchValue: '120230740981' }
+🌍 환경변수 확인: {
+  hasApiKey: true,
+  apiBaseUrl: 'http://plus.kipris.or.kr/kipo-api/kipi',
+  nodeEnv: 'development'
+}
+📥 받은 요청 body: {
+  "searchType": "2",
+  "searchValue": "120230740981"
+}
+📝 파싱된 데이터 - searchType: 2 타입: string
+📝 파싱된 데이터 - searchValue: 120230740981 타입: string
+🔢 검색 유형: 2 검색 값: 120230740981
+🚀 특허 서비스 호출 시작
+🌐 특허청 등록원부 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList',
+  searchValue: '120230740981',
+  searchType: '2'
+}
+(node:28368) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+📡 특허청 API 응답 상태: 200
+📊 원본 API 응답 구조: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "numOfRows": 6,
+    "pageNo": "1",
+    "rightList": [
+      {
+        "rn": 1,
+        "rgstNo": "1016842200000",
+        "rgstDate": "20161201",
+        "applNo": "1020160042595",
+        "applDate": "20160407",
+        "pubNo": null,
+        "pubDate": "20161207",
+        "claimCount": "3",
+        "title": "방화문용 틈새 막음 장치",
+        "cndrtExptnDate": "20360407",
+        "pertDiv": "권리자란",
+        "rkNo": 2,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "김성배,박정수",
+        "rightHolderInfo": "세기에프에스디(주)"
+      },
+      {
+        "rn": 2,
+        "rgstNo": "1021884060000",
+        "rgstDate": "20201202",
+        "applNo": "1020200031264",
+        "applDate": "20200313",
+        "pubNo": null,
+        "pubDate": "20201208",
+        "claimCount": "1",
+        "title": "90° 및 180° 개폐가능한 매립형 방화문",
+        "cndrtExptnDate": "20400313",
+        "pertDiv": "권리자란",
+        "rkNo": 2,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "김성배,김종원",
+        "rightHolderInfo": "세기에프에스디(주)"
+      },
+      {
+        "rn": 3,
+        "rgstNo": "1023189490000",
+        "rgstDate": "20211022",
+        "applNo": "1020210043316",
+        "applDate": "20210402",
+        "pubNo": null,
+        "pubDate": "20211027",
+        "claimCount": "4",
+        "title": "밀폐형 바람막이를 구비한 양여닫이 방화문",
+        "cndrtExptnDate": "20410402",
+        "pertDiv": "권리자란",
+        "rkNo": 2,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "김성배,김종원",
+        "rightHolderInfo": "세기에프에스디(주)"
+      },
+      {
+        "rn": 4,
+        "rgstNo": "1023290780000",
+        "rgstDate": "20211116",
+        "applNo": "1020210043322",
+        "applDate": "20210402",
+        "pubNo": null,
+        "pubDate": "20211118",
+        "claimCount": "2",
+        "title": "축 일체형 중량문 경첩",
+        "cndrtExptnDate": "20410402",
+        "pertDiv": "권리자란",
+        "rkNo": 2,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "김성배,김종원",
+        "rightHolderInfo": "세기에프에스디(주)"
+      },
+      {
+        "rn": 5,
+        "rgstNo": "1027879290000",
+        "rgstDate": "20250324",
+        "applNo": "1020240190646",
+        "applDate": "20241218",
+        "pubNo": null,
+        "pubDate": "20250331",
+        "claimCount": "5",
+        "title": "차열 보강프레임 이를 구비하는 내화 구조체",
+        "cndrtExptnDate": "20441218",
+        "pertDiv": "권리자란",
+        "rkNo": 1,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "세기에프에스디(주)",
+        "rightHolderInfo": "세기에프에스디(주)"
+      },
+      {
+        "rn": 6,
+        "rgstNo": "4021387590000",
+        "rgstDate": "20240110",
+        "applNo": "4020210243641",
+        "applDate": "20211130",
+        "pubNo": "4020230163424",
+        "pubDate": "20230915",
+        "claimCount": "4",
+        "title": "세기FSD",
+        "cndrtExptnDate": "20340110",
+        "pertDiv": "권리자란",
+        "rkNo": 1,
+        "applicantCd": "120230740981",
+        "designSeq": null,
+        "indvCorpTpcd": "국내법인",
+        "businessNo": "325-81-02304",
+        "corpRgstno": "134211-0256267",
+        "rgstStatus": "등록유지",
+        "agentInfo": null,
+        "applicantInfo": "세기에프에스디(주)",
+        "rightHolderInfo": "세기에프에스디(주)"
+      }
+    ]
+  },
+  "totalCount": 6
+}
+🔍 조회된 등록특허 수: 6
+✅ 특허 서비스 결과: { totalCount: 6, patentsLength: 6 }
+POST /api/search-registered 200 428.739 ms - 3231
+🔍 납부 이력 조회 요청: 1016842200000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '1016842200000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "rgstNo": "1016842200000",
+    "rgstDate": "20161201",
+    "opnDate": null,
+    "opnNo": null,
+    "applNo": "1020160042595",
+    "applDate": "20160407",
+    "pubNo": null,
+    "pubDate": "20161207",
+    "claimCount": "3",
+    "title": "방화문용 틈새 막음 장치",
+    "engTitle": "Auto seal for fire protection door",
+    "cndrtExptnDate": "20360407",
+    "cpcCd": "A62C 2/06(20130101), E05Y 2600/314(20130101), E05Y 2600/624(20130101), E05Y 2800/12(20130101), E05Y 2800/344(20130101), E05Y 2800/406(20130101), E05Y 2800/416(20130101), E05Y 2800/42(20130101), E05Y 2900/134(20130101), E06B 5/164(20130101)",
+    "ipcCd": "E06B 5/16(20060101), A62C 2/06(20060101)",
+    "lastDspst": "등록결정(일반)",
+    "applTpcd": "신규",
+    "rfoexDate": "20160407",
+    "rfoexYn": "Y",
+    "pay": [
+      {
+        "statAnnl": 1,
+        "lastAnnl": 3,
+        "payDate": "20161201",
+        "payAmount": 48600
+      },
+      {
+        "statAnnl": 4,
+        "lastAnnl": 4,
+        "payDate": "20190929",
+        "payAmount": 53000
+      },
+      {
+        "statAnnl": 5,
+        "lastAnnl": 5,
+        "payDate": "20201015",
+        "payAmount": 53000
+      },
+      {
+        "statAnnl": 6,
+        "lastAnnl": 6,
+        "payDate": "20211008",
+        "payAmount": 53000
+      },
+      {
+        "statAnnl": 7,
+        "lastAnnl": 7,
+        "payDate": "20230112",
+        "payAmount": 113420
+      },
+      {
+        "statAnnl": 8,
+        "lastAnnl": 8,
+        "payDate": "20231122",
+        "payAmount": 192000
+      },
+      {
+        "statAnnl": 9,
+        "lastAnnl": 9,
+        "payDate": "20250403",
+        "payAmount": 110400
+      }
+    ],
+    "cofpr": [
+      {
+        "cofprCount": null,
+        "cofprNatl": null,
+        "cofprDate": null,
+        "cofprApplno": null
+      }
+    ],
+    "applicant": [
+      {
+        "applicantName": "김성배",
+        "applicantAddr": "경기도 성남시 분당구  ...",
+        "applicantEngName": "KIM, Sungbae",
+        "applicantCd": "420160239028",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      },
+      {
+        "applicantName": "박정수",
+        "applicantAddr": "경기도 성남시 수정구  ...",
+        "applicantEngName": "PARK, Jungsu",
+        "applicantCd": "420160239041",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      }
+    ],
+    "inventor": [
+      {
+        "inventorName": "김성배",
+        "inventorAddr": "경기도 성남시 분당구  ...",
+        "inventorSeq": 1,
+        "inventorCd": "420160239028",
+        "inventorNatl": "대한민국"
+      },
+      {
+        "inventorName": "박정수",
+        "inventorAddr": "경기도 성남시 수정구  ...",
+        "inventorSeq": 2,
+        "inventorCd": "420160239041",
+        "inventorNatl": "대한민국"
+      }
+    ],
+    "owner": [
+      {
+        "ownerName": "김성배",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20161201",
+        "ownerAddr": "경기도 성남시 분당구  ...",
+        "ownerEngName": "KIM, Sungbae",
+        "ownerNatl": "대한민국",
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "박정수",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20161201",
+        "ownerAddr": "경기도 성남시 수정구  ...",
+        "ownerEngName": "PARK, Jungsu",
+        "ownerNatl": "대한민국",
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "세기에프에스디(주)",
+        "ownerRgstCsName": "양도",
+        "ownerRgstCsReason": "권리의 전부이전등록",
+        "ownerRgstCsDate": "20231111",
+        "ownerAddr": "경기도 광주시 ...",
+        "ownerEngName": "SEGI FSD CO.,LTD",
+        "ownerNatl": null,
+        "finalOwnerYn": "Y"
+      }
+    ],
+    "right": [
+      {
+        "rgstCsName": "설정등록",
+        "rgstCsDate": "20161201",
+        "rgstCsReason": null,
+        "rgstCsPupos": null
+      }
+    ],
+    "applAgent": [
+      {
+        "applAgentName": "이준혁",
+        "applAgentRpstrYn": "N",
+        "applAgentAddr": "인천광역시 서구 ...",
+        "applAgentNatl": "대한민국"
+      }
+    ],
+    "rgstAgent": [
+      {
+        "rgstAgentName": null,
+        "rgstAgentRpstrYn": null,
+        "rgstAgentNatl": null,
+        "rgstAgentAddr": null
+      }
+    ],
+    "elsLcnsList": [
+      {
+        "elsLcnsRkNo": null,
+        "elsLcnsPsnNm": null,
+        "elsLcnsPsnResid": null,
+        "elsLcnsRgstCsNm": null,
+        "elsLcnsRgnLcns": null,
+        "elsLcnsContLcns": null,
+        "elsLcnsStartDate": null,
+        "elsLcnsEndDate": null
+      }
+    ],
+    "noelsLcnsList": [
+      {
+        "noelsLcnsRkNo": null,
+        "noelsLcnsPsnNm": null,
+        "noelsLcnsPsnResid": null,
+        "noelsLcnsRgstCsNm": null,
+        "noelsLcnsRgnLcns": null,
+        "noelsLcnsContLcns": null,
+        "noelsLcnsStartDate": null,
+        "noelsLcnsEndDate": null
+      }
+    ]
+  },
+  "totalCount": 1
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '000',
+  resultMsg: 'REQUEST_SUCCESS',
+  hasItems: true,
+  hasPay: true,
+  payType: 'array',
+  payLength: 7
+}
+POST /api/get-payment-history 200 114.997 ms - 88
+🔍 납부 이력 조회 요청: 1021884060000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '1021884060000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "rgstNo": "1021884060000",
+    "rgstDate": "20201202",
+    "opnDate": null,
+    "opnNo": null,
+    "applNo": "1020200031264",
+    "applDate": "20200313",
+    "pubNo": null,
+    "pubDate": "20201208",
+    "claimCount": "1",
+    "title": "90° 및 180° 개폐가능한 매립형 방화문",
+    "engTitle": "Buried swing type fire door capable of Opening and  Shutting with 90°and 180°",
+    "cndrtExptnDate": "20400313",
+    "cpcCd": "E05D 7/081(20130101), E05Y 2900/134(20130101), E06B 5/164(20130101), E06B 5/168(20130101), E06B 7/16(20130101)",
+    "ipcCd": "E06B 5/16(20060101), E06B 7/16(20060101), E05D 7/081(20060101)",
+    "lastDspst": "등록결정(일반)",
+    "applTpcd": "신규",
+    "rfoexDate": "20200313",
+    "rfoexYn": "Y",
+    "pay": [
+      {
+        "statAnnl": 1,
+        "lastAnnl": 3,
+        "payDate": "20201202",
+        "payAmount": 25200
+      },
+      {
+        "statAnnl": 4,
+        "lastAnnl": 4,
+        "payDate": "20231128",
+        "payAmount": 56000
+      },
+      {
+        "statAnnl": 5,
+        "lastAnnl": 5,
+        "payDate": "20250403",
+        "payAmount": 32200
+      }
+    ],
+    "cofpr": [
+      {
+        "cofprCount": null,
+        "cofprNatl": null,
+        "cofprDate": null,
+        "cofprApplno": null
+      }
+    ],
+    "applicant": [
+      {
+        "applicantName": "김성배",
+        "applicantAddr": "경기도 성남시 분당구  ...",
+        "applicantEngName": "KIM, Sungbae",
+        "applicantCd": "420160239028",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      },
+      {
+        "applicantName": "김종원",
+        "applicantAddr": "경기도 성남시 분당구 ...",
+        "applicantEngName": "KIM, Jong Won",
+        "applicantCd": "420180339282",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      }
+    ],
+    "inventor": [
+      {
+        "inventorName": "김성배",
+        "inventorAddr": "경기도 성남시 분당구  ...",
+        "inventorSeq": 1,
+        "inventorCd": "420160239028",
+        "inventorNatl": "대한민국"
+      },
+      {
+        "inventorName": "김종원",
+        "inventorAddr": "경기도 성남시 분당구 ...",
+        "inventorSeq": 2,
+        "inventorCd": "420180339282",
+        "inventorNatl": "대한민국"
+      }
+    ],
+    "owner": [
+      {
+        "ownerName": "김성배",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20201202",
+        "ownerAddr": "경기도 성남시 분당구  ...",
+        "ownerEngName": "KIM, Sungbae",
+        "ownerNatl": "대한민국",
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "김종원",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20201202",
+        "ownerAddr": "경기도 성남시 수정구 ...",
+        "ownerEngName": "KIM, Jong Won",
+        "ownerNatl": "대한민국",
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "세기에프에스디(주)",
+        "ownerRgstCsName": "양도",
+        "ownerRgstCsReason": "권리의 전부이전등록",
+        "ownerRgstCsDate": "20231111",
+        "ownerAddr": "경기도 광주시 ...",
+        "ownerEngName": "SEGI FSD CO.,LTD",
+        "ownerNatl": null,
+        "finalOwnerYn": "Y"
+      }
+    ],
+    "right": [
+      {
+        "rgstCsName": "설정등록",
+        "rgstCsDate": "20201202",
+        "rgstCsReason": null,
+        "rgstCsPupos": null
+      }
+    ],
+    "applAgent": [
+      {
+        "applAgentName": "이준혁",
+        "applAgentRpstrYn": "Y",
+        "applAgentAddr": "인천광역시 서구 ...",
+        "applAgentNatl": "대한민국"
+      }
+    ],
+    "rgstAgent": [
+      {
+        "rgstAgentName": null,
+        "rgstAgentRpstrYn": null,
+        "rgstAgentNatl": null,
+        "rgstAgentAddr": null
+      }
+    ],
+    "elsLcnsList": [
+      {
+        "elsLcnsRkNo": null,
+        "elsLcnsPsnNm": null,
+        "elsLcnsPsnResid": null,
+        "elsLcnsRgstCsNm": null,
+        "elsLcnsRgnLcns": null,
+        "elsLcnsContLcns": null,
+        "elsLcnsStartDate": null,
+        "elsLcnsEndDate": null
+      }
+    ],
+    "noelsLcnsList": [
+      {
+        "noelsLcnsRkNo": null,
+        "noelsLcnsPsnNm": null,
+        "noelsLcnsPsnResid": null,
+        "noelsLcnsRgstCsNm": null,
+        "noelsLcnsRgnLcns": null,
+        "noelsLcnsContLcns": null,
+        "noelsLcnsStartDate": null,
+        "noelsLcnsEndDate": null
+      }
+    ]
+  },
+  "totalCount": 1
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '000',
+  resultMsg: 'REQUEST_SUCCESS',
+  hasItems: true,
+  hasPay: true,
+  payType: 'array',
+  payLength: 3
+}
+POST /api/get-payment-history 200 113.369 ms - 87
+🔍 납부 이력 조회 요청: 1023189490000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '1023189490000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "rgstNo": "1023189490000",
+    "rgstDate": "20211022",
+    "opnDate": null,
+    "opnNo": null,
+    "applNo": "1020210043316",
+    "applDate": "20210402",
+    "pubNo": null,
+    "pubDate": "20211027",
+    "claimCount": "4",
+    "title": "밀폐형 바람막이를 구비한 양여닫이 방화문",
+    "engTitle": "Double swing type fire door having close type  windbreaker",
+    "cndrtExptnDate": "20410402",
+    "cpcCd": "E05Y 2800/42(20130101), E05Y 2900/134(20130101), E06B 5/164(20130101), E06B 5/167(20130101), E06B 5/168(20130101), E06B 7/16(20130101)",
+    "ipcCd": "E06B 5/16(20060101), E06B 7/16(20060101)",
+    "lastDspst": "등록결정(일반)",
+    "applTpcd": "신규",
+    "rfoexDate": "20210402",
+    "rfoexYn": "Y",
+    "pay": [
+      {
+        "statAnnl": 1,
+        "lastAnnl": 3,
+        "payDate": "20211022",
+        "payAmount": 60300
+      },
+      {
+        "statAnnl": 4,
+        "lastAnnl": 4,
+        "payDate": "20240813",
+        "payAmount": 116000
+      }
+    ],
+    "cofpr": [
+      {
+        "cofprCount": null,
+        "cofprNatl": null,
+        "cofprDate": null,
+        "cofprApplno": null
+      }
+    ],
+    "applicant": [
+      {
+        "applicantName": "김성배",
+        "applicantAddr": "경기도 성남시 분당구  ...",
+        "applicantEngName": "KIM, Sungbae",
+        "applicantCd": "420160239028",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      },
+      {
+        "applicantName": "김종원",
+        "applicantAddr": "경기도 성남시 분당구 ...",
+        "applicantEngName": "KIM, Jong Won",
+        "applicantCd": "420180339282",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      }
+    ],
+    "inventor": [
+      {
+        "inventorName": "김성배",
+        "inventorAddr": "경기도 성남시 분당구  ...",
+        "inventorSeq": 1,
+        "inventorCd": "420160239028",
+        "inventorNatl": "대한민국"
+      },
+      {
+        "inventorName": "김종원",
+        "inventorAddr": "경기도 성남시 수정구 ...",
+        "inventorSeq": 2,
+        "inventorCd": "420180339282",
+        "inventorNatl": "대한민국"
+      }
+    ],
+    "owner": [
+      {
+        "ownerName": "김성배",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20211022",
+        "ownerAddr": "경기도 성남시 분당구  ...",
+        "ownerEngName": null,
+        "ownerNatl": null,
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "김종원",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20211022",
+        "ownerAddr": "경기도 성남시 수정구 ...",
+        "ownerEngName": null,
+        "ownerNatl": null,
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "세기에프에스디(주)",
+        "ownerRgstCsName": "양도",
+        "ownerRgstCsReason": "권리의 전부이전등록",
+        "ownerRgstCsDate": "20231111",
+        "ownerAddr": "경기도 광주시 ...",
+        "ownerEngName": "SEGI FSD CO.,LTD",
+        "ownerNatl": null,
+        "finalOwnerYn": "Y"
+      }
+    ],
+    "right": [
+      {
+        "rgstCsName": "설정등록",
+        "rgstCsDate": "20211022",
+        "rgstCsReason": null,
+        "rgstCsPupos": null
+      }
+    ],
+    "applAgent": [
+      {
+        "applAgentName": "이준혁",
+        "applAgentRpstrYn": "Y",
+        "applAgentAddr": "인천광역시 서구 ...",
+        "applAgentNatl": "대한민국"
+      }
+    ],
+    "rgstAgent": [
+      {
+        "rgstAgentName": null,
+        "rgstAgentRpstrYn": null,
+        "rgstAgentNatl": null,
+        "rgstAgentAddr": null
+      }
+    ],
+    "elsLcnsList": [
+      {
+        "elsLcnsRkNo": null,
+        "elsLcnsPsnNm": null,
+        "elsLcnsPsnResid": null,
+        "elsLcnsRgstCsNm": null,
+        "elsLcnsRgnLcns": null,
+        "elsLcnsContLcns": null,
+        "elsLcnsStartDate": null,
+        "elsLcnsEndDate": null
+      }
+    ],
+    "noelsLcnsList": [
+      {
+        "noelsLcnsRkNo": null,
+        "noelsLcnsPsnNm": null,
+        "noelsLcnsPsnResid": null,
+        "noelsLcnsRgstCsNm": null,
+        "noelsLcnsRgnLcns": null,
+        "noelsLcnsContLcns": null,
+        "noelsLcnsStartDate": null,
+        "noelsLcnsEndDate": null
+      }
+    ]
+  },
+  "totalCount": 1
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '000',
+  resultMsg: 'REQUEST_SUCCESS',
+  hasItems: true,
+  hasPay: true,
+  payType: 'array',
+  payLength: 2
+}
+POST /api/get-payment-history 200 108.236 ms - 88
+🔍 납부 이력 조회 요청: 1023290780000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '1023290780000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "rgstNo": "1023290780000",
+    "rgstDate": "20211116",
+    "opnDate": null,
+    "opnNo": null,
+    "applNo": "1020210043322",
+    "applDate": "20210402",
+    "pubNo": null,
+    "pubDate": "20211118",
+    "claimCount": "2",
+    "title": "축 일체형 중량문 경첩",
+    "engTitle": "Hinge with integral Axis for Heavy Door",
+    "cndrtExptnDate": "20410402",
+    "cpcCd": "E05D 2005/122(20130101), E05D 3/02(20130101), E05D 5/14(20130101), E05Y 2800/406(20130101)",
+    "ipcCd": "E05D 3/02(20060101), E05D 5/14(20060101), E05D 5/12(20060101)",
+    "lastDspst": "등록결정(일반)",
+    "applTpcd": "신규",
+    "rfoexDate": "20210402",
+    "rfoexYn": "Y",
+    "pay": [
+      {
+        "statAnnl": 1,
+        "lastAnnl": 3,
+        "payDate": "20211116",
+        "payAmount": 36900
+      },
+      {
+        "statAnnl": 4,
+        "lastAnnl": 4,
+        "payDate": "20240911",
+        "payAmount": 76000
+      }
+    ],
+    "cofpr": [
+      {
+        "cofprCount": null,
+        "cofprNatl": null,
+        "cofprDate": null,
+        "cofprApplno": null
+      }
+    ],
+    "applicant": [
+      {
+        "applicantName": "김성배",
+        "applicantAddr": "경기도 성남시 분당구  ...",
+        "applicantEngName": "KIM, Sungbae",
+        "applicantCd": "420160239028",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      },
+      {
+        "applicantName": "김종원",
+        "applicantAddr": "경기도 성남시 분당구 ...",
+        "applicantEngName": "KIM, Jong Won",
+        "applicantCd": "420180339282",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      }
+    ],
+    "inventor": [
+      {
+        "inventorName": "김성배",
+        "inventorAddr": "경기도 성남시 분당구  ...",
+        "inventorSeq": 1,
+        "inventorCd": "420160239028",
+        "inventorNatl": "대한민국"
+      },
+      {
+        "inventorName": "김종원",
+        "inventorAddr": "경기도 성남시 수정구 ...",
+        "inventorSeq": 2,
+        "inventorCd": "420180339282",
+        "inventorNatl": "대한민국"
+      }
+    ],
+    "owner": [
+      {
+        "ownerName": "김성배",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20211116",
+        "ownerAddr": "경기도 성남시 분당구  ...",
+        "ownerEngName": null,
+        "ownerNatl": null,
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "김종원",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20211116",
+        "ownerAddr": "경기도 성남시 수정구 ...",
+        "ownerEngName": null,
+        "ownerNatl": null,
+        "finalOwnerYn": "N"
+      },
+      {
+        "ownerName": "세기에프에스디(주)",
+        "ownerRgstCsName": "양도",
+        "ownerRgstCsReason": "권리의 전부이전등록",
+        "ownerRgstCsDate": "20231111",
+        "ownerAddr": "경기도 광주시 ...",
+        "ownerEngName": "SEGI FSD CO.,LTD",
+        "ownerNatl": null,
+        "finalOwnerYn": "Y"
+      }
+    ],
+    "right": [
+      {
+        "rgstCsName": "설정등록",
+        "rgstCsDate": "20211116",
+        "rgstCsReason": null,
+        "rgstCsPupos": null
+      }
+    ],
+    "applAgent": [
+      {
+        "applAgentName": "이준혁",
+        "applAgentRpstrYn": "Y",
+        "applAgentAddr": "인천광역시 서구 ...",
+        "applAgentNatl": "대한민국"
+      }
+    ],
+    "rgstAgent": [
+      {
+        "rgstAgentName": null,
+        "rgstAgentRpstrYn": null,
+        "rgstAgentNatl": null,
+        "rgstAgentAddr": null
+      }
+    ],
+    "elsLcnsList": [
+      {
+        "elsLcnsRkNo": null,
+        "elsLcnsPsnNm": null,
+        "elsLcnsPsnResid": null,
+        "elsLcnsRgstCsNm": null,
+        "elsLcnsRgnLcns": null,
+        "elsLcnsContLcns": null,
+        "elsLcnsStartDate": null,
+        "elsLcnsEndDate": null
+      }
+    ],
+    "noelsLcnsList": [
+      {
+        "noelsLcnsRkNo": null,
+        "noelsLcnsPsnNm": null,
+        "noelsLcnsPsnResid": null,
+        "noelsLcnsRgstCsNm": null,
+        "noelsLcnsRgnLcns": null,
+        "noelsLcnsContLcns": null,
+        "noelsLcnsStartDate": null,
+        "noelsLcnsEndDate": null
+      }
+    ]
+  },
+  "totalCount": 1
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '000',
+  resultMsg: 'REQUEST_SUCCESS',
+  hasItems: true,
+  hasPay: true,
+  payType: 'array',
+  payLength: 2
+}
+POST /api/get-payment-history 200 84.680 ms - 87
+🔍 납부 이력 조회 요청: 1027879290000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '1027879290000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "000",
+  "resultMsg": "REQUEST_SUCCESS",
+  "items": {
+    "rgstNo": "1027879290000",
+    "rgstDate": "20250324",
+    "opnDate": null,
+    "opnNo": null,
+    "applNo": "1020240190646",
+    "applDate": "20241218",
+    "pubNo": null,
+    "pubDate": "20250331",
+    "claimCount": "5",
+    "title": "차열 보강프레임 이를 구비하는 내화 구조체",
+    "engTitle": "Fireproof reinforce frame and Fireproof structure with  fireproof reinforce frame",
+    "cndrtExptnDate": "20441218",
+    "cpcCd": "E04B 1/80(20130101), E04B 1/8404(20130101), E04B 1/942(20130101), E06B 2003/7076(20130101), E06B 2003/7078(20130101), E06B 2003/708(20130101), E06B 3/70(20130101), E06B 5/167(20130101), E06B 5/168(20130101)",
+    "ipcCd": "E06B 3/70(20060101), E06B 5/16(20060101), E04B 1/94(20060101)",
+    "lastDspst": "등록결정(일반)",
+    "applTpcd": "신규",
+    "rfoexDate": "20241218",
+    "rfoexYn": "Y",
+    "pay": [
+      {
+        "statAnnl": 1,
+        "lastAnnl": 3,
+        "payDate": "20250325",
+        "payAmount": 65700
+      }
+    ],
+    "cofpr": [
+      {
+        "cofprCount": null,
+        "cofprNatl": null,
+        "cofprDate": null,
+        "cofprApplno": null
+      }
+    ],
+    "applicant": [
+      {
+        "applicantName": "세기에프에스디(주)",
+        "applicantAddr": "경기도 광주시 ...",
+        "applicantEngName": "SEGI FSD CO.,LTD",
+        "applicantCd": "120230740981",
+        "applicantNatl": "대한민국",
+        "rpstrYn": "N"
+      }
+    ],
+    "inventor": [
+      {
+        "inventorName": "김성배",
+        "inventorAddr": "경기도 성남시 분당구  ...",
+        "inventorSeq": 1,
+        "inventorCd": "420160239028",
+        "inventorNatl": "대한민국"
+      },
+      {
+        "inventorName": "김종원",
+        "inventorAddr": "경기도 성남시 분당구 ...",
+        "inventorSeq": 2,
+        "inventorCd": "420180339282",
+        "inventorNatl": "대한민국"
+      }
+    ],
+    "owner": [
+      {
+        "ownerName": "세기에프에스디(주)",
+        "ownerRgstCsName": null,
+        "ownerRgstCsReason": null,
+        "ownerRgstCsDate": "20250324",
+        "ownerAddr": "경기도 광주시 ...",
+        "ownerEngName": "SEGI FSD CO.,LTD",
+        "ownerNatl": null,
+        "finalOwnerYn": "Y"
+      }
+    ],
+    "right": [
+      {
+        "rgstCsName": "설정등록",
+        "rgstCsDate": "20250324",
+        "rgstCsReason": null,
+        "rgstCsPupos": null
+      }
+    ],
+    "applAgent": [
+      {
+        "applAgentName": "이준혁",
+        "applAgentRpstrYn": "Y",
+        "applAgentAddr": "인천광역시 서구 ...",
+        "applAgentNatl": "대한민국"
+      }
+    ],
+    "rgstAgent": [
+      {
+        "rgstAgentName": null,
+        "rgstAgentRpstrYn": null,
+        "rgstAgentNatl": null,
+        "rgstAgentAddr": null
+      }
+    ],
+    "elsLcnsList": [
+      {
+        "elsLcnsRkNo": null,
+        "elsLcnsPsnNm": null,
+        "elsLcnsPsnResid": null,
+        "elsLcnsRgstCsNm": null,
+        "elsLcnsRgnLcns": null,
+        "elsLcnsContLcns": null,
+        "elsLcnsStartDate": null,
+        "elsLcnsEndDate": null
+      }
+    ],
+    "noelsLcnsList": [
+      {
+        "noelsLcnsRkNo": null,
+        "noelsLcnsPsnNm": null,
+        "noelsLcnsPsnResid": null,
+        "noelsLcnsRgstCsNm": null,
+        "noelsLcnsRgnLcns": null,
+        "noelsLcnsContLcns": null,
+        "noelsLcnsStartDate": null,
+        "noelsLcnsEndDate": null
+      }
+    ]
+  },
+  "totalCount": 1
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '000',
+  resultMsg: 'REQUEST_SUCCESS',
+  hasItems: true,
+  hasPay: true,
+  payType: 'array',
+  payLength: 1
+}
+POST /api/get-payment-history 200 86.663 ms - 87
+🔍 납부 이력 조회 요청: 4021387590000
+🌐 특허청 등록원부 이력 API 호출: {
+  url: 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory',
+  registrationNumber: '4021387590000'
+}
+📡 특허청 이력 API 응답 상태: 200
+📊 JSON 응답 결과: {
+  "resultCode": "002",
+  "resultMsg": "INVALID_REQUEST_PARAMETER_ERROR",
+  "totalCount": 0
+}
+🔍 API 응답 구조 분석: {
+  hasData: true,
+  resultCode: '002',
+  resultMsg: 'INVALID_REQUEST_PARAMETER_ERROR',
+  hasItems: false,
+  hasPay: false,
+  payType: 'undefined',
+  payLength: 'not array'
+}
+POST /api/get-payment-history 200 57.792 ms - 80
+GET /css/style.css 304 2.605 ms - -
+GET /.well-known/appspecific/com.chrome.devtools.json 404 6.337 ms - 3382

@@ -1,0 +1,399 @@
+<%- include('partials/header', {title: '등록특허 조회'}) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-title">
+            <h1>등록특허 조회</h1>
+            <p>고객번호로 KIPRIS에서 직접 검색하여 등록특허를 조회합니다</p>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <section class="search-section">
+            <form class="search-form" id="searchForm">
+                <!-- 고객번호 입력 필드 -->
+                <div class="form-group">
+                    <label for="customerNumber" class="form-label">고객번호</label>
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="customerNumber" 
+                            name="customerNumber" 
+                            class="form-input customer-number-input"
+                            placeholder="예: 120190612244"
+                            maxlength="12"
+                            pattern="[0-9]{12}"
+                        >
+                        <button type="submit" class="btn btn-primary" id="searchBtn">
+                            🔍 KIPRIS 검색
+                        </button>
+                    </div>
+                    <div class="form-hint">12자리 숫자를 입력하세요 (KIPRIS에서 직접 크롤링합니다)</div>
+                </div>
+
+                <button type="button" class="btn btn-secondary find-customer-btn" id="findCustomerBtn">
+                    고객번호 찾기
+                </button>
+            </form>
+        </section>
+
+        <!-- 검색 상태 표시 -->
+        <section class="search-status" id="searchStatus" style="display: none;">
+            <div class="status-content">
+                <div class="loading-spinner"></div>
+                <div class="status-message" id="statusMessage">KIPRIS 사이트에 접속 중...</div>
+                <div class="status-details" id="statusDetails"></div>
+            </div>
+        </section>
+
+        <!-- 결과 섹션 -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div class="results-info">
+                    <div class="info-item">
+                        <span class="info-label">조회일자:</span>
+                        <span class="info-value" id="resultCurrentDate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">고객번호:</span>
+                        <span class="info-value" id="resultCustomerNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">검색방법:</span>
+                        <span class="info-value">KIPRIS 크롤링</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">발견된 출원번호:</span>
+                        <span class="info-value" id="resultTotalCount">0</span>건
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-info" id="calculateAnnuityBtn">
+                        🧮 연차료 계산
+                    </button>
+                    <button type="button" class="btn btn-success" id="viewAnnuityBtn">
+                        📋 연차료 조회
+                    </button>
+                    <button type="button" class="btn btn-primary" id="renewalRequestBtn">
+                        💰 연차료 납부의뢰
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        📊 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="patent-table" id="patentTable">
+                    <thead>
+                        <tr>
+                            <th>출원번호</th>
+                            <th>등록번호</th>
+                            <th>출원인</th>
+                            <th>출원일</th>
+                            <th>등록일</th>
+                            <th>존속기간 만료일</th>
+                            <th>발명의명칭</th>
+                            <th>청구항수</th>
+                            <th>직전년도 납부연월</th>
+                            <th>해당 연차료 납부마감일</th>
+                            <th>해당연차수</th>
+                            <th>해당연차료</th>
+                            <th>유효/불납</th>
+                            <th>정상납부/미납</th>
+                            <th>추납기간</th>
+                            <th>회복기간</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patentTableBody">
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📄</div>
+                <div class="empty-title">등록특허가 없습니다</div>
+                <div class="empty-description">해당 고객번호로 등록된 특허를 찾을 수 없습니다.</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+// 캐시 무효화를 위한 버전 체크
+console.log('🔄 등록특허 조회 스크립트 로드됨 - 버전: 2025.09.06.v1');
+</script>
+
+<!-- 등록특허 조회 기능 (크롤링 기반) -->
+<script src="/js/patent-search.js?v=2025.09.06.v1"></script>
+
+<script>
+// 연차료 계산 관련 상수들과 함수들 (registered.ejs와 동일)
+// 연차료 계산 정책 (annuity.txt에서 가져온 정책)
+const ANNUITY_POLICY = {
+    "name": "KIPO-default",
+    "currency": "KRW",
+    "grace_months": 6,
+    "recovery_months": 3,
+    "late_fee_table": {
+        "1": 0.03,
+        "2": 0.06,
+        "3": 0.09,
+        "4": 0.12,
+        "5": 0.15,
+        "6": 0.18
+    },
+    "recovery_policy": { "type": "multiplier", "value": 2.0 },
+    "rounding": "nearest_10",
+    "reminder_rules": [
+        { "months_before_due": 6, "label": "사전예고-6개월" },
+        { "months_before_due": 3, "label": "사전예고-3개월" },
+        { "months_before_due": 1, "label": "사전예고-1개월" }
+    ]
+};
+
+// 새로운 연차료 기본료 테이블 (최신 기준)
+const NEW_BASE_FEES = {
+    1: 13000,   2: 13000,   3: 13000,        // 1~3년차: 13,000원
+    4: 36000,   5: 36000,   6: 36000,        // 4~6년차: 36,000원
+    7: 90000,   8: 90000,   9: 90000,        // 7~9년차: 90,000원
+    10: 216000, 11: 216000, 12: 216000,      // 10~12년차: 216,000원
+    13: 324000, 14: 324000, 15: 324000,      // 13~25년차: 324,000원
+    16: 324000, 17: 324000, 18: 324000,
+    19: 324000, 20: 324000, 21: 324000, 22: 324000, 23: 324000, 24: 324000, 25: 324000
+};
+
+// 새로운 청구항 가산료 테이블 (청구범위 1항마다)
+const NEW_CLAIM_FEES = {
+    1: 12000,   2: 12000,   3: 12000,        // 1~3년차: 12,000원
+    4: 20000,   5: 20000,   6: 20000,        // 4~6년차: 20,000원
+    7: 34000,   8: 34000,   9: 34000,        // 7~9년차: 34,000원
+    10: 49000,  11: 49000,  12: 49000,       // 10~12년차: 49,000원
+    13: 49000,  14: 49000,  15: 49000,       // 13~25년차: 49,000원
+    16: 49000,  17: 49000,  18: 49000,
+    19: 49000,  20: 49000,  21: 49000, 22: 49000, 23: 49000, 24: 49000, 25: 49000
+};
+
+// 연차료 계산 헬퍼 함수들 (registered.ejs와 동일)
+function endOfMonthSafeAddMonths(d, months) {
+    const y = d.getUTCFullYear();
+    const m = d.getUTCMonth();
+    const targetY = y + Math.floor((m + months) / 12);
+    const targetM = (m + months) % 12;
+    const nextMonth = new Date(Date.UTC(
+        targetM === 11 ? targetY + 1 : targetY,
+        targetM === 11 ? 0 : targetM + 1,
+        1
+    ));
+    const lastDay = new Date(nextMonth.getTime() - 24 * 60 * 60 * 1000).getUTCDate();
+    const day = Math.min(d.getUTCDate(), lastDay);
+    return new Date(Date.UTC(targetY, targetM, day));
+}
+
+function computeStatus(dueDate, today, policy) {
+    const graceEnd = endOfMonthSafeAddMonths(dueDate, policy.grace_months);
+    const recoveryEnd = endOfMonthSafeAddMonths(graceEnd, policy.recovery_months);
+    if (today <= dueDate) return "유효";
+    if (dueDate < today && today <= graceEnd) return "추납기간";
+    if (graceEnd < today && today <= recoveryEnd) return "회복기간";
+    return "불납";
+}
+
+function wholeMonthsOverdue(due, today) {
+    if (today <= due) return 0;
+    let delta = (today.getUTCFullYear() - due.getUTCFullYear()) * 12
+              + (today.getUTCMonth() - due.getUTCMonth());
+    if (today.getUTCDate() <= due.getUTCDate()) delta -= 1;
+    return Math.max(1, delta);
+}
+
+function applyRounding(amount, policy) {
+    const mode = policy.rounding || "none";
+    if (mode === "nearest_10") return Math.round(amount / 10) * 10;
+    if (mode === "down_1") return Math.floor(amount);
+    return Math.round(amount);
+}
+
+function computeLateFee(baseFee, monthsOverdue, policy) {
+    const table = policy.late_fee_table || {};
+    const key = String(Math.max(1, Math.min(monthsOverdue, 6)));
+    const rate = table[key];
+    if (!rate) return 0;
+    return applyRounding(baseFee * rate, policy);
+}
+
+function computeRecoverySurcharge(baseFee, policy) {
+    const rp = policy.recovery_policy || { type: "none" };
+    if (rp.type === "multiplier") {
+        const mult = rp.value || 1.0;
+        const extra = baseFee * (mult - 1.0);
+        return applyRounding(extra, policy);
+    }
+    return 0;
+}
+
+// 연차수 계산 (등록일부터 계산)
+function calculateAnnualYear(registrationDate, currentDate) {
+    const regDate = new Date(registrationDate);
+    const today = new Date(currentDate);
+    const yearDiff = today.getFullYear() - regDate.getFullYear();
+    const monthDiff = today.getMonth() - regDate.getMonth();
+    const dayDiff = today.getDate() - regDate.getDate();
+    
+    let annualYear = yearDiff;
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        annualYear--;
+    }
+    
+    return Math.max(1, annualYear + 1); // 등록 다음 년도부터 1년차
+}
+
+// 연차료 납부마감일 계산 (등록일 기준으로 매년)
+function calculateDueDate(registrationDate, annualYear) {
+    const regDate = new Date(registrationDate);
+    const dueDate = new Date(regDate);
+    dueDate.setFullYear(regDate.getFullYear() + annualYear);
+    return dueDate;
+}
+
+// 유틸리티 함수들 (main.js의 함수들을 로컬에서 사용)
+function showError(message) {
+    alert(message); // 간단한 alert로 대체
+}
+
+function hideError() {
+    // 로컬 구현 - 필요시 확장
+}
+
+function formatDate(dateStr) {
+    if (!dateStr || dateStr === '-') return '-';
+    return dateStr;
+}
+
+// 새로운 연차료 계산에 따른 감면 유형 정의
+const NEW_DISCOUNT_TYPES = {
+    'type1': { 
+        name: '개인/중소기업/공공연구기관/전담조직/지방자치단체', 
+        rate: 0.5,  // 50% 감면 (4년차부터 존속기간까지)
+        description: '개인, 중소기업, 공공연구기관, 전담조직, 지방자치단체 등이 해당됩니다.',
+        applicableFromYear: 4
+    },
+    'type1_1': { 
+        name: '중소기업 + 직무발명보상우수기업/지식재산경영인증기업', 
+        rate: 0.7,  // 4~9년차 70% 감면, 10년차부터 50% 감면
+        rate10Plus: 0.5,  // 10년차부터는 50% 감면
+        description: '중소기업이면서 직무발명보상우수기업 또는 지식재산경영인증기업입니다.',
+        applicableFromYear: 4
+    },
+    'type2': { 
+        name: '중견기업', 
+        rate: 0.3,  // 30% 감면 (4~9년차)
+        description: '중견기업입니다.',
+        applicableFromYear: 4,
+        applicableToYear: 9
+    },
+    'type2_1': { 
+        name: '중견기업 + 직무발명보상우수기업/지식재산경영인증기업', 
+        rate: 0.5,  // 50% 감면 (4~9년차)
+        description: '중견기업이면서 직무발명보상우수기업 또는 지식재산경영인증기업입니다.',
+        applicableFromYear: 4,
+        applicableToYear: 9
+    },
+    'none': {
+        name: '해당사항 없음',
+        rate: 0,
+        description: '감면 대상이 아닙니다.',
+        applicableFromYear: 1
+    }
+};
+
+// 고객번호 찾기 버튼 기능
+document.addEventListener('DOMContentLoaded', function() {
+    const findCustomerBtn = document.getElementById('findCustomerBtn');
+    
+    if (findCustomerBtn) {
+        findCustomerBtn.addEventListener('click', function() {
+            openCustomerSearchPopup();
+        });
+    }
+});
+
+function openCustomerSearchPopup() {
+    const url = 'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do';
+    const popupOptions = 'width=1000,height=800,scrollbars=yes,resizable=yes,status=yes,menubar=no,toolbar=no,location=no';
+    
+    // 팝업창 열기
+    const popup = window.open(url, 'customerSearch', popupOptions);
+    
+    // 팝업창이 블록되었는지 확인
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        alert('팝업 창이 차단되었습니다.\n브라우저의 팝업 차단 설정을 확인해주세요.\n\n또는 다음 링크를 직접 열어주세요:\n' + url);
+        return;
+    }
+    
+    // 팝업창 중앙 정렬
+    if (popup.moveTo) {
+        const left = (screen.width - 1000) / 2;
+        const top = (screen.height - 800) / 2;
+        popup.moveTo(left, top);
+    }
+    
+    // 팝업창 포커스
+    popup.focus();
+}
+</script>
+
+<style>
+/* 크롤링 상태 표시 스타일 */
+.search-status {
+    background: #f0f9ff;
+    border: 1px solid #7dd3fc;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.status-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.status-message {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1e40af;
+}
+
+.status-details {
+    font-size: 0.9rem;
+    color: #6b7280;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.form-hint {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+</style>

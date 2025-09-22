@@ -1,0 +1,122 @@
+
+출원번호로 데이타 가져오기
+== http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?applicationNumber=1020220063778&ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+
+<<부가기능>>
+- 입력값은 출원번호임
+http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getPubFullTextInfoSearch?applicationNumber=1020220063778&ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+
+- 출력값은
+<response>
+<header>
+<requestMsgID></requestMsgID>
+<responseTime>2014-10-31 10:26:17.2617</responseTime>
+<responseMsgID></responseMsgID>
+<successYN></successYN>
+<resultCode>00</resultCode>
+<resultMsg>NORMAL SERVICE.</resultMsg></header>
+<body>
+<item><docName>1020050050026.pdf</docName>
+<path>http://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=0c4e41d5528d0a90371d0d121c0204619fbaf231899a9c4b5307aeef26d212f291425d8f8b41b728b78774e64cba5a349af5204ac29a3f1f</path></item>
+</body>
+</response>
+
+
+서지상세정보
+https://plus.kipris.or.kr/portal/popup/service/DBII_000000000000001/view.do
+
+서지상세정보
+- 입력값은 출원번호임
+http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getBibliographyDetailInfoSearch?applicationNumber=1020050050026&ServiceKey=서비스키
+
+- 출력값들
+documentEngName>Notification of change of applicant's information</documentEngName>
+<documentName>출원인정보변경(경정)신고서</documentName>
+<receiptDate>2009.04.27</receiptDate>
+<receiptNumber>4-1-2009-5080835-50</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>Notification of change of applicant's information</documentEngName>
+<documentName>출원인정보변경(경정)신고서</documentName>
+<receiptDate>2009.11.03</receiptDate>
+<receiptNumber>4-1-2009-0023850-26</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>[Request for Examination] Request for Examination (Request for Preferential Examination)</documentEngName>
+<documentName>[심사청구]심사청구(우선심사신청)서</documentName>
+<receiptDate>2010.04.20</receiptDate>
+<receiptNumber>1-1-2010-0252986-18</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>Request for Prior Art Search</documentEngName>
+<documentName>선행기술조사의뢰서</documentName>
+<receiptDate>2011.02.11</receiptDate>
+<receiptNumber>9-1-9999-9999999-89</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>Report of Prior Art Search</documentEngName>
+<documentName>선행기술조사보고서</documentName>
+<receiptDate>2011.03.21</receiptDate>
+<receiptNumber>9-1-2011-0025258-17</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>발송처리완료 (Completion of Transmission) </commonCodeName>
+<documentEngName>Notification of reason for refusal</documentEngName>
+<documentName>의견제출통지서</documentName>
+<receiptDate>2011.04.29</receiptDate>
+<receiptNumber>9-5-2011-0234683-48</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>[Opinion according to the Notification of Reasons for Refusal] Written Opinion(Written Reply, Written Substantiation)</documentEngName>
+<documentName>[거절이유 등 통지에 따른 의견]의견(답변, 소명)서</documentName>
+<receiptDate>2011.06.28</receiptDate>
+<receiptNumber>1-1-2011-0494383-30</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>보정승인간주 (Regarded as an acceptance of amendment) </commonCodeName>
+<documentEngName>[Amendment to Description, etc.] Amendment</documentEngName>
+<documentName>[명세서등 보정]보정서</documentName>
+<receiptDate>2011.06.28</receiptDate>
+<receiptNumber>1-1-2011-0494384-86</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>발송처리완료 (Completion of Transmission) </commonCodeName>
+<documentEngName>Decision to grant</documentEngName>
+<documentName>등록결정서</documentName>
+<receiptDate>2011.11.28</receiptDate>
+<receiptNumber>9-5-2011-0694898-13</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>Notification of change of applicant's information</documentEngName>
+<documentName>출원인정보변경(경정)신고서</documentName>
+<receiptDate>2015.05.22</receiptDate>
+<receiptNumber>4-1-2015-5068349-97</receiptNumber>
+</legalStatusInfo>
+<legalStatusInfo>
+<commonCodeName>수리 (Accepted) </commonCodeName>
+<documentEngName>Notification of change of applicant's information</documentEngName>
+<documentName>출원인정보변경(경정)신고서</documentName>
+<receiptDate>2020.05.28</receiptDate>
+<receiptNumber>4-1-2020-5118228-40</receiptNumber>
+</legalStatusInfo>
+</legalStatusInfoArray>
+<imagePathInfo>
+<docName>1020050050026.jpg</docName>
+<largePath>http://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=452306798ef1fd03bf8e5ba4e1dbf7264910bdaa2c0aa7b39ab1624d493b3be10e529c4228028f28fae665eac132285c4d661c98d1b3a91a5defbe1190f7554c455608b113f929b0</largePath>
+<path>http://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=ed43a0609e94d6e22d01c5c32ba711cf188990f7da26b0a00151fc69027ee736bfc9f2e809f257e2916323e03a8cdc3586cb7476fe5be44edf6a1bb254ec7f8d091324dca70e5b74</path>
+</imagePathInfo>
+<rndInfoArray></rndInfoArray>
+</item>
+</body>
+<count>
+<numOfRows>1</numOfRows>
+<pageNo>1</pageNo>
+<totalCount>1</totalCount>
+</count>
+</response>

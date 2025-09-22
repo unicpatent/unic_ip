@@ -1,0 +1,45 @@
+user123@testcompany.com, 비번 ??
+위페이퍼 특허고객번호는 120190612244
+
+
+ljunhyek@naver.com, password123
+특허고객번호 420190604003
+
+🔧 SSL 문제 해결 (어제 작동했던 방법)
+1. SSL 검증 비활성화 (어제 사용했던 방법)
+bash
+set NODE_TLS_REJECT_UNAUTHORIZED=0
+claude
+
+(git pull origin main)
+
+<< 특허청 api 관련 >>
+내가 http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getWordSearch?word=%EC%84%BC%EC%84%9C&year=0&
+ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+로 조회했더니 data.txt 파일처럼 응답했어, 이걸 참고해서 https://plus.kipris.or.kr/portal/popup/service/DBII_000000000000001/view.do 를 보고, 검색
+
+
+
+https://www.patent.go.kr/smart/openapi/prv/user/selectRegisterHistList.do
+
+
+https://www.patent.go.kr/smart/openapi/prv/user/selectRegisterHistList.do
+
+…/getBusinessRightList?serviceKey=키&type=json&pageNo=1&numOfRows=10&searchType=1&searchVal=3018108302
+
+
+특허청_등록원부 실시간 정보 조회 서비스
+
+serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484
+
+<< 특허 고객번호>>
+https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=120230740981
+
+
+
+https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=2&searchVal=https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList?serviceKey=0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484&type=json&pageNo=1&numOfRows=10&searchType=1&searchVal=3258102304
+
+
+http://kpat.kipris.or.kr
+
+0459d4d5c5d11a5e71b95c96a6069daffb1247f64357ce6354878517f6d06484

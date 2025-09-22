@@ -1,0 +1,890 @@
+<%- include('partials/header') %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-title">
+            <h1>등록특허 현황</h1>
+            <p>고객번호로 등록된 특허 목록을 조회합니다</p>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <section class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="customerNumber" class="form-label">고객번호</label>
+                    <input 
+                        type="text" 
+                        id="customerNumber" 
+                        name="customerNumber" 
+                        class="form-input"
+                        placeholder="예: 120190612244"
+                        maxlength="12"
+                        pattern="[0-9]{12}"
+                        required
+                    >
+                    <div class="form-hint">12자리 숫자 입력하세요</div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="searchBtn">
+                    🔍 검색하기
+                </button>
+            </form>
+        </section>
+
+        <!-- 결과 섹션 -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div class="results-info">
+                    <div class="info-item">
+                        <span class="info-label">조회일자:</span>
+                        <span class="info-value" id="resultCurrentDate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">고객번호:</span>
+                        <span class="info-value" id="resultCustomerNumber">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">출원인:</span>
+                        <span class="info-value" id="resultApplicantName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">등록특허 수:</span>
+                        <span class="info-value" id="resultTotalCount">0</span>건
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-info" id="calculateAnnuityBtn">
+                        🧮 연차료 계산
+                    </button>
+                    <button type="button" class="btn btn-primary" id="renewalRequestBtn">
+                        💰 연차료 납부의뢰
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        📊 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="patent-table" id="patentTable">
+                    <thead>
+                        <tr>
+                            <th>출원번호</th>
+                            <th>등록번호</th>
+                            <th>출원인</th>
+                            <th>발명자</th>
+                            <th>출원일</th>
+                            <th>등록일</th>
+                            <th>존속기간 만료일</th>
+                            <th>발명의명칭</th>
+                            <th>청구항수</th>
+                            <th>직전년도 납부연월</th>
+                            <th>해당 연차료 납부마감일</th>
+                            <th>해당연차수</th>
+                            <th>해당연차료</th>
+                            <th>유효/불납</th>
+                            <th>차기년도 납부의뢰</th>
+                            <th>추납기간</th>
+                            <th>회복기간</th>
+                            <th>특허평가</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patentTableBody">
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📄</div>
+                <div class="empty-title">등록특허가 없습니다</div>
+                <div class="empty-description">해당 고객번호로 등록된 특허를 찾을 수 없습니다.</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+// 캐시 무효화를 위한 버전 체크
+console.log('🔄 납부의뢰 스크립트 로드됨 - 버전: 2025.08.21.v2');
+</script>
+
+<script>
+let currentPatents = [];
+
+// 폼 제출 이벤트
+document.getElementById('searchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const customerNumber = document.getElementById('customerNumber').value.trim();
+    const searchBtn = document.getElementById('searchBtn');
+    const originalText = searchBtn.innerHTML;
+    
+    // 입력 검증 (12자리 숫자)
+    if (!/^\d{12}$/.test(customerNumber)) {
+        showError('고객번호는 12자리 숫자여야 합니다.');
+        return;
+    }
+    
+    hideError();
+    showLoading(searchBtn);
+    
+    try {
+        const response = await fetch('/api/search-registered', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerNumber })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+        }
+        
+        displayResults(data);
+        
+        // 특허 상세 정보 조회 (등록번호, 등록일, 존속기간만료일, 청구항수)
+        try {
+            showDetailLoadingMessage();
+            await fetchPatentDetails(data.patents);
+            hideDetailLoadingMessage();
+        } catch (detailError) {
+            console.error('상세 정보 조회 실패, 기본 정보만 표시:', detailError);
+            hideDetailLoadingMessage();
+            // 상세 정보 조회 실패해도 기본 결과는 유지
+        }
+        
+    } catch (error) {
+        console.error('검색 오류:', error);
+        showError(error.message);
+        hideResults();
+        hideDetailLoadingMessage();
+    } finally {
+        hideLoading(searchBtn, originalText);
+    }
+});
+
+// 결과 표시
+function displayResults(data) {
+    currentPatents = data.patents || [];
+    
+    // 현재 날짜 표시
+    const currentDate = new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    document.getElementById('resultCurrentDate').textContent = currentDate;
+    document.getElementById('resultCustomerNumber').textContent = data.customerNumber;
+    document.getElementById('resultApplicantName').textContent = data.applicantName;
+    document.getElementById('resultTotalCount').textContent = data.totalCount;
+    
+    const tableBody = document.getElementById('patentTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    tableBody.innerHTML = '';
+    
+    if (currentPatents.length === 0) {
+        emptyState.style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+    } else {
+        emptyState.style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        
+        currentPatents.forEach(patent => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${patent.applicationNumber}</td>
+                <td>${patent.registrationNumber}</td>
+                <td>${patent.applicantName}</td>
+                <td>${patent.inventorName}</td>
+                <td>${formatDate(patent.applicationDate)}</td>
+                <td>${formatDate(patent.registrationDate)}</td>
+                <td>${formatDate(patent.expirationDate)}</td>
+                <td style="max-width: 300px; word-break: break-word;">${patent.inventionTitle}</td>
+                <td>${patent.claimCount}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    resultsSection.style.display = 'block';
+}
+
+// 특허 상세 정보 조회
+async function fetchPatentDetails(patents) {
+    if (!patents || patents.length === 0) return;
+    
+    try {
+        // 출원번호 목록 추출
+        const applicationNumbers = patents.map(p => p.applicationNumber).filter(num => num && num !== '-');
+        
+        if (applicationNumbers.length === 0) return;
+        
+        const response = await fetch('/api/get-patent-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ applicationNumbers })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.details) {
+            updatePatentTable(data.details);
+        }
+        
+    } catch (error) {
+        console.error('특허 상세 정보 조회 오류:', error);
+        // 상세 정보 조회 실패는 에러로 표시하지 않고 조용히 처리
+    }
+}
+
+// 특허 테이블 업데이트
+function updatePatentTable(details) {
+    const tableBody = document.getElementById('patentTableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+    
+    currentPatents.forEach((patent, index) => {
+        if (index >= rows.length) return;
+        
+        const row = rows[index];
+        const cells = row.getElementsByTagName('td');
+        const applicationNumber = patent.applicationNumber;
+        
+        // 상세 정보가 있는 경우 업데이트
+        if (details[applicationNumber]) {
+            const detail = details[applicationNumber];
+            
+            // 등록번호 (컬럼 1)
+            if (detail.registrationNumber && detail.registrationNumber !== '-') {
+                cells[1].textContent = detail.registrationNumber;
+                currentPatents[index].registrationNumber = detail.registrationNumber;
+            }
+            
+            // 등록일 (컬럼 5)
+            if (detail.registrationDate && detail.registrationDate !== '-') {
+                cells[5].textContent = formatDate(detail.registrationDate);
+                currentPatents[index].registrationDate = detail.registrationDate;
+            }
+            
+            // 존속기간 만료일 (컬럼 6)
+            if (detail.expirationDate && detail.expirationDate !== '-') {
+                cells[6].textContent = formatDate(detail.expirationDate);
+                currentPatents[index].expirationDate = detail.expirationDate;
+            }
+            
+            // 청구항수 (컬럼 8)
+            if (detail.claimCount && detail.claimCount !== '-') {
+                cells[8].textContent = detail.claimCount;
+                currentPatents[index].claimCount = detail.claimCount;
+            }
+        }
+    });
+}
+
+// 상세 정보 로딩 메시지 표시
+function showDetailLoadingMessage() {
+    const existingMessage = document.querySelector('.detail-loading-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'detail-loading-message';
+    loadingDiv.innerHTML = '🔍 상세 정보를 조회 중입니다...';
+    loadingDiv.style.cssText = 'background: #e0f2fe; color: #01579b; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; text-align: center;';
+    
+    const resultsSection = document.getElementById('resultsSection');
+    const tableContainer = resultsSection.querySelector('.table-container');
+    if (tableContainer) {
+        tableContainer.before(loadingDiv);
+    }
+}
+
+// 상세 정보 로딩 메시지 숨기기
+function hideDetailLoadingMessage() {
+    const existingMessage = document.querySelector('.detail-loading-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+}
+
+// 결과 숨기기
+function hideResults() {
+    document.getElementById('resultsSection').style.display = 'none';
+}
+
+// 엑셀 다운로드
+function exportToExcel() {
+    if (currentPatents.length === 0) {
+        showError('다운로드할 데이터가 없습니다.');
+        return;
+    }
+    
+    downloadExcel(currentPatents, 'registered');
+}
+
+// 연차료 계산 정책 (annuity.txt에서 가져온 정책)
+const ANNUITY_POLICY = {
+    "name": "KIPO-default",
+    "currency": "KRW",
+    "grace_months": 6,
+    "recovery_months": 3,
+    "late_fee_table": {
+        "1": 0.03,
+        "2": 0.06,
+        "3": 0.09,
+        "4": 0.12,
+        "5": 0.15,
+        "6": 0.18
+    },
+    "recovery_policy": { "type": "multiplier", "value": 2.0 },
+    "rounding": "nearest_10",
+    "reminder_rules": [
+        { "months_before_due": 6, "label": "사전예고-6개월" },
+        { "months_before_due": 3, "label": "사전예고-3개월" },
+        { "months_before_due": 1, "label": "사전예고-1개월" }
+    ]
+};
+
+// KIPO 연차료 테이블 (2024년 기준)
+const KIPO_ANNUITY_FEES = {
+    1: 45000,   2: 45000,   3: 45000,
+    4: 120000,  5: 120000,  6: 120000,
+    7: 360000,  8: 360000,  9: 360000,
+    10: 480000, 11: 480000, 12: 480000,
+    13: 720000, 14: 720000, 15: 720000,
+    16: 960000, 17: 960000, 18: 960000,
+    19: 1200000, 20: 1200000
+};
+
+// 연차료 계산 함수들
+function endOfMonthSafeAddMonths(d, months) {
+    const y = d.getUTCFullYear();
+    const m = d.getUTCMonth();
+    const targetY = y + Math.floor((m + months) / 12);
+    const targetM = (m + months) % 12;
+    const nextMonth = new Date(Date.UTC(
+        targetM === 11 ? targetY + 1 : targetY,
+        targetM === 11 ? 0 : targetM + 1,
+        1
+    ));
+    const lastDay = new Date(nextMonth.getTime() - 24 * 60 * 60 * 1000).getUTCDate();
+    const day = Math.min(d.getUTCDate(), lastDay);
+    return new Date(Date.UTC(targetY, targetM, day));
+}
+
+function computeStatus(dueDate, today, policy) {
+    const graceEnd = endOfMonthSafeAddMonths(dueDate, policy.grace_months);
+    const recoveryEnd = endOfMonthSafeAddMonths(graceEnd, policy.recovery_months);
+    if (today <= dueDate) return "유효";
+    if (dueDate < today && today <= graceEnd) return "추납기간";
+    if (graceEnd < today && today <= recoveryEnd) return "회복기간";
+    return "불납";
+}
+
+function wholeMonthsOverdue(due, today) {
+    if (today <= due) return 0;
+    let delta = (today.getUTCFullYear() - due.getUTCFullYear()) * 12
+              + (today.getUTCMonth() - due.getUTCMonth());
+    if (today.getUTCDate() <= due.getUTCDate()) delta -= 1;
+    return Math.max(1, delta);
+}
+
+function applyRounding(amount, policy) {
+    const mode = policy.rounding || "none";
+    if (mode === "nearest_10") return Math.round(amount / 10) * 10;
+    if (mode === "down_1") return Math.floor(amount);
+    return Math.round(amount);
+}
+
+function computeLateFee(baseFee, monthsOverdue, policy) {
+    const table = policy.late_fee_table || {};
+    const key = String(Math.max(1, Math.min(monthsOverdue, 6)));
+    const rate = table[key];
+    if (!rate) return 0;
+    return applyRounding(baseFee * rate, policy);
+}
+
+function computeRecoverySurcharge(baseFee, policy) {
+    const rp = policy.recovery_policy || { type: "none" };
+    if (rp.type === "multiplier") {
+        const mult = rp.value || 1.0;
+        const extra = baseFee * (mult - 1.0);
+        return applyRounding(extra, policy);
+    }
+    return 0;
+}
+
+// 연차수 계산 (등록일부터 계산)
+function calculateAnnualYear(registrationDate, currentDate) {
+    const regDate = new Date(registrationDate);
+    const today = new Date(currentDate);
+    const yearDiff = today.getFullYear() - regDate.getFullYear();
+    const monthDiff = today.getMonth() - regDate.getMonth();
+    const dayDiff = today.getDate() - regDate.getDate();
+    
+    let annualYear = yearDiff;
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        annualYear--;
+    }
+    
+    return Math.max(1, annualYear + 1); // 등록 다음 년도부터 1년차
+}
+
+// 연차료 납부마감일 계산 (등록일 기준으로 매년)
+function calculateDueDate(registrationDate, annualYear) {
+    const regDate = new Date(registrationDate);
+    const dueDate = new Date(regDate);
+    dueDate.setFullYear(regDate.getFullYear() + annualYear);
+    return dueDate;
+}
+
+// 연차료 계산 메인 함수
+function calculateAnnuityFees() {
+    if (currentPatents.length === 0) {
+        showError('계산할 특허가 없습니다.');
+        return;
+    }
+    
+    const today = new Date();
+    const tableBody = document.getElementById('patentTableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+    
+    currentPatents.forEach((patent, index) => {
+        if (index >= rows.length) return;
+        
+        const row = rows[index];
+        const cells = row.getElementsByTagName('td');
+        
+        // 등록일이 있는 경우에만 계산
+        if (patent.registrationDate && patent.registrationDate !== '-') {
+            const registrationDate = new Date(patent.registrationDate);
+            const annualYear = calculateAnnualYear(patent.registrationDate, today);
+            
+            // 연차수가 20년을 초과하면 특허 만료
+            if (annualYear > 20) {
+                cells[10].textContent = '-'; // 해당 연차료 납부마감일
+                cells[11].textContent = '만료'; // 해당연차수
+                cells[12].textContent = '-'; // 해당연차료
+                cells[13].textContent = '만료'; // 유효/불납
+                cells[14].textContent = '-'; // 차기년도 납부의뢰
+                cells[15].textContent = '-'; // 추납기간
+                cells[16].textContent = '-'; // 회복기간
+                return;
+            }
+            
+            const dueDate = calculateDueDate(patent.registrationDate, annualYear);
+            const baseFee = KIPO_ANNUITY_FEES[annualYear] || 0;
+            const status = computeStatus(dueDate, today, ANNUITY_POLICY);
+            
+            let totalFee = baseFee;
+            let lateFee = 0;
+            let recoverySurcharge = 0;
+            
+            // 상태에 따른 추가 비용 계산
+            if (status === "추납기간") {
+                const monthsOverdue = wholeMonthsOverdue(dueDate, today);
+                lateFee = computeLateFee(baseFee, monthsOverdue, ANNUITY_POLICY);
+                totalFee = baseFee + lateFee;
+            } else if (status === "회복기간") {
+                recoverySurcharge = computeRecoverySurcharge(baseFee, ANNUITY_POLICY);
+                totalFee = baseFee + recoverySurcharge;
+            }
+            
+            // 기간 계산
+            const graceEnd = endOfMonthSafeAddMonths(dueDate, ANNUITY_POLICY.grace_months);
+            const recoveryEnd = endOfMonthSafeAddMonths(graceEnd, ANNUITY_POLICY.recovery_months);
+            
+            // 결과 표시
+            cells[10].textContent = formatDate(dueDate.toISOString().split('T')[0]); // 해당 연차료 납부마감일
+            cells[11].textContent = annualYear + '년차'; // 해당연차수
+            cells[12].textContent = totalFee.toLocaleString() + '원'; // 해당연차료
+            cells[13].textContent = status; // 유효/불납
+            
+            // 차기년도 납부의뢰 (현재 연차가 유효하고 다음 연차가 20년 이내인 경우)
+            const nextYear = annualYear + 1;
+            if (status === "유효" && nextYear <= 20) {
+                const nextDueDate = calculateDueDate(patent.registrationDate, nextYear);
+                const nextFee = KIPO_ANNUITY_FEES[nextYear] || 0;
+                cells[14].textContent = `${nextYear}년차 ${nextFee.toLocaleString()}원 (${formatDate(nextDueDate.toISOString().split('T')[0])} 마감)`;
+            } else {
+                cells[14].textContent = '-';
+            }
+            
+            // 추납기간
+            if (status === "유효") {
+                cells[15].textContent = `${formatDate(dueDate.toISOString().split('T')[0])} ~ ${formatDate(graceEnd.toISOString().split('T')[0])}`;
+            } else if (status === "추납기간") {
+                cells[15].textContent = `진행중 (${formatDate(graceEnd.toISOString().split('T')[0])} 마감)`;
+            } else {
+                cells[15].textContent = '-';
+            }
+            
+            // 회복기간
+            if (status === "유효" || status === "추납기간") {
+                cells[16].textContent = `${formatDate(graceEnd.toISOString().split('T')[0])} ~ ${formatDate(recoveryEnd.toISOString().split('T')[0])}`;
+            } else if (status === "회복기간") {
+                cells[16].textContent = `진행중 (${formatDate(recoveryEnd.toISOString().split('T')[0])} 마감)`;
+            } else {
+                cells[16].textContent = '-';
+            }
+        } else {
+            // 등록일이 없는 경우
+            cells[10].textContent = '-';
+            cells[11].textContent = '-';
+            cells[12].textContent = '-';
+            cells[13].textContent = '-';
+            cells[14].textContent = '-';
+            cells[15].textContent = '-';
+            cells[16].textContent = '-';
+        }
+    });
+    
+    // 계산 완료 메시지
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = '연차료 계산이 완료되었습니다.';
+    successDiv.style.cssText = 'background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; text-align: center;';
+    
+    const resultsSection = document.getElementById('resultsSection');
+    const existingSuccess = document.querySelector('.success-message');
+    if (existingSuccess) {
+        existingSuccess.remove();
+    }
+    resultsSection.insertBefore(successDiv, resultsSection.firstChild);
+    
+    // 3초 후 메시지 제거
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.remove();
+        }
+    }, 3000);
+}
+
+// 연차료 납부의뢰
+function requestRenewalFee() {
+    console.log('🎯 납부의뢰 버튼 클릭됨 - 새 버전 실행 중');
+    
+    if (currentPatents.length === 0) {
+        showError('납부의뢰할 특허가 없습니다.');
+        return;
+    }
+    
+    // 고객번호와 첫 번째 출원인 이름 가져오기
+    const customerNumber = document.getElementById('resultCustomerNumber').textContent;
+    const applicantName = document.getElementById('resultApplicantName').textContent;
+    
+    console.log('고객정보:', { customerNumber, applicantName });
+    
+    showRenewalRequestModal(customerNumber, applicantName);
+}
+
+// 연차료 납부의뢰 모달 표시
+function showRenewalRequestModal(customerNumber, applicantName) {
+    // 모달 HTML 생성
+    const modalHTML = `
+        <div id="renewalModal" class="modal-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        ">
+            <div class="modal-content" style="
+                background: white;
+                border-radius: 8px;
+                padding: 2rem;
+                width: 90%;
+                max-width: 600px;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            ">
+                <div class="modal-header" style="
+                    border-bottom: 2px solid #54B435;
+                    padding-bottom: 1rem;
+                    margin-bottom: 1.5rem;
+                ">
+                    <h2 style="
+                        color: #0F172A;
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                        margin: 0;
+                        text-align: center;
+                    ">연차료 납부의뢰</h2>
+                </div>
+                
+                <div class="guidance-text" style="
+                    background: #f0fdf4;
+                    padding: 1.5rem;
+                    border-radius: 6px;
+                    margin-bottom: 1.5rem;
+                    border-left: 4px solid #54B435;
+                ">
+                    <h3 style="
+                        color: #065f46;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        margin: 0 0 1rem 0;
+                    ">안내사항</h3>
+                    <div style="color: #047857; line-height: 1.6;">
+                        <p style="margin: 0 0 0.5rem 0;">1. 연차료 납부를 대행해 드립니다</p>
+                        <p style="margin: 0 0 1rem 0;">2. 대리인 수수료는 건당 20,000원입니다 (부가세 별도)</p>
+                        <p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; color: #059669;">
+                            - 개인, 중소기업 70% 감면 금액 확인하여 연차료 비용 청구서 발송
+                        </p>
+                        <p style="margin: 0; font-size: 0.9rem; color: #059669;">
+                            - 세금 계산서와 영수증 송부
+                        </p>
+                    </div>
+                </div>
+                
+                <form action="https://api.web3forms.com/submit" method="POST" id="renewalRequestForm">
+                    <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                    <input type="hidden" name="redirect" value="https://unicpat.com/thanks">
+                    <input type="hidden" name="subject" value="연차료 납부의뢰">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="
+                            display: block;
+                            color: #374151;
+                            font-weight: 500;
+                            margin-bottom: 0.5rem;
+                        ">고객번호</label>
+                        <input type="text" name="customer_number" value="${customerNumber}" readonly style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                            background: #f9fafb;
+                            color: #6b7280;
+                        ">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="
+                            display: block;
+                            color: #374151;
+                            font-weight: 500;
+                            margin-bottom: 0.5rem;
+                        ">이름</label>
+                        <input type="text" name="name" value="${applicantName}" readonly style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                            background: #f9fafb;
+                            color: #6b7280;
+                        ">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="
+                            display: block;
+                            color: #374151;
+                            font-weight: 500;
+                            margin-bottom: 0.5rem;
+                        ">이메일 <span style="color: #ef4444;">*</span></label>
+                        <input type="email" name="email" required style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                            outline: none;
+                        " placeholder="example@email.com">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="
+                            display: block;
+                            color: #374151;
+                            font-weight: 500;
+                            margin-bottom: 0.5rem;
+                        ">연락처 <span style="color: #ef4444;">*</span></label>
+                        <input type="tel" name="phone" required style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                            outline: none;
+                        " placeholder="010-0000-0000">
+                    </div>
+                    
+                    <!-- 숨겨진 메시지 필드 (이메일 본문용) -->
+                    <textarea name="message" style="display: none;">
+새로운 연차료 납부의뢰가 접수되었습니다.
+
+■ 고객 정보
+- 고객번호: ${customerNumber}
+- 이름: ${applicantName}
+- 이메일: (사용자가 입력한 이메일)
+- 연락처: (사용자가 입력한 연락처)
+
+■ 개인정보 수집 및 이용 동의
+- 동의 여부: 동의함
+- 동의 시간: ${new Date().toLocaleString('ko-KR')}
+
+■ 처리 요청사항
+연차료 납부 대행 서비스를 요청합니다.
+대리인 수수료: 건당 20,000원 (부가세 별도)
+
+담당자는 고객에게 연락하여 상세 사항을 안내해 주시기 바랍니다.
+                    </textarea>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="
+                            display: block;
+                            color: #374151;
+                            font-weight: 500;
+                            margin-bottom: 0.5rem;
+                        ">개인정보 수집 및 이용 동의 <span style="color: #ef4444;">*</span></label>
+                        <div style="
+                            border: 1px solid #d1d5db;
+                            border-radius: 4px;
+                            background: #f9fafb;
+                            padding: 1rem;
+                            font-size: 0.9rem;
+                            color: #6b7280;
+                            line-height: 1.5;
+                        ">
+                            <p style="margin: 0 0 0.5rem 0;">수집·이용 목적 - 연차료 납부 대행 처리</p>
+                            <p style="margin: 0 0 0.5rem 0;">수집 항목 - 특허 고객번호, 이름, 연락처, 이메일</p>
+                            <p style="margin: 0;">보유 및 이용 기간 - 납부료 대행처리 완료 시</p>
+                        </div>
+                        <div style="margin-top: 0.75rem; display: flex; align-items: center;">
+                            <input type="checkbox" name="privacy_consent" required style="
+                                margin-right: 0.5rem;
+                                width: 16px;
+                                height: 16px;
+                            ">
+                            <label style="
+                                color: #374151;
+                                font-size: 0.9rem;
+                            ">개인정보 수집 및 이용에 동의합니다.</label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" onclick="closeRenewalModal()" style="
+                            padding: 0.75rem 1.5rem;
+                            border: 1px solid #d1d5db;
+                            background: white;
+                            color: #374151;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: 500;
+                        ">취소</button>
+                        <button type="submit" style="
+                            padding: 0.75rem 1.5rem;
+                            background: #54B435;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: 500;
+                        ">납부의뢰</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // 모달을 body에 추가
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 폼 제출 전 메시지 필드 업데이트
+    document.getElementById('renewalRequestForm').addEventListener('submit', function(e) {
+        const emailInput = this.querySelector('input[name="email"]');
+        const phoneInput = this.querySelector('input[name="phone"]');
+        const messageTextarea = this.querySelector('textarea[name="message"]');
+        
+        // 동적으로 메시지 내용 업데이트
+        const updatedMessage = `새로운 연차료 납부의뢰가 접수되었습니다.
+
+■ 고객 정보
+- 고객번호: ${customerNumber}
+- 이름: ${applicantName}
+- 이메일: ${emailInput.value}
+- 연락처: ${phoneInput.value}
+
+■ 개인정보 수집 및 이용 동의
+- 동의 여부: 동의함
+- 동의 시간: ${new Date().toLocaleString('ko-KR')}
+
+■ 처리 요청사항
+연차료 납부 대행 서비스를 요청합니다.
+대리인 수수료: 건당 20,000원 (부가세 별도)
+
+담당자는 고객에게 연락하여 상세 사항을 안내해 주시기 바랍니다.`;
+        
+        messageTextarea.value = updatedMessage;
+        
+        console.log('💌 연차료 납부의뢰 폼 제출 중...');
+    });
+    
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('renewalModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRenewalModal();
+        }
+    });
+}
+
+// 연차료 납부의뢰 모달 닫기
+function closeRenewalModal() {
+    const modal = document.getElementById('renewalModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 폼 제출 후 모달 닫기 (성공 시 Web3Forms가 리다이렉트 처리)
+function handleFormSubmitSuccess() {
+    // Web3Forms가 성공 시 redirect 처리하므로 여기서는 처리하지 않음
+    console.log('💌 연차료 납부의뢰 폼이 제출되었습니다.');
+}
+
+// Event listeners for buttons (avoiding CSP issues with inline onclick)
+document.addEventListener('DOMContentLoaded', function() {
+    // Annuity calculation button
+    const calculateBtn = document.getElementById('calculateAnnuityBtn');
+    if (calculateBtn) {
+        calculateBtn.addEventListener('click', calculateAnnuityFees);
+    }
+    
+    // Renewal request button
+    const renewalBtn = document.getElementById('renewalRequestBtn');
+    if (renewalBtn) {
+        renewalBtn.addEventListener('click', requestRenewalFee);
+    }
+    
+    // Export button
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportToExcel);
+    }
+});
+</script>

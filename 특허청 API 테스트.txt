@@ -1,0 +1,11 @@
+내가 http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getWordSearch?word=%EC%84%BC%EC%84%9C&year=0&ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+로 조회했더니 data.txt 파일처럼 응답했어, 이걸 참고해서 https://plus.kipris.or.kr/portal/popup/service/DBII_000000000000001/view.do 를 보고, 검색
+
+브라우저에서 http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?applicationNumber=1020220063778&ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+를 실행하니 data.txt처럼 응답했어, 이걸보고 소스를 수정해줘
+
+/그러면 특허고객번호를 입력하는 기능을 하나더 만들고, 기본값을 120190612244 로 넣어줘, '고객정보 가져오기' 버튼을 만들고 해당 버튼을 클릭하면 해당 특허고객번호의 데이타를 가져와서 
+특허등록상태, 출원번호, 출원인명이 나오게 기능을 추가해줘
+
+브라우저에서 http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?customerNumber=120190612244&ServiceKey=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+를 실행하니 data.txt처럼 응답했어, 이걸보고 소스를 수정해줘

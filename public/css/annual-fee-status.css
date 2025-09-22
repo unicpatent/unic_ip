@@ -1,0 +1,149 @@
+/* annual-fee-status.css - 연차료 상태별 스타일링 */
+
+/* 상태별 셀 스타일 */
+.status-cell {
+    font-weight: bold;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+/* 유효/불납 상태 스타일 (빨간색 강조) */
+.status-validity {
+    color: #dc3545 !important;
+    font-weight: bold;
+    background-color: #fff5f5;
+}
+
+.status-valid {
+    background-color: #d4edda;
+    color: #155724 !important;
+    border: 1px solid #c3e6cb;
+}
+
+.status-invalid {
+    background-color: #f8d7da;
+    color: #dc3545 !important;
+    border: 1px solid #f5c6cb;
+}
+
+.status-late {
+    background-color: #fff3cd;
+    color: #dc3545 !important;
+    border: 1px solid #ffeaa7;
+}
+
+.status-recovery {
+    background-color: #fce4ec;
+    color: #dc3545 !important;
+    border: 1px solid #f8bbd9;
+}
+
+/* 테이블 헤더 스타일 개선 */
+.patent-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px 8px;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+/* 특허번호 컬럼 스타일 */
+.patent-number {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #495057;
+}
+
+/* 출원인명 스타일 */
+.applicant-name {
+    font-weight: 500;
+    color: #343a40;
+}
+
+/* 발명명칭 스타일 */
+.invention-title {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 테이블 반응형 개선 */
+@media (max-width: 1400px) {
+    .patent-table {
+        font-size: 0.85em;
+    }
+    
+    .patent-table th,
+    .patent-table td {
+        padding: 8px 6px;
+    }
+    
+    .invention-title {
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .patent-table {
+        font-size: 0.8em;
+    }
+    
+    .patent-table th,
+    .patent-table td {
+        padding: 6px 4px;
+    }
+    
+    .invention-title {
+        max-width: 150px;
+    }
+}
+
+/* 테이블 컨테이너 스크롤 개선 */
+.table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.patent-table {
+    width: 100%;
+    min-width: 1400px; /* 최소 너비 설정 */
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.patent-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.patent-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 스크롤바 스타일링 */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
