@@ -19,49 +19,49 @@ module.exports = async (req, res) => {
         // API 요청 처리
         if (url === '/verify-member' || url === '/api/verify-member') {
             console.log('🔗 verify-member API 요청 감지, 라우팅 중...');
-            const verifyMemberHandler = require('./verify-member.js');
+            const verifyMemberHandler = require('../lib/verify-member.js');
             return await verifyMemberHandler(req, res);
         }
 
         if (url === '/export-excel' || url === '/api/export-excel') {
             console.log('🔗 export-excel API 요청 감지, 라우팅 중...');
-            const exportExcelHandler = require('./export-excel.js');
+            const exportExcelHandler = require('../lib/export-excel.js');
             return await exportExcelHandler(req, res);
         }
 
         if (url === '/search-registered' || url === '/api/search-registered') {
             console.log('🔗 search-registered API 요청 감지, 라우팅 중...');
-            const searchRegisteredHandler = require('./search-registered.js');
+            const searchRegisteredHandler = require('../lib/search-registered.js');
             return await searchRegisteredHandler(req, res);
         }
 
         if (url === '/get-payment-history' || url === '/api/get-payment-history') {
             console.log('🔗 get-payment-history API 요청 감지, 라우팅 중...');
-            const getPaymentHistoryHandler = require('./get-payment-history.js');
+            const getPaymentHistoryHandler = require('../lib/get-payment-history.js');
             return await getPaymentHistoryHandler(req, res);
         }
 
         if (url === '/search-application' || url === '/api/search-application') {
             console.log('🔗 search-application API 요청 감지, 라우팅 중...');
-            const searchApplicationHandler = require('./search-application.js');
+            const searchApplicationHandler = require('../lib/search-application.js');
             return await searchApplicationHandler(req, res);
         }
 
         if (url === '/send-renewal-request' || url === '/api/send-renewal-request') {
             console.log('🔗 send-renewal-request API 요청 감지, 라우팅 중...');
-            const sendRenewalRequestHandler = require('./send-renewal-request.js');
+            const sendRenewalRequestHandler = require('../lib/send-renewal-request.js');
             return await sendRenewalRequestHandler(req, res);
         }
 
         if (url === '/download-file' || url === '/api/download-file') {
             console.log('🔗 download-file API 요청 감지, 라우팅 중...');
-            const downloadFileHandler = require('./download-file.js');
+            const downloadFileHandler = require('../lib/download-file.js');
             return await downloadFileHandler(req, res);
         }
 
         if (url === '/get-patent-details' || url === '/api/get-patent-details') {
             console.log('🔗 get-patent-details API 요청 감지, 라우팅 중...');
-            const getPatentDetailsHandler = require('./get-patent-details.js');
+            const getPatentDetailsHandler = require('../lib/get-patent-details.js');
             return await getPatentDetailsHandler(req, res);
         }
 

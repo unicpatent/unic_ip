@@ -1,20 +1,143 @@
-🔄 납부의뢰 스크립트 로드됨 - 버전: 2025.08.21.v2
-registered.js?v=2025.09.19.v12:2 🔄 등록특허 검색 스크립트 로드됨 - 버전: 2025.09.19.v12
-registered.js?v=2025.09.19.v12:831 ✅ 등록특허 검색 스크립트 로드 완료
-registered.js?v=2025.09.19.v12:15 ✅ DOM 로드 완료 - 등록특허 검색 초기화
-registered.js?v=2025.09.19.v12:21 ✅ 검색 폼 이벤트 리스너 등록 완료
-registered.js?v=2025.09.19.v12:65 🔍 검색 시작
-registered.js?v=2025.09.19.v12:85 📝 검색 유형: 2 검색 값: 120230740981
-registered.js?v=2025.09.19.v12:92 🔍 회원 검증 시작
-api/verify-member:1   Failed to load resource: the server responded with a status of 404 (Not Found)
-registered.js?v=2025.09.19.v12:152  ❌ 검색 오류: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
-handleSearch @ registered.js?v=2025.09.19.v12:152
-[NEW] Explain Console errors by using Copilot in Edge: click
-         
-         to explain an error. 
-        Learn more
-
-
-        오류가 발생했습니다
-Failed to lookup view "thanks" in views directory "C:\ip\unic-patent-status\views"
-기술적 세부사항
+16:47:41.925 Running build in Washington, D.C., USA (East) – iad1
+16:47:41.925 Build machine configuration: 2 cores, 8 GB
+16:47:41.941 Cloning github.com/unicpatent/unic_ip (Branch: master, Commit: 48f7949)
+16:47:41.949 Skipping build cache, deployment was triggered without cache.
+16:47:42.523 Cloning completed: 582.000ms
+16:47:42.579 Found .vercelignore
+16:47:42.590 Removed 57 ignored files defined in .vercelignore
+16:47:42.590   /.env.example
+16:47:42.590   /.git/config
+16:47:42.590   /.git/description
+16:47:42.590   /.git/FETCH_HEAD
+16:47:42.590   /.git/HEAD
+16:47:42.590   /.git/hooks/applypatch-msg.sample
+16:47:42.591   /.git/hooks/commit-msg.sample
+16:47:42.591   /.git/hooks/fsmonitor-watchman.sample
+16:47:42.591   /.git/hooks/post-update.sample
+16:47:42.591   /.git/hooks/pre-applypatch.sample
+16:47:42.885 Running "vercel build"
+16:47:43.298 Vercel CLI 48.0.3
+16:47:43.476 WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+16:47:44.775 Installing dependencies...
+16:47:47.416 
+16:47:47.417 added 138 packages in 3s
+16:47:47.417 
+16:47:47.417 22 packages are looking for funding
+16:47:47.417   run `npm fund` for details
+16:47:47.431 Running "npm run vercel-build"
+16:47:47.557 
+16:47:47.558 > unic-patent-status@1.0.1 vercel-build
+16:47:47.558 > echo 'Vercel build completed'
+16:47:47.558 
+16:47:47.562 Vercel build completed
+16:47:50.581 Running "npm run vercel-build"
+16:47:50.746 
+16:47:50.746 > unic-patent-status@1.0.1 vercel-build
+16:47:50.746 > echo 'Vercel build completed'
+16:47:50.746 
+16:47:50.751 Vercel build completed
+16:47:53.026 Running "npm run vercel-build"
+16:47:53.157 
+16:47:53.158 > unic-patent-status@1.0.1 vercel-build
+16:47:53.158 > echo 'Vercel build completed'
+16:47:53.158 
+16:47:53.162 Vercel build completed
+16:47:54.107 Running "npm run vercel-build"
+16:47:54.248 
+16:47:54.248 > unic-patent-status@1.0.1 vercel-build
+16:47:54.248 > echo 'Vercel build completed'
+16:47:54.249 
+16:47:54.254 Vercel build completed
+16:47:55.130 Running "npm run vercel-build"
+16:47:55.282 
+16:47:55.282 > unic-patent-status@1.0.1 vercel-build
+16:47:55.283 > echo 'Vercel build completed'
+16:47:55.283 
+16:47:55.287 Vercel build completed
+16:47:56.177 Running "npm run vercel-build"
+16:47:56.317 
+16:47:56.318 > unic-patent-status@1.0.1 vercel-build
+16:47:56.318 > echo 'Vercel build completed'
+16:47:56.318 
+16:47:56.323 Vercel build completed
+16:47:56.355 Running "npm run vercel-build"
+16:47:56.479 
+16:47:56.479 > unic-patent-status@1.0.1 vercel-build
+16:47:56.479 > echo 'Vercel build completed'
+16:47:56.479 
+16:47:56.485 Vercel build completed
+16:47:57.346 Running "npm run vercel-build"
+16:47:57.486 
+16:47:57.486 > unic-patent-status@1.0.1 vercel-build
+16:47:57.487 > echo 'Vercel build completed'
+16:47:57.487 
+16:47:57.491 Vercel build completed
+16:47:58.352 Running "npm run vercel-build"
+16:47:58.491 
+16:47:58.492 > unic-patent-status@1.0.1 vercel-build
+16:47:58.492 > echo 'Vercel build completed'
+16:47:58.492 
+16:47:58.497 Vercel build completed
+16:47:58.703 Running "npm run vercel-build"
+16:47:58.839 
+16:47:58.839 > unic-patent-status@1.0.1 vercel-build
+16:47:58.839 > echo 'Vercel build completed'
+16:47:58.840 
+16:47:58.844 Vercel build completed
+16:47:58.874 Running "npm run vercel-build"
+16:47:58.998 
+16:47:58.998 > unic-patent-status@1.0.1 vercel-build
+16:47:58.998 > echo 'Vercel build completed'
+16:47:58.998 
+16:47:59.003 Vercel build completed
+16:47:59.831 Running "npm run vercel-build"
+16:47:59.967 
+16:47:59.968 > unic-patent-status@1.0.1 vercel-build
+16:47:59.968 > echo 'Vercel build completed'
+16:47:59.968 
+16:47:59.972 Vercel build completed
+16:48:00.786 Running "npm run vercel-build"
+16:48:00.929 
+16:48:00.930 > unic-patent-status@1.0.1 vercel-build
+16:48:00.930 > echo 'Vercel build completed'
+16:48:00.931 
+16:48:00.935 Vercel build completed
+16:48:01.774 Running "npm run vercel-build"
+16:48:01.922 
+16:48:01.923 > unic-patent-status@1.0.1 vercel-build
+16:48:01.923 > echo 'Vercel build completed'
+16:48:01.923 
+16:48:01.928 Vercel build completed
+16:48:02.955 Running "npm run vercel-build"
+16:48:03.088 
+16:48:03.089 > unic-patent-status@1.0.1 vercel-build
+16:48:03.089 > echo 'Vercel build completed'
+16:48:03.089 
+16:48:03.093 Vercel build completed
+16:48:03.928 Running "npm run vercel-build"
+16:48:04.064 
+16:48:04.064 > unic-patent-status@1.0.1 vercel-build
+16:48:04.065 > echo 'Vercel build completed'
+16:48:04.065 
+16:48:04.069 Vercel build completed
+16:48:04.910 Running "npm run vercel-build"
+16:48:05.043 
+16:48:05.043 > unic-patent-status@1.0.1 vercel-build
+16:48:05.044 > echo 'Vercel build completed'
+16:48:05.044 
+16:48:05.048 Vercel build completed
+16:48:05.270 Running "npm run vercel-build"
+16:48:05.398 
+16:48:05.399 > unic-patent-status@1.0.1 vercel-build
+16:48:05.399 > echo 'Vercel build completed'
+16:48:05.399 
+16:48:05.403 Vercel build completed
+16:48:05.732 Running "npm run vercel-build"
+16:48:05.870 
+16:48:05.870 > unic-patent-status@1.0.1 vercel-build
+16:48:05.871 > echo 'Vercel build completed'
+16:48:05.871 
+16:48:05.875 Vercel build completed
+16:48:05.896 Build Completed in /vercel/output [21s]
+16:48:06.420 Deploying outputs...
+16:48:09.415 Error: No more than 12 Serverless Functions can be added to a Deployment on the Hobby plan. Create a team (Pro plan) to deploy more. Learn More: https://vercel.link/function-count-limit
