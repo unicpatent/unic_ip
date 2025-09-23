@@ -122,31 +122,52 @@ module.exports = async (req, res) => {
             return res.status(404).send(`Template not found: ${viewName}.ejs`);
         }
         
-        // Use renderFile with filename option for proper include resolution
+        // Use renderFile with enhanced options for Vercel serverless
         const viewsDir = path.dirname(viewPath);
+
+        // Set EJS options for better compatibility
+        const ejsOptions = {
+            filename: viewPath, // Critical for include path resolution
+            root: viewsDir,
+            views: [viewsDir],
+            async: true,
+            cache: false, // Disable cache in serverless
+            // Custom includer for robust path resolution
+            includer: function(originalPath, parsedPath) {
+                console.log('EJS Include attempt:', { originalPath, parsedPath });
+
+                // Try multiple path resolutions
+                const pathsToTry = [
+                    path.join(viewsDir, parsedPath + '.ejs'),
+                    path.join(viewsDir, parsedPath),
+                    path.join(process.cwd(), 'views', parsedPath + '.ejs'),
+                    path.join(process.cwd(), 'views', parsedPath),
+                    path.join(__dirname, '..', 'views', parsedPath + '.ejs'),
+                    path.join(__dirname, '..', 'views', parsedPath)
+                ];
+
+                for (const tryPath of pathsToTry) {
+                    if (fs.existsSync(tryPath)) {
+                        console.log('✅ Include found at:', tryPath);
+                        return { filename: tryPath };
+                    }
+                }
+
+                console.error('❌ Include not found:', parsedPath);
+                console.error('Tried paths:', pathsToTry);
+
+                // Return a safe fallback
+                return {
+                    filename: parsedPath,
+                    template: '<!-- Include file not found: ' + parsedPath + ' -->'
+                };
+            }
+        };
+
         const html = await ejs.renderFile(viewPath, {
             title: title,
             // Add any other template variables if needed
-        }, {
-            filename: viewPath, // Critical for include path resolution
-            views: [viewsDir], // Array of directories to search for includes
-            root: viewsDir, // Root directory for absolute includes
-            // Add custom includer function to handle relative paths
-            includer: function(originalPath, parsedPath) {
-                // Handle relative includes like 'partials/header'
-                if (!path.isAbsolute(parsedPath)) {
-                    const fullPath = path.join(viewsDir, parsedPath);
-                    if (fs.existsSync(fullPath + '.ejs')) {
-                        return { filename: fullPath + '.ejs' };
-                    }
-                    if (fs.existsSync(fullPath)) {
-                        return { filename: fullPath };
-                    }
-                }
-                // Fallback to default behavior
-                return { filename: parsedPath };
-            }
-        });
+        }, ejsOptions);
         
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
@@ -172,26 +193,39 @@ module.exports = async (req, res) => {
 
             if (errorViewPath) {
                 const viewsDir = path.dirname(errorViewPath);
+                const ejsOptions = {
+                    filename: errorViewPath,
+                    root: viewsDir,
+                    views: [viewsDir],
+                    async: true,
+                    cache: false,
+                    includer: function(originalPath, parsedPath) {
+                        const pathsToTry = [
+                            path.join(viewsDir, parsedPath + '.ejs'),
+                            path.join(viewsDir, parsedPath),
+                            path.join(process.cwd(), 'views', parsedPath + '.ejs'),
+                            path.join(process.cwd(), 'views', parsedPath),
+                            path.join(__dirname, '..', 'views', parsedPath + '.ejs'),
+                            path.join(__dirname, '..', 'views', parsedPath)
+                        ];
+
+                        for (const tryPath of pathsToTry) {
+                            if (fs.existsSync(tryPath)) {
+                                return { filename: tryPath };
+                            }
+                        }
+
+                        return {
+                            filename: parsedPath,
+                            template: '<!-- Include file not found: ' + parsedPath + ' -->'
+                        };
+                    }
+                };
+
                 const html = await ejs.renderFile(errorViewPath, {
                     title: 'Error',
                     error: error.message || 'Internal Server Error'
-                }, {
-                    filename: errorViewPath,
-                    views: [viewsDir],
-                    root: viewsDir,
-                    includer: function(originalPath, parsedPath) {
-                        if (!path.isAbsolute(parsedPath)) {
-                            const fullPath = path.join(viewsDir, parsedPath);
-                            if (fs.existsSync(fullPath + '.ejs')) {
-                                return { filename: fullPath + '.ejs' };
-                            }
-                            if (fs.existsSync(fullPath)) {
-                                return { filename: fullPath };
-                            }
-                        }
-                        return { filename: parsedPath };
-                    }
-                });
+                }, ejsOptions);
                 res.status(500).setHeader('Content-Type', 'text/html; charset=utf-8');
                 return res.send(html);
             }
