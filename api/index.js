@@ -66,7 +66,8 @@ module.exports = async (req, res) => {
         }
 
         // Static files handling
-        if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/')) {
+        if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
+            url === '/favicon.ico' || url === '/favicon.png') {
             return handleStaticFile(req, res);
         }
         
@@ -128,8 +129,23 @@ module.exports = async (req, res) => {
             // Add any other template variables if needed
         }, {
             filename: viewPath, // Critical for include path resolution
-            views: [viewsDir],
-            root: viewsDir
+            views: [viewsDir], // Array of directories to search for includes
+            root: viewsDir, // Root directory for absolute includes
+            // Add custom includer function to handle relative paths
+            includer: function(originalPath, parsedPath) {
+                // Handle relative includes like 'partials/header'
+                if (!path.isAbsolute(parsedPath)) {
+                    const fullPath = path.join(viewsDir, parsedPath);
+                    if (fs.existsSync(fullPath + '.ejs')) {
+                        return { filename: fullPath + '.ejs' };
+                    }
+                    if (fs.existsSync(fullPath)) {
+                        return { filename: fullPath };
+                    }
+                }
+                // Fallback to default behavior
+                return { filename: parsedPath };
+            }
         });
         
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -137,6 +153,52 @@ module.exports = async (req, res) => {
         
     } catch (error) {
         console.error('Main route error:', error);
+
+        // Try to render error page
+        try {
+            const errorViewPaths = [
+                path.join(process.cwd(), 'views', 'error.ejs'),
+                path.join(__dirname, '..', 'views', 'error.ejs'),
+                path.join(__dirname, 'views', 'error.ejs')
+            ];
+
+            let errorViewPath = null;
+            for (const testPath of errorViewPaths) {
+                if (fs.existsSync(testPath)) {
+                    errorViewPath = testPath;
+                    break;
+                }
+            }
+
+            if (errorViewPath) {
+                const viewsDir = path.dirname(errorViewPath);
+                const html = await ejs.renderFile(errorViewPath, {
+                    title: 'Error',
+                    error: error.message || 'Internal Server Error'
+                }, {
+                    filename: errorViewPath,
+                    views: [viewsDir],
+                    root: viewsDir,
+                    includer: function(originalPath, parsedPath) {
+                        if (!path.isAbsolute(parsedPath)) {
+                            const fullPath = path.join(viewsDir, parsedPath);
+                            if (fs.existsSync(fullPath + '.ejs')) {
+                                return { filename: fullPath + '.ejs' };
+                            }
+                            if (fs.existsSync(fullPath)) {
+                                return { filename: fullPath };
+                            }
+                        }
+                        return { filename: parsedPath };
+                    }
+                });
+                res.status(500).setHeader('Content-Type', 'text/html; charset=utf-8');
+                return res.send(html);
+            }
+        } catch (renderError) {
+            console.error('Error rendering error page:', renderError);
+        }
+
         res.status(500).send('Internal Server Error');
     }
 };
