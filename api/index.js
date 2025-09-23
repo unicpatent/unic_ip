@@ -3,6 +3,41 @@ const path = require('path');
 const ejs = require('ejs');
 const fs = require('fs');
 
+// Helper functions for authentication
+function parseCookies(cookieHeader) {
+    const cookies = {};
+    if (cookieHeader) {
+        cookieHeader.split(';').forEach(cookie => {
+            const [name, value] = cookie.trim().split('=');
+            if (name && value) {
+                cookies[name] = decodeURIComponent(value);
+            }
+        });
+    }
+    return cookies;
+}
+
+function isAuthenticated(req) {
+    const cookies = parseCookies(req.headers.cookie);
+    return cookies.authToken === 'authenticated';
+}
+
+function serveIndexFile(res) {
+    try {
+        const indexPath = path.join(__dirname, '..', 'views', 'index.html');
+        if (fs.existsSync(indexPath)) {
+            const html = fs.readFileSync(indexPath, 'utf8');
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.send(html);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error serving index.html:', error);
+        return false;
+    }
+}
+
 module.exports = async (req, res) => {
     // CORS 설정
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,11 +52,6 @@ module.exports = async (req, res) => {
         const { url } = req;
 
         // API 요청 처리
-        if (url === '/verify-member' || url === '/api/verify-member') {
-            console.log('🔗 verify-member API 요청 감지, 라우팅 중...');
-            const verifyMemberHandler = require('../lib/verify-member.js');
-            return await verifyMemberHandler(req, res);
-        }
 
         if (url === '/export-excel' || url === '/api/export-excel') {
             console.log('🔗 export-excel API 요청 감지, 라우팅 중...');
@@ -65,6 +95,54 @@ module.exports = async (req, res) => {
             return await getPatentDetailsHandler(req, res);
         }
 
+        // Login API
+        if ((url === '/login' || url === '/api/login') && req.method === 'POST') {
+            console.log('🔗 login API 요청 감지, 라우팅 중...');
+
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+
+            return new Promise((resolve) => {
+                req.on('end', async () => {
+                    try {
+                        const { email, password } = JSON.parse(body);
+                        console.log('로그인 시도:', { email });
+
+                        // Read member data
+                        const memberPath = path.join(__dirname, '..', 'unic_member.json');
+                        if (!fs.existsSync(memberPath)) {
+                            res.status(500).json({ success: false, message: '회원 정보 파일을 찾을 수 없습니다.' });
+                            return resolve();
+                        }
+
+                        const memberData = JSON.parse(fs.readFileSync(memberPath, 'utf8'));
+                        const user = memberData.find(u => u.email === email && u.password === password && u.status === 'active');
+
+                        if (user) {
+                            // Set authentication cookie
+                            res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400'); // 24 hours
+                            res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
+                        } else {
+                            res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
+                        }
+                    } catch (error) {
+                        console.error('로그인 처리 오류:', error);
+                        res.status(500).json({ success: false, message: '로그인 처리 중 오류가 발생했습니다.' });
+                    }
+                    resolve();
+                });
+            });
+        }
+
+        // Logout API
+        if (url === '/logout' || url === '/api/logout') {
+            res.setHeader('Set-Cookie', 'authToken=; Path=/; HttpOnly; Max-Age=0'); // Clear cookie
+            res.json({ success: true, message: '로그아웃 되었습니다.' });
+            return;
+        }
+
         // Static files handling
         if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
             url === '/favicon.ico' || url === '/favicon.png') {
@@ -72,15 +150,40 @@ module.exports = async (req, res) => {
         }
         
         // Route handling
-        let viewName = 'registered'; // default
-        let title = '등록특허 현황';
-        
         console.log('📍 라우팅 처리 중:', url);
 
-        if (url === '/' || url === '/registered') {
+        // Main page - serve index.html
+        if (url === '/') {
+            console.log('🏠 메인 페이지 요청: index.html 서빙');
+            if (serveIndexFile(res)) {
+                return;
+            } else {
+                res.status(404).send('index.html not found');
+                return;
+            }
+        }
+
+        // Initialize variables
+        let viewName = '404';
+        let title = '페이지를 찾을 수 없습니다';
+
+        // Authentication required routes
+        if (url === '/registered') {
+            if (!isAuthenticated(req)) {
+                console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
+                res.setHeader('Location', '/?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
             viewName = 'registered';
             title = '등록특허 현황';
         } else if (url === '/application') {
+            if (!isAuthenticated(req)) {
+                console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
+                res.setHeader('Location', '/?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
             viewName = 'application';
             title = '출원특허 현황';
         } else if (url === '/thanks') {

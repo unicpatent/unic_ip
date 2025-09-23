@@ -87,65 +87,6 @@ async function handleSearch(e) {
     showLoading(searchBtn);
 
     try {
-        // 회원 검증 (고객번호 검색인 경우에만)
-        if (searchType === '2') { // 고객번호
-            console.log('🔍 회원 검증 시작');
-
-            try {
-                console.log('🔍 회원 검증 API 호출 시작:', searchValue);
-
-                const memberVerificationResponse = await fetch('/api/verify-member', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ customerNumber: searchValue })
-                });
-
-                console.log('📡 API 응답 상태:', memberVerificationResponse.status);
-                console.log('📡 API 응답 OK:', memberVerificationResponse.ok);
-
-                if (memberVerificationResponse.ok) {
-                    const memberData = await memberVerificationResponse.json();
-                    console.log('📊 회원 검증 응답 데이터:', memberData);
-
-                    if (memberData.success) {
-                        if (!memberData.isValidMember) {
-                            // 회원이 아닌 경우 안내 메시지와 서비스 이용신청 버튼 표시
-                            console.log('ℹ️ 비회원으로 확인됨:', searchValue);
-                            hideLoading(searchBtn, originalText);
-                            showServiceApplicationPrompt();
-                            return;
-                        }
-                        // 회원인 경우 검색 계속 진행
-                        console.log('✅ 유효한 회원 확인됨:', memberData.memberName);
-                    } else {
-                        // API는 성공했지만 success가 false인 경우
-                        console.error('❌ 회원 검증 실패 (success=false):', memberData.error);
-                        hideLoading(searchBtn, originalText);
-                        showError(`회원 검증 실패: ${memberData.error || '알 수 없는 오류'}`);
-                        return;
-                    }
-                } else {
-                    // API 응답 실패
-                    const errorText = await memberVerificationResponse.text();
-                    console.error('❌ 회원 검증 API HTTP 오류:', {
-                        status: memberVerificationResponse.status,
-                        statusText: memberVerificationResponse.statusText,
-                        responseText: errorText
-                    });
-                    hideLoading(searchBtn, originalText);
-                    showError(`API 오류 (${memberVerificationResponse.status}): ${memberVerificationResponse.statusText}`);
-                    return;
-                }
-            } catch (memberError) {
-                console.error('❌ 회원 검증 네트워크/파싱 오류:', memberError);
-                hideLoading(searchBtn, originalText);
-                showError(`네트워크 오류: ${memberError.message}`);
-                return;
-            }
-        }
-
         // API 호출
         console.log('🌐 API 호출 시작');
         const requestData = {
@@ -817,43 +758,6 @@ window.testPagination = function(count = 23) {
     console.log(`✅ 테스트 완료: ${count}개 데이터, 총 ${Math.ceil(count / itemsPerPage)}페이지`);
 };
 
-// 서비스 이용신청 안내 표시
-function showServiceApplicationPrompt() {
-    console.log('📢 서비스 이용신청 안내 표시');
-
-    // 기존 에러 메시지 숨기기
-    hideError();
-
-    // 기존 결과 숨기기
-    hideResults();
-
-    // 안내 메시지와 버튼을 포함한 div 생성
-    const promptDiv = document.createElement('div');
-    promptDiv.className = 'service-application-prompt';
-    promptDiv.innerHTML = `
-        <div style="background: #FFF3CD; border: 1px solid #FFC107; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-            <i class="fas fa-exclamation-triangle" style="color: #FF6B00; font-size: 2em; margin-bottom: 10px;"></i>
-            <h3 style="color: #856404; margin: 10px 0;">회원 전용 서비스입니다</h3>
-            <p style="color: #856404; margin: 15px 0; font-size: 1.1em;">
-                서비스를 이용하기 위해 서비스 이용신청을 진행해주세요.
-            </p>
-            <button onclick="showServiceApplicationModal()" style="background: #54B435; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; margin-top: 10px;">
-                <i class="fas fa-paper-plane"></i> 서비스 이용신청
-            </button>
-        </div>
-    `;
-
-    // 검색 섹션 다음에 안내 메시지 추가
-    const searchSection = document.querySelector('.search-section');
-    if (searchSection) {
-        // 기존 prompt가 있으면 제거
-        const existingPrompt = document.querySelector('.service-application-prompt');
-        if (existingPrompt) {
-            existingPrompt.remove();
-        }
-        searchSection.after(promptDiv);
-    }
-}
 
 // 버튼 이벤트 리스너 설정
 function setupButtonListeners() {
