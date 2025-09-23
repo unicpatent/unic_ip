@@ -30,7 +30,8 @@
       "Bash(npm run:*)",
       "Bash(find:*)",
       "Bash(dir \"C:\\ip\\unic-patent-status\\*.txt\" /s)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []
