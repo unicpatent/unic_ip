@@ -263,4 +263,4 @@ function handleStaticFile(req, res) {
     const file = fs.readFileSync(filePath);
     res.setHeader('Content-Type', contentType);
     res.send(file);
-}
+}// Force deployment trigger 2025년 09월 23일 화 오전 11:49:46
