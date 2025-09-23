@@ -1,4 +1,48 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title><%= title %> - 유니크 특허사무소</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="유니크 특허사무소 특허 현황 조회 시스템">
+    <meta name="keywords" content="특허, 특허사무소, 특허 현황, 등록특허, 출원특허, 유니크">
+    <meta name="author" content="유니크 특허사무소">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= title %> - 유니크 특허사무소">
+    <meta property="og:description" content="유니크 특허사무소 특허 현황 조회 시스템">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://unicpat.com">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link rel="alternate icon" href="/images/favicon.svg">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    유니크<span>특허</span>
+                </a>
+                <nav class="nav-tabs">
+                    <a href="/registered" class="nav-link">등록특허 현황</a>
+                    <a href="/application" class="nav-link">출원특허 현황</a>
+                </nav>
+            </div>
+        </div>
+    </header>
 
 <main class="main-content">
     <div class="container">
@@ -95,7 +139,28 @@
     </div>
 </main>
 
-<%- include('partials/footer') %>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <strong>유니크 특허사무소</strong> - 특허 현황 조회 시스템
+                </div>
+                <div class="footer-contact">
+                    <a href="tel:010-3131-7960">📞 010-3131-7960</a>
+                    <a href="mailto:ljunhyek@naver.com">✉️ ljunhyek@naver.com</a>
+                    <a href="https://unicpat.com" target="_blank">🌐 unicpat.com</a>
+                </div>
+                <div class="footer-text" style="margin-top: 1rem; font-size: 0.875rem; color: #94a3b8;">
+                    © 2024 유니크 특허사무소. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
 
 <script>
 let currentPatents = [];
