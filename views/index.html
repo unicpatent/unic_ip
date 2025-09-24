@@ -320,8 +320,9 @@
                             ${serviceApplicationGuidanceText}
                         </div>
 
-                        <form id="serviceApplicationForm">
+                        <form id="serviceApplicationForm" action="https://api.web3forms.com/submit" method="POST">
                             <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                            <input type="hidden" name="redirect" value="${window.location.origin}/s_thanks">
                             <input type="hidden" name="subject" value="서비스 이용신청">
 
                             <div style="margin-bottom: 1rem;">
@@ -403,75 +404,7 @@
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            // 폼 제출 이벤트 처리
-            const form = document.getElementById('serviceApplicationForm');
-            if (form) {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-
-                    // 사업자번호 또는 고객번호 중 하나는 반드시 입력되어야 함
-                    const businessNumberInput = document.getElementById('business_number');
-                    const customerNumberInput = document.getElementById('customer_number_service');
-                    const businessNumber = businessNumberInput.value.trim();
-                    const customerNumber = customerNumberInput.value.trim();
-
-                    if (!businessNumber && !customerNumber) {
-                        alert('사업자번호 또는 특허 고객번호 중 하나는 반드시 입력해주세요.');
-                        return;
-                    }
-
-                    // 입력된 번호의 형식 검증
-                    if (businessNumber) {
-                        if (!/^\d{10}$/.test(businessNumber)) {
-                            alert('사업자번호는 10자리 숫자여야 합니다.');
-                            businessNumberInput.focus();
-                            return;
-                        }
-                    }
-
-                    if (customerNumber) {
-                        if (!/^\d{12}$/.test(customerNumber)) {
-                            alert('특허 고객번호는 12자리 숫자여야 합니다.');
-                            customerNumberInput.focus();
-                            return;
-                        }
-                    }
-
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-
-                    try {
-                        // 버튼 로딩 상태
-                        submitBtn.textContent = '전송 중...';
-                        submitBtn.disabled = true;
-
-                        // FormData 생성
-                        const formData = new FormData(form);
-
-                        // Web3Forms에 전송
-                        const response = await fetch('https://api.web3forms.com/submit', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            console.log('✅ 서비스 이용신청 전송 완료');
-                            // 성공 시 s_thanks 페이지로 이동
-                            window.location.href = '/s_thanks';
-                        } else {
-                            throw new Error('전송 실패');
-                        }
-
-                    } catch (error) {
-                        console.error('❌ 서비스 이용신청 전송 오류:', error);
-                        alert('신청서 전송 중 오류가 발생했습니다. 다시 시도해주세요.');
-
-                        // 버튼 복원
-                        submitBtn.textContent = originalText;
-                        submitBtn.disabled = false;
-                    }
-                });
-            }
+            // Form now submits directly to Web3Forms via HTML form action
 
             console.log('✅ 서비스 이용신청 모달 생성 완료 - JavaScript 제출 방식');
         }

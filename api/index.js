@@ -200,6 +200,9 @@ module.exports = async (req, res) => {
         } else if (url === '/thanks') {
             viewName = 'thanks';
             title = '신청 완료';
+        } else if (url === '/r_thanks' || url === '/r-thanks') {
+            viewName = 'e_thanks';
+            title = '연차료 납부의뢰 완료';
         } else if (url === '/p_thanks' || url === '/p-thanks') {
             viewName = 'p_thanks';
             title = 'PCT 납부의뢰 완료';

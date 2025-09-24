@@ -1,39 +1,12 @@
-> unic-patent-status@1.0.1 start
-> node server.local.js
-
-🚀 로컬 서버가 http://localhost:3000 에서 실행 중입니다
-📱 테스트 가능한 페이지:
-   - 메인 페이지: http://localhost:3000/
-   - 등록특허 현황: http://localhost:3000/registered (로그인 필요)
-   - 출원특허 현황: http://localhost:3000/application (로그인 필요)
-🔑 테스트 계정:
-   - 관리자: admin@unic.com / admin123
-   - 사용자: test@unic.com / test123
-📍 라우팅 처리 중: /
-🏠 메인 페이지 요청: index.html 서빙
-📍 라우팅 처리 중: /style.css
-❌ 알 수 없는 라우트: /style.css
-🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
-🔍 라우팅 디버그: { url: '/style.css', viewName: '404', title: '페이지를 찾을 수 없습니다' }
-✅ 템플릿 발견: C:\unic_ip\views\404.ejs
-📍 라우팅 처리 중: /logo.png
-❌ 알 수 없는 라우트: /logo.png
-🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
-🔍 라우팅 디버그: { url: '/logo.png', viewName: '404', title: '페이지를 찾을 수 없습니다' }
-✅ 템플릿 발견: C:\unic_ip\views\404.ejs
-📍 라우팅 처리 중: /excel-icon.png
-❌ 알 수 없는 라우트: /excel-icon.png
-🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
-🔍 라우팅 디버그: { url: '/excel-icon.png', viewName: '404', title: '페이지를 찾을 수 없습니다' }
-✅ 템플릿 발견: C:\unic_ip\views\404.ejs
-📍 라우팅 처리 중: /script.js
-❌ 알 수 없는 라우트: /script.js
-🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
-🔍 라우팅 디버그: { url: '/script.js', viewName: '404', title: '페이지를 찾을 수 없습니다' }
-✅ 템플릿 발견: C:\unic_ip\views\404.ejs
-🔗 login API 요청 감지, 라우팅 중...
-로그인 시도: { email: 'test@unic.com' }
-📍 라우팅 처리 중: /registered
-🎯 최종 설정: { viewName: 'registered', title: '등록특허 현황' }
-🔍 라우팅 디버그: { url: '/registered', viewName: 'registered', title: '등록특허 현황' }
-✅ 템플릿 발견: C:\unic_ip\views\registered.ejs
+Failed to load resource: the server responded with a status of 404 (Not Found)
+(index):476 ✅ 서비스 이용신청 모달 생성 완료 - JavaScript 제출 방식
+script.js:10  Uncaught SyntaxError: Failed to execute 'querySelector' on 'Document': '#' is not a valid selector.
+    at HTMLAnchorElement.<anonymous> (script.js:10:48)
+api.web3forms.com/submit:1   Failed to load resource: the server responded with a status of 400 (Bad Request)
+(index):466  ❌ 서비스 이용신청 전송 오류: Error: 전송 실패
+    at HTMLFormElement.<anonymous> ((index):462:35)
+(anonymous) @ (index):466
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn m
