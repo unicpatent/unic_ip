@@ -39,7 +39,9 @@
       "Bash(del libverify-member.js)",
       "Bash(vercel:*)",
       "WebFetch(domain:unic-ip.vercel.app)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "WebSearch",
+      "WebFetch(domain:plus.kipris.or.kr)"
     ],
     "deny": [],
     "ask": []
