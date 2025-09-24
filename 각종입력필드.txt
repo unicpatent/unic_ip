@@ -6,7 +6,7 @@ ljunhyek@naver.com, password123
 특허고객번호 420190604003
 
 git add .
-git commit -m "공고전문 수정2"
+git commit -m "로고 수정1"
 git push
 
 
