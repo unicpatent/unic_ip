@@ -16,9 +16,9 @@
             <ul class="nav-menu">
                 <li><a href="#" id="loginBtn">로그인</a></li>
                 <li><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
-                <li><a href="/registered" id="registeredBtn" style="display:none;">등록특허 현황</a></li>
-                <li><a href="/application" id="applicationBtn" style="display:none;">출원특허 현황</a></li>
-                <li><a href="#guide">유니크 소개</a></li>
+                <li><a href="#" id="registeredBtn">등록특허 현황</a></li>
+                <li><a href="#" id="applicationBtn">출원특허 현황</a></li>
+                <li><a href="https://www.unicpat.com" target="_blank">유니크 소개</a></li>
                 <li><a href="#" id="logoutBtn" style="display:none;">로그아웃</a></li>
             </ul>
         </nav>
@@ -257,13 +257,11 @@
             if (isLoggedIn) {
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline';
-                registeredBtn.style.display = 'inline';
-                applicationBtn.style.display = 'inline';
+                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
             } else {
                 loginBtn.style.display = 'inline';
                 logoutBtn.style.display = 'none';
-                registeredBtn.style.display = 'none';
-                applicationBtn.style.display = 'none';
+                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
             }
         }
 
@@ -475,6 +473,48 @@
             }
 
             console.log('✅ 서비스 이용신청 모달 생성 완료 - JavaScript 제출 방식');
+        }
+
+        // 로그인 상태 확인 함수
+        function isLoggedIn() {
+            const cookies = document.cookie.split(';');
+            const authCookie = cookies.find(cookie => cookie.trim().startsWith('authToken='));
+            return authCookie && authCookie.includes('authenticated');
+        }
+
+        // 등록특허 현황 클릭 핸들러
+        registeredBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                // 로그인 되어 있으면 페이지로 이동
+                window.location.href = '/registered';
+            } else {
+                // 로그인 안 되어 있으면 메시지 표시
+                alert('로그인하고 이용할 수 있습니다.');
+            }
+        });
+
+        // 출원특허 현황 클릭 핸들러
+        applicationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                // 로그인 되어 있으면 페이지로 이동
+                window.location.href = '/application';
+            } else {
+                // 로그인 안 되어 있으면 메시지 표시
+                alert('로그인하고 이용할 수 있습니다.');
+            }
+        });
+
+        // 특허검색 버튼 클릭 핸들러
+        const ctaButton = document.querySelector('.cta-button');
+        if (ctaButton) {
+            ctaButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 로그인 모달 표시
+                loginModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
         }
     </script>
 
