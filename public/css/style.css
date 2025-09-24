@@ -1,16 +1,3 @@
-/* public/css/style.css - 유니크 특허 현황 시스템 공통 스타일 */
-
-:root {
-    --primary-color: #54B435;
-    --heading-color: #0F172A;
-    --text-color: #2F3B40;
-    --bg-light: #EDFBE2;
-    --bg-white: #FFFFFF;
-    --border-color: #e5e7eb;
-    --error-color: #ef4444;
-    --success-color: #22c55e;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -18,680 +5,508 @@
 }
 
 body {
-    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: var(--text-color);
-    background-color: #f9fafb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
+    color: #333;
 }
 
-/* 레이아웃 */
 .container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 20px;
 }
 
-/* 헤더 */
-.header {
-    background: var(--bg-white);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    position: sticky;
+/* Header */
+header {
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
 }
 
-.header-content {
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 0;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--heading-color);
-    text-decoration: none;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    background: #4CAF50;
+    border-radius: 5px;
 }
 
-.logo span {
-    color: var(--primary-color);
-}
-
-/* 네비게이션 */
-.nav-tabs {
+.nav-menu {
     display: flex;
+    list-style: none;
     gap: 2rem;
 }
 
-.nav-link {
-    color: var(--text-color);
+.nav-menu a {
     text-decoration: none;
+    color: #333;
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-
-/* 메인 컨텐츠 */
-.main-content {
-    min-height: calc(100vh - 200px);
-    padding: 2rem 0;
-}
-
-.page-title {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.page-title h1 {
-    font-size: 2.5rem;
-    color: var(--heading-color);
-    margin-bottom: 0.5rem;
-}
-
-.page-title p {
-    font-size: 1.125rem;
-    color: var(--text-color);
-}
-
-/* 검색 섹션 */
-.search-section {
-    background: var(--bg-white);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
-}
-
-.search-form {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
-
-.form-group {
-    flex: 1;
-    min-width: 250px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--heading-color);
-}
-
-.form-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(84, 180, 53, 0.1);
-}
-
-.form-hint {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-}
-
-/* 버튼 */
-.btn {
-    padding: 0.75rem 2rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    box-shadow: 0 2px 4px rgba(84, 180, 53, 0.2);
-}
-
-.btn-primary:hover {
-    background: #469b2d;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(84, 180, 53, 0.3);
-}
-
-.btn-primary:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-info {
-    background: #0891b2;
-    border-color: #0891b2;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    border: 2px solid;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s;
-    cursor: pointer;
-}
-
-.btn-info:hover {
-    background: #0e7490;
-    border-color: #0e7490;
-    transform: translateY(-1px);
-}
-
-.btn-secondary {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-}
-
-.btn-secondary:hover {
-    background: var(--primary-color);
-    color: white;
-}
-
-/* 입력 그룹 및 고객번호 찾기 버튼 */
-.input-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: stretch;
-}
-
-.customer-number-input {
-    flex: 0 0 200px; /* 12자리 + 여유공간으로 고정 너비 */
-    min-width: 200px;
-}
-
-.find-customer-btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    font-size: 0.9rem;
-    padding: 0.75rem 1rem;
-    background: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.find-customer-btn:hover {
-    background: #4b5563;
-    transform: translateY(-1px);
-}
-
-.find-customer-btn:active {
-    transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-    .input-group {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .customer-number-input {
-        flex: 1;
-        min-width: auto;
-    }
-    
-    .find-customer-btn {
-        width: 100%;
-    }
-}
-
-/* 결과 섹션 */
-.results-section {
-    background: var(--bg-white);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--bg-light);
-}
-
-.results-info {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.info-label {
-    font-weight: 600;
-    color: var(--heading-color);
-}
-
-.info-value {
-    color: var(--text-color);
-}
-
-.action-buttons {
-    display: flex;
-    gap: 1rem;
-}
-
-/* 테이블 */
-.table-container {
-    overflow-x: auto;
-    margin-top: 1.5rem;
-}
-
-.patent-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.875rem;
-}
-
-.patent-table thead {
-    background: var(--bg-light);
-}
-
-.patent-table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    color: var(--heading-color);
-    border-bottom: 2px solid var(--primary-color);
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
-    background: var(--bg-light);
-}
-
-.patent-table td {
-    padding: 1rem;
-    color: var(--text-color);
-    border-bottom: 1px solid var(--border-color);
-    text-decoration: none;
-    vertical-align: top;
-}
-
-.patent-table tbody tr:hover {
-    background: #f9fafb;
-}
-
-/* 테이블 내 모든 텍스트에서 밑줄 제거 */
-.patent-table td * {
-    text-decoration: none !important;
-    border-bottom: none !important;
-}
-
-/* 테이블 컬럼 특정 너비 설정 (발명자 컬럼 제거 후 인덱스 조정) */
-.patent-table th:nth-child(10),  /* 해당 연차료 납부마감일 */
-.patent-table td:nth-child(10) {
-    min-width: 140px;
-    width: 140px;
-}
-
-.patent-table th:nth-child(15),  /* 추납기간 */
-.patent-table td:nth-child(15),
-.patent-table th:nth-child(16),  /* 회복기간 */
-.patent-table td:nth-child(16) {
-    min-width: 140px;
-    width: 140px;
-}
-
-.patent-table .applicant-name,
-.patent-table .invention-title {
-    text-decoration: none !important;
-    border-bottom: none !important;
-}
-
-/* 텍스트 자연스러운 2줄 표시 */
-.text-natural-2lines {
-    line-height: 1.4;
-    max-height: 2.8em; /* line-height * 2 */
-    overflow: hidden;
-    word-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-    display: block;
-    text-decoration: none !important;
-}
-
-/* 발명의 명칭 자연스러운 멀티라인 표시 */
-.invention-title-natural {
-    max-width: 500px;
-    min-width: 300px;
-    text-decoration: none !important;
-    line-height: 1.4;
-    word-wrap: break-word;
-    word-break: break-word;
-    vertical-align: top;
-}
-
-/* 출원인명 스타일 개선 */
-.applicant-name-clean {
-    text-decoration: none !important;
-    border-bottom: none !important;
-    line-height: 1.4;
-    max-height: 2.8em;
-    overflow: hidden;
-    word-wrap: break-word;
-    word-break: break-word;
-}
-
-/* 특허번호 자연스러운 줄바꿈 */
-.patent-number {
-    line-height: 1.3;
-    max-height: 2.6em; /* line-height * 2 */
-    overflow: hidden;
-    word-break: break-all;
-    hyphens: none;
-    max-width: 120px;
-    min-width: 100px;
-}
-
-.invention-title {
-    max-width: 500px;
-    min-width: 300px;
-}
-
-.applicant-name {
-    max-width: 250px;
-    min-width: 150px;
-    text-decoration: none !important;
-    border-bottom: none !important;
-}
-
-/* 페이지네이션 */
-.pagination-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--bg-white);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-}
-
-.pagination-info {
-    color: var(--text-color);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.pagination-controls {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.pagination-btn {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border-color);
-    background: var(--bg-white);
-    color: var(--text-color);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    min-width: 2.5rem;
-}
-
-.pagination-btn:hover:not(.disabled):not(.active) {
-    background: #f3f4f6;
-    border-color: var(--primary-color);
-}
-
-.pagination-btn.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-
-.pagination-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #f9fafb;
-    color: #9ca3af;
-}
-
-@media (max-width: 768px) {
-    .pagination-container {
-        gap: 0.5rem;
-        text-align: center;
-    }
-    
-    .pagination-controls {
-        justify-content: center;
-    }
-    
-    .pagination-btn {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        min-width: 2rem;
-    }
-}
-
-/* 상태 배지 */
-.badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.badge-success {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.badge-warning {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge-info {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-/* 로딩 */
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-left: 0.5rem;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* 빈 상태 */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: #6b7280;
-}
-
-.empty-icon {
-    font-size: 4rem;
-    color: #d1d5db;
-    margin-bottom: 1rem;
-}
-
-.empty-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--heading-color);
-    margin-bottom: 0.5rem;
-}
-
-.empty-description {
-    color: var(--text-color);
-}
-
-/* 에러 메시지 */
-.error-message {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
-}
-
-/* 푸터 */
-.footer {
-    background: var(--heading-color);
-    color: #e2e8f0;
-    padding: 2rem 0;
-    margin-top: 4rem;
-}
-
-.footer-content {
-    text-align: center;
-}
-
-.footer-text {
-    margin-bottom: 0.5rem;
-}
-
-.footer-contact {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 1rem;
-}
-
-.footer-contact a {
-    color: #94a3b8;
-    text-decoration: none;
     transition: color 0.3s;
 }
 
-.footer-contact a:hover {
-    color: var(--primary-color);
+.nav-menu a:hover {
+    color: #4CAF50;
 }
 
-/* 반응형 */
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 600px;
+    background-image: url('/images/hero-background-tech.jpg');
+    background-size: cover;
+    background-position: center;
+    margin-top: 80px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.hero h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.cta-button {
+    background: #4CAF50;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.cta-button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+}
+
+/* Features Section */
+.features {
+    padding: 80px 0;
+    background: #f8f9fa;
+}
+
+.feature-intro {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.feature-intro h3 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.feature-intro p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1rem !important;
+    color: #888 !important;
+}
+
+.feature-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin-top: 60px;
+}
+
+.computer-mockup {
+    position: relative;
+}
+
+.screen {
+    width: 400px;
+    height: 250px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.screen-content {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.table-header {
+    background: #f0f0f0;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.table-rows {
+    padding: 10px 0;
+}
+
+.table-row {
+    height: 25px;
+    background: #f9f9f9;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.computer-base {
+    width: 450px;
+    height: 30px;
+    background: linear-gradient(145deg, #e0e0e0, #c0c0c0);
+    margin: 0 auto;
+    border-radius: 0 0 20px 20px;
+}
+
+.keyboard {
+    width: 500px;
+    height: 20px;
+    background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+    margin: 10px auto;
+    border-radius: 10px;
+}
+
+.excel-icon {
+    text-align: center;
+}
+
+.excel-icon img {
+    width: 60px;
+    height: 60px;
+    background: #217346;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.excel-icon p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Mobile Features Section */
+.mobile-features {
+    padding: 80px 0;
+    background: white;
+}
+
+.mobile-features h3 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 60px;
+    color: #333;
+}
+
+.mobile-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 60px;
+}
+
+.mobile-mockup {
+    flex: 0 0 300px;
+}
+
+.mobile-screen {
+    width: 250px;
+    height: 450px;
+    background: linear-gradient(145deg, #333, #222);
+    border-radius: 30px;
+    padding: 30px 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    transform: rotate(-10deg);
+}
+
+.mobile-header {
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mobile-item {
+    height: 60px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.feature-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.feature-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    background: #f0f8ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-text h4 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.feature-text p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Contact Section */
+.contact {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.contact-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+    line-height: 1.4;
+}
+
+.contact-details {
+    margin-bottom: 40px;
+}
+
+.contact-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.contact-logo img {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+.contact-logo span {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.contact-text p {
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.contact-methods {
+    margin-top: 30px;
+}
+
+.contact-method {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.contact-button {
+    background: #4CAF50;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.contact-button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.contact-features {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.feature-badge {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.badge-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.feature-badge p {
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 1rem;
+    .nav-menu {
+        display: none;
     }
     
-    .nav-tabs {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .search-form {
-        flex-direction: column;
-    }
-    
-    .form-group {
-        width: 100%;
-    }
-    
-    .results-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-    
-    .action-buttons {
-        width: 100%;
-        justify-content: stretch;
-    }
-    
-    .action-buttons .btn {
-        flex: 1;
-    }
-    
-    .page-title h1 {
+    .hero h1 {
         font-size: 2rem;
     }
+    
+    .hero h2 {
+        font-size: 1.3rem;
+    }
+    
+    
+    .feature-visual {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .screen {
+        width: 300px;
+        height: 200px;
+    }
+    
+    .computer-base {
+        width: 350px;
+    }
+    
+    .keyboard {
+        width: 400px;
+    }
+    
+    .mobile-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .contact-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
 }
 
-/* 파일 링크 스타일 (개선된 버전) */
-.file-link {
-    color: #0066cc;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.375rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 1px solid #e0e0e0;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.file-link:hover {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-color: #90caf9;
-    text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.file-icon {
-    font-size: 1rem;
-}
-
-/* 파일이 없는 경우 스타일 */
-.no-file {
-    color: #6b7280;
-    font-style: italic;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-}
-
-/* 유효하지 않은 파일 URL 스타일 */
-.invalid-file {
-    color: #dc3545;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    cursor: help;
-    background-color: #fef2f2;
-    border-radius: 0.375rem;
-    border: 1px solid #fecaca;
+@media (max-width: 480px) {
+    .hero {
+        padding: 100px 20px;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    
+    .screen {
+        width: 280px;
+        height: 180px;
+    }
+    
+    .computer-base {
+        width: 320px;
+    }
+    
+    .keyboard {
+        width: 350px;
+    }
+    
+    .mobile-screen {
+        width: 200px;
+        height: 360px;
+    }
 }
