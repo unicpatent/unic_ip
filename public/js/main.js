@@ -82,14 +82,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 엑셀 다운로드 함수
-async function downloadExcel(patents, type) {
+async function downloadExcel(patents, type, customerNumber) {
     try {
         const response = await fetch('/api/export-excel', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ patents, type })
+            body: JSON.stringify({ patents, type, customerNumber })
         });
 
         if (!response.ok) {

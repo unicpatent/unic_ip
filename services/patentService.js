@@ -1013,7 +1013,7 @@ class PatentService {
     }
 
     // Excel 생성
-    generateExcel(patents, type, searchValue = '') {
+    generateExcel(patents, type, customerNumber = '') {
         let headers = [];
 
         if (type === 'registered') {
@@ -1069,7 +1069,7 @@ class PatentService {
                     p.registrationStatus,
                     p.publicationFullText || '-',
                     p.announcementFullText || '-',
-                    searchValue || '-'  // 고객번호 (사용자가 입력한 고객번호)
+                    customerNumber || '-'  // 고객번호 (사용자가 입력한 고객번호)
                 ];
             }
         });
