@@ -3,9 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault();
             const targetId = this.getAttribute('href');
+            // Only prevent default for internal anchor links
             if (targetId.startsWith('#')) {
+                e.preventDefault();
                 const targetSection = document.querySelector(targetId);
                 if (targetSection) {
                     targetSection.scrollIntoView({
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
+            // Let external links and other links work normally
         });
     });
 

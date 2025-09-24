@@ -2,7 +2,7 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 10,
-      "includeFiles": "views/**"
+      "includeFiles": "views/**,public/**"
     }
   },
   "rewrites": [
