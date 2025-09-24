@@ -906,12 +906,12 @@ class PatentService {
         }
     }
 
-    // 공고전문 파일 URL 조회 (새로 추가)
+    // 공고전문 파일 URL 조회 (수정됨)
     async getAnnouncementFullTextUrl(applicationNumber) {
         try {
-            // 공고전문은 등록특허에 대해서만 존재하므로 먼저 등록 상태 확인
-            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getAdvancedSearch`;
-            
+            // 실제 KIPRIS API를 사용하여 공고전문 path 조회
+            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getPubFullTextInfoSearch`;
+
             const response = await axios.get(url, {
                 params: {
                     applicationNumber: applicationNumber,
@@ -920,22 +920,26 @@ class PatentService {
                 timeout: 10000
             });
 
-            const result = await this.parseResponse(response.data);
-            
-            if (result && result.length > 0) {
-                const patent = result[0];
-                const registrationNumber = this.getValue(patent.registrationNumber || patent.registerNumber);
-                
-                // 등록번호가 있는 경우에만 공고전문 조회 시도
-                if (registrationNumber && registrationNumber !== '-') {
-                    // 공고전문 URL은 일반적으로 등록번호 기반으로 구성
-                    return {
-                        docName: `${registrationNumber}.pdf`,
-                        path: `https://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=${registrationNumber}_announcement`
-                    };
+            // XML 응답 처리
+            if (typeof response.data === 'string' && response.data.includes('<?xml')) {
+                const result = await this.parseXMLResponse(response.data);
+
+                if (result && result.length > 0) {
+                    const item = result[0];
+                    const docName = this.getValue(item.docName);
+                    const path = this.getValue(item.path);
+
+                    console.log(`📄 공고전문 조회 성공 - ${applicationNumber}:`, { docName, path });
+
+                    if (path && path !== '-') {
+                        return {
+                            docName: docName || '-',
+                            path: path
+                        };
+                    }
                 }
             }
-            
+
             return null;
 
         } catch (error) {
