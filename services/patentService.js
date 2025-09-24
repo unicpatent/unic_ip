@@ -910,7 +910,7 @@ class PatentService {
     async getAnnouncementFullTextUrl(applicationNumber) {
         try {
             // 실제 KIPRIS API를 사용하여 공고전문 path 조회
-            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getPubFullTextInfoSearch`;
+            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getAnnFullTextInfoSearch`;
 
             const response = await axios.get(url, {
                 params: {
