@@ -1,0 +1,525 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    background: #4CAF50;
+    border-radius: 5px;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: #4CAF50;
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 600px;
+    background-image: url('hero-background-tech.jpg');
+    background-size: cover;
+    background-position: center;
+    margin-top: 80px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.05);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+.hero h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+    color: #000000;
+}
+
+.cta-button {
+    background: #4CAF50;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.cta-button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+}
+
+/* Features Section */
+.features {
+    padding: 80px 0;
+    background: #f8f9fa;
+}
+
+.feature-intro {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.feature-intro h3 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.feature-intro p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1rem !important;
+    color: #888 !important;
+}
+
+.feature-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin-top: 60px;
+}
+
+.computer-mockup {
+    position: relative;
+}
+
+.screen {
+    width: 400px;
+    height: 250px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.screen-content {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.table-header {
+    background: #f0f0f0;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.table-rows {
+    padding: 10px 0;
+}
+
+.table-row {
+    height: 25px;
+    background: #f9f9f9;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.computer-base {
+    width: 450px;
+    height: 30px;
+    background: linear-gradient(145deg, #e0e0e0, #c0c0c0);
+    margin: 0 auto;
+    border-radius: 0 0 20px 20px;
+}
+
+.keyboard {
+    width: 500px;
+    height: 20px;
+    background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+    margin: 10px auto;
+    border-radius: 10px;
+}
+
+.excel-icon {
+    text-align: center;
+}
+
+.excel-icon img {
+    width: 60px;
+    height: 60px;
+    background: #217346;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.excel-icon p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Mobile Features Section */
+.mobile-features {
+    padding: 80px 0;
+    background: white;
+}
+
+.mobile-features h3 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 60px;
+    color: #333;
+}
+
+.mobile-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 60px;
+}
+
+.mobile-mockup {
+    flex: 0 0 300px;
+}
+
+.mobile-screen {
+    width: 250px;
+    height: 450px;
+    background: linear-gradient(145deg, #333, #222);
+    border-radius: 30px;
+    padding: 30px 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    transform: rotate(-10deg);
+}
+
+.mobile-header {
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mobile-item {
+    height: 60px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.feature-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.feature-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    background: #f0f8ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-text h4 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.feature-text p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Contact Section */
+.contact {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.contact-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+    line-height: 1.4;
+}
+
+.contact-details {
+    margin-bottom: 40px;
+}
+
+.contact-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.contact-logo img {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+.contact-logo span {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.contact-text p {
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.contact-methods {
+    margin-top: 30px;
+}
+
+.contact-method {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.contact-button {
+    background: #4CAF50;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.contact-button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.contact-features {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.feature-badge {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.badge-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.feature-badge p {
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero h2 {
+        font-size: 1.3rem;
+    }
+    
+    
+    .feature-visual {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .screen {
+        width: 300px;
+        height: 200px;
+    }
+    
+    .computer-base {
+        width: 350px;
+    }
+    
+    .keyboard {
+        width: 400px;
+    }
+    
+    .mobile-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .contact-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 100px 20px;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    
+    .screen {
+        width: 280px;
+        height: 180px;
+    }
+    
+    .computer-base {
+        width: 320px;
+    }
+    
+    .keyboard {
+        width: 350px;
+    }
+    
+    .mobile-screen {
+        width: 200px;
+        height: 360px;
+    }
+}

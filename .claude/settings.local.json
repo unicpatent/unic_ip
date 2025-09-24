@@ -31,7 +31,15 @@
       "Bash(find:*)",
       "Bash(dir \"C:\\ip\\unic-patent-status\\*.txt\" /s)",
       "Bash(dir:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(del test-server.js)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(grep:*)",
+      "Bash(del libverify-member.js)",
+      "Bash(vercel:*)",
+      "WebFetch(domain:unic-ip.vercel.app)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

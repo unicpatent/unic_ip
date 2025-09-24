@@ -40,6 +40,8 @@
                 <nav class="nav-tabs">
                     <a href="/registered" class="nav-link">등록특허 현황</a>
                     <a href="/application" class="nav-link">출원특허 현황</a>
+                    <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 소개</a>
+                    <a href="#" class="nav-link" id="logoutBtn">로그아웃</a>
                 </nav>
             </div>
         </div>
@@ -635,6 +637,25 @@ function openCustomerSearchPopup() {
 
 // Event listeners setup (avoiding CSP issues with inline onclick)
 document.addEventListener('DOMContentLoaded', function() {
+    // Logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/logout');
+                const result = await response.json();
+                if (result.success) {
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+                alert('로그아웃 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
     // PCT 납부의뢰 버튼
     const pctRequestBtn = document.getElementById('pctRequestBtn');
     if (pctRequestBtn) {

@@ -1,70 +1,39 @@
-Sep 22 17:09:34.66
-GET
-404
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/favicon.png
-6
-시도한 경로들: [ '/var/task/views/404.ejs', '/var/task/views/404.ejs', '/var/task/api/views/404.ejs' ]
-Sep 22 17:09:34.46
-GET
-404
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/favicon.ico
-6
-시도한 경로들: [ '/var/task/views/404.ejs', '/var/task/views/404.ejs', '/var/task/api/views/404.ejs' ]
-Sep 22 17:09:34.04
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main class="main-content"> 4| <div class="container"> Could not find the include file "partials/header" at getIncludePath (/var/task/node_modules/ejs/lib/ejs.js:185:13) at includeFile (/var/task/node_modules/ejs/lib/ejs.js:311:19) at include (/var/task/node_modules/ejs/lib/ejs.js:701:16) at eval ("/var/task/views/registered.ejs":10:17) at registered (/var/task/node_modules/ejs/lib/ejs.js:703:17) at /var/task/node_modules/ejs/lib/ejs.js:260:40 at new Promise (<anonymous>) at tryHandleCache (/var/task/node_modules/ejs/lib/ejs.js:258:14) at exports.renderFile (/var/task/node_modules/ejs/lib/ejs.js:491:10) at module.exports [as handler] (/var/task/api/index.js:125:32) { path: '/var/task/views/registered.ejs' }
-Sep 22 17:09:32.74
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main class="main-content"> 4| <div class="container"> Could not find the include file "partials/header" at getIncludePath (/var/task/node_modules/ejs/lib/ejs.js:185:13) at includeFile (/var/task/node_modules/ejs/lib/ejs.js:311:19) at include (/var/task/node_modules/ejs/lib/ejs.js:701:16) at eval ("/var/task/views/registered.ejs":10:17) at registered (/var/task/node_modules/ejs/lib/ejs.js:703:17) at /var/task/node_modules/ejs/lib/ejs.js:260:40 at new Promise (<anonymous>) at tryHandleCache (/var/task/node_modules/ejs/lib/ejs.js:258:14) at exports.renderFile (/var/task/node_modules/ejs/lib/ejs.js:491:10) at module.exports [as handler] (/var/task/api/index.js:125:32) { path: '/var/task/views/registered.ejs' }
-Sep 22 17:08:46.94
-GET
-404
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/favicon.ico
-6
-시도한 경로들: [ '/var/task/views/404.ejs', '/var/task/views/404.ejs', '/var/task/api/views/404.ejs' ]
-Sep 22 17:08:46.90
-GET
-404
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/favicon.ico
-6
-시도한 경로들: [ '/var/task/views/404.ejs', '/var/task/views/404.ejs', '/var/task/api/views/404.ejs' ]
-Sep 22 17:08:46.73
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main class="main-content"> 4| <div class="container"> Could not find the include file "partials/header" at getIncludePath (/var/task/node_modules/ejs/lib/ejs.js:185:13) at includeFile (/var/task/node_modules/ejs/lib/ejs.js:311:19) at include (/var/task/node_modules/ejs/lib/ejs.js:701:16) at eval ("/var/task/views/registered.ejs":10:17) at registered (/var/task/node_modules/ejs/lib/ejs.js:703:17) at /var/task/node_modules/ejs/lib/ejs.js:260:40 at new Promise (<anonymous>) at tryHandleCache (/var/task/node_modules/ejs/lib/ejs.js:258:14) at exports.renderFile (/var/task/node_modules/ejs/lib/ejs.js:491:10) at module.exports [as handler] (/var/task/api/index.js:125:32) { path: '/var/task/views/registered.ejs' }
-Sep 22 17:08:46.66
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main class="main-content"> 4| <div class="container"> Could not find the include file "partials/header" at getIncludePath (/var/task/node_modules/ejs/lib/ejs.js:185:13) at includeFile (/var/task/node_modules/ejs/lib/ejs.js:311:19) at include (/var/task/node_modules/ejs/lib/ejs.js:701:16) at eval ("/var/task/views/registered.ejs":10:17) at registered (/var/task/node_modules/ejs/lib/ejs.js:703:17) at /var/task/node_modules/ejs/lib/ejs.js:260:40 at new Promise (<anonymous>) at tryHandleCache (/var/task/node_modules/ejs/lib/ejs.js:258:14) at exports.renderFile (/var/task/node_modules/ejs/lib/ejs.js:491:10) at module.exports [as handler] (/var/task/api/index.js:125:32) { path: '/var/task/views/registered.ejs' }
-Sep 22 17:08:46.25
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main class="main-content"> 4| <div class="container"> Could not find the include file "partials/header" at getIncludePath (/var/task/node_modules/ejs/lib/ejs.js:185:13) at includeFile (/var/task/node_modules/ejs/lib/ejs.js:311:19) at include (/var/task/node_modules/ejs/lib/ejs.js:701:16) at eval ("/var/task/views/registered.ejs":10:17) at registered (/var/task/node_modules/ejs/lib/ejs.js:703:17) at /var/task/node_modules/ejs/lib/ejs.js:260:40 at new Promise (<anonymous>) at tryHandleCache (/var/task/node_modules/ejs/lib/ejs.js:258:14) at exports.renderFile (/var/task/node_modules/ejs/lib/ejs.js:491:10) at module.exports [as handler] (/var/task/api/index.js:125:32) { path: '/var/task/views/registered.ejs' }
-Sep 22 17:08:46.21
-GET
-500
-unic-ip-h5ls-m9l3lqp8w-874100s-projects.vercel.app
-/
-5
-Main route error: Error: /var/task/views/registered.ejs:1 >> 1| <%- include('partials/header') %> 2| 3| <main cla
+> unic-patent-status@1.0.1 start
+> node server.local.js
+
+🚀 로컬 서버가 http://localhost:3000 에서 실행 중입니다
+📱 테스트 가능한 페이지:
+   - 메인 페이지: http://localhost:3000/
+   - 등록특허 현황: http://localhost:3000/registered (로그인 필요)
+   - 출원특허 현황: http://localhost:3000/application (로그인 필요)
+🔑 테스트 계정:
+   - 관리자: admin@unic.com / admin123
+   - 사용자: test@unic.com / test123
+📍 라우팅 처리 중: /
+🏠 메인 페이지 요청: index.html 서빙
+📍 라우팅 처리 중: /style.css
+❌ 알 수 없는 라우트: /style.css
+🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
+🔍 라우팅 디버그: { url: '/style.css', viewName: '404', title: '페이지를 찾을 수 없습니다' }
+✅ 템플릿 발견: C:\unic_ip\views\404.ejs
+📍 라우팅 처리 중: /logo.png
+❌ 알 수 없는 라우트: /logo.png
+🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
+🔍 라우팅 디버그: { url: '/logo.png', viewName: '404', title: '페이지를 찾을 수 없습니다' }
+✅ 템플릿 발견: C:\unic_ip\views\404.ejs
+📍 라우팅 처리 중: /excel-icon.png
+❌ 알 수 없는 라우트: /excel-icon.png
+🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
+🔍 라우팅 디버그: { url: '/excel-icon.png', viewName: '404', title: '페이지를 찾을 수 없습니다' }
+✅ 템플릿 발견: C:\unic_ip\views\404.ejs
+📍 라우팅 처리 중: /script.js
+❌ 알 수 없는 라우트: /script.js
+🎯 최종 설정: { viewName: '404', title: '페이지를 찾을 수 없습니다' }
+🔍 라우팅 디버그: { url: '/script.js', viewName: '404', title: '페이지를 찾을 수 없습니다' }
+✅ 템플릿 발견: C:\unic_ip\views\404.ejs
+🔗 login API 요청 감지, 라우팅 중...
+로그인 시도: { email: 'test@unic.com' }
+📍 라우팅 처리 중: /registered
+🎯 최종 설정: { viewName: 'registered', title: '등록특허 현황' }
+🔍 라우팅 디버그: { url: '/registered', viewName: 'registered', title: '등록특허 현황' }
+✅ 템플릿 발견: C:\unic_ip\views\registered.ejs

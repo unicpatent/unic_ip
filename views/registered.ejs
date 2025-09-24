@@ -40,6 +40,8 @@
                 <nav class="nav-tabs">
                     <a href="/registered" class="nav-link">등록특허 현황</a>
                     <a href="/application" class="nav-link">출원특허 현황</a>
+                    <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 소개</a>
+                    <a href="#" class="nav-link" id="logoutBtn">로그아웃</a>
                 </nav>
             </div>
         </div>
@@ -210,6 +212,27 @@ if (typeof handleSearch === 'undefined') {
     window.currentPatents = currentPatents;
     window.currentPage = currentPage;
     window.itemsPerPage = itemsPerPage;
+
+    // 로그아웃 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                try {
+                    const response = await fetch('/api/logout');
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('로그아웃 되었습니다.');
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                    alert('로그아웃 중 오류가 발생했습니다.');
+                }
+            });
+        }
+    });
 
     // 검색 폼 이벤트 리스너
     document.addEventListener('DOMContentLoaded', function() {
