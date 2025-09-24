@@ -189,11 +189,367 @@
 
 <script>
 // 캐시 무효화를 위한 버전 체크
-console.log('🔄 납부의뢰 스크립트 로드됨 - 버전: 2025.08.21.v2');
+console.log('🔄 등록특허 스크립트 로드됨 - 버전: 2025.09.24.v1');
 </script>
 
 <!-- 등록특허 검색 기능 및 연차료 계산 기능 -->
 <script src="/js/registered.js?v=2025.09.19.v12"></script>
+
+<!-- 인라인 검색 기능 (백업용) -->
+<script>
+// 검색 기능 백업 (registered.js가 로드되지 않을 경우를 대비)
+if (typeof handleSearch === 'undefined') {
+    console.log('🔧 등록특허 검색 백업 스크립트 활성화');
+
+    let currentPatents = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    // 전역 변수로 설정
+    window.currentPatents = currentPatents;
+    window.currentPage = currentPage;
+    window.itemsPerPage = itemsPerPage;
+
+    // 검색 폼 이벤트 리스너
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const searchType = document.querySelector('input[name="searchType"]:checked').value;
+                const searchValue = document.getElementById('searchInput').value.trim();
+                const searchBtn = document.getElementById('searchBtn');
+                const originalText = searchBtn.innerHTML;
+
+                // 입력 검증
+                if (searchType === '1') {
+                    if (!/^\d{10}$/.test(searchValue)) {
+                        alert('사업자번호는 10자리 숫자여야 합니다.');
+                        return;
+                    }
+                } else {
+                    if (!/^\d{12}$/.test(searchValue)) {
+                        alert('고객번호는 12자리 숫자여야 합니다.');
+                        return;
+                    }
+                }
+
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = '🔍 검색중...';
+
+                try {
+                    const response = await fetch('/api/search-registered', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            searchType: searchType,
+                            searchValue: searchValue
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+                    }
+
+                    displayResults(data);
+
+                } catch (error) {
+                    console.error('검색 오류:', error);
+                    alert(error.message);
+                    hideResults();
+                } finally {
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = originalText;
+                }
+            });
+        }
+
+        // 라디오 버튼 변경 이벤트
+        const radioButtons = document.querySelectorAll('input[name="searchType"]');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', updateInputField);
+        });
+    });
+
+    // 입력 필드 업데이트
+    function updateInputField() {
+        const selectedType = document.querySelector('input[name="searchType"]:checked').value;
+        const searchInput = document.getElementById('searchInput');
+        const searchInputLabel = document.getElementById('searchInputLabel');
+        const searchInputHint = document.getElementById('searchInputHint');
+
+        if (selectedType === '1') {
+            searchInputLabel.textContent = '사업자번호';
+            searchInput.placeholder = '예: 1234567890';
+            searchInput.maxLength = 10;
+            searchInput.pattern = '[0-9]{10}';
+            searchInputHint.textContent = '10자리 숫자 입력하세요';
+        } else {
+            searchInputLabel.textContent = '고객번호';
+            searchInput.placeholder = '예: 120190612244';
+            searchInput.maxLength = 12;
+            searchInput.pattern = '[0-9]{12}';
+            searchInputHint.textContent = '12자리 숫자 입력하세요';
+        }
+        searchInput.value = '';
+    }
+
+    // 결과 표시 함수
+    function displayResults(data) {
+        const allPatents = data.patents || [];
+
+        // 등록번호가 3 또는 4로 시작하는 항목 제외
+        const filteredPatents = allPatents.filter(patent => {
+            const registrationNumber = patent.registrationNumber || '';
+            const cleanedRgstNo = registrationNumber.replace(/-/g, '');
+            const firstDigit = cleanedRgstNo.charAt(0);
+            return !(firstDigit === '3' || firstDigit === '4');
+        });
+
+        currentPatents = filteredPatents;
+        window.currentPatents = currentPatents;
+        currentPage = 1;
+        window.currentPage = currentPage;
+
+        // 현재 날짜 표시
+        const currentDate = new Date().toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        document.getElementById('resultCurrentDate').textContent = currentDate;
+
+        // 권리자명 표시
+        const searchType = document.querySelector('input[name="searchType"]:checked').value;
+        const rightHolderToDisplay = data.rightHolderName || data.applicantName || '정보 없음';
+        let displayText = rightHolderToDisplay;
+
+        if (searchType === '1') {
+            if (data.patents && data.patents.length > 0 && data.patents[0].applicantCd) {
+                displayText = `${rightHolderToDisplay} (고객번호: ${data.patents[0].applicantCd})`;
+            }
+        } else {
+            if (data.patents && data.patents.length > 0 && data.patents[0].businessNo) {
+                displayText = `${rightHolderToDisplay} (사업자번호: ${data.patents[0].businessNo})`;
+            }
+        }
+
+        document.getElementById('resultRightHolderName').textContent = displayText;
+        document.getElementById('resultTotalCount').textContent = filteredPatents.length;
+
+        const resultsSection = document.getElementById('resultsSection');
+
+        if (currentPatents.length === 0) {
+            document.getElementById('emptyState').style.display = 'block';
+            document.querySelector('.table-container').style.display = 'none';
+        } else {
+            document.getElementById('emptyState').style.display = 'none';
+            document.querySelector('.table-container').style.display = 'block';
+            displayTable();
+        }
+
+        resultsSection.style.display = 'block';
+    }
+
+    // 테이블 표시 함수
+    function displayTable() {
+        const tableBody = document.getElementById('patentTableBody');
+        tableBody.innerHTML = '';
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, currentPatents.length);
+        const paginatedPatents = currentPatents.slice(startIndex, endIndex);
+
+        paginatedPatents.forEach(patent => {
+            const row = document.createElement('tr');
+            const safeValue = (value) => value && value !== '-' ? value : '-';
+
+            // 출원번호 형식 변환
+            const formatApplicationNumber = (appNumber) => {
+                if (!appNumber || appNumber === '-' || appNumber.length !== 13) {
+                    return appNumber;
+                }
+                return appNumber.substring(0, 2) + '-' + appNumber.substring(2, 6) + '-' + appNumber.substring(6);
+            };
+
+            // 날짜 형식 변환
+            const formatDate = (dateStr) => {
+                if (!dateStr || dateStr === '-') return '-';
+                if (dateStr.length === 8 && /^\d{8}$/.test(dateStr)) {
+                    return dateStr.substring(0, 4) + '-' + dateStr.substring(4, 6) + '-' + dateStr.substring(6, 8);
+                }
+                return dateStr;
+            };
+
+            row.innerHTML = `
+                <td class="patent-number">${formatApplicationNumber(safeValue(patent.applicationNumber))}</td>
+                <td class="patent-number">${safeValue(patent.registrationNumber)}</td>
+                <td class="applicant-name">${safeValue(patent.applicantName)}</td>
+                <td>${formatDate(patent.applicationDate)}</td>
+                <td>${formatDate(patent.registrationDate)}</td>
+                <td>${formatDate(patent.expirationDate)}</td>
+                <td class="invention-title">${safeValue(patent.inventionTitle)}</td>
+                <td>${safeValue(patent.claimCount)}</td>
+                <td>${safeValue(patent.registrationStatus)}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // 결과 숨기기
+    function hideResults() {
+        document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    // 버튼 이벤트 리스너 설정
+    document.addEventListener('DOMContentLoaded', function() {
+        // 연차료 계산 버튼
+        const calculateBtn = document.getElementById('calculateAnnuityBtn');
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', function() {
+                console.log('🧮 연차료 계산 버튼 클릭');
+                if (typeof calculateAnnuityFees === 'function') {
+                    calculateAnnuityFees();
+                } else {
+                    alert('연차료 계산 기능을 준비 중입니다.');
+                }
+            });
+        }
+
+        // 납부의뢰 버튼
+        const renewalBtn = document.getElementById('renewalRequestBtn');
+        if (renewalBtn) {
+            renewalBtn.addEventListener('click', function() {
+                console.log('💰 납부의뢰 버튼 클릭');
+                if (currentPatents.length === 0) {
+                    alert('납부의뢰할 특허가 없습니다.');
+                    return;
+                }
+
+                // 고객번호는 검색 입력값에서, 출원인 이름은 권리자명에서 가져오기
+                const searchType = document.querySelector('input[name="searchType"]:checked').value;
+                let customerNumber = '';
+
+                if (searchType === '2') {
+                    // 고객번호로 검색한 경우
+                    customerNumber = document.getElementById('searchInput').value.trim();
+                } else {
+                    // 사업자번호로 검색한 경우, 첫 번째 특허의 고객번호 사용
+                    if (currentPatents.length > 0 && currentPatents[0].applicantCd) {
+                        customerNumber = currentPatents[0].applicantCd;
+                    }
+                }
+
+                const rightHolderName = document.getElementById('resultRightHolderName').textContent;
+                // 괄호 안의 정보 제거하여 순수한 이름만 추출
+                const applicantName = rightHolderName.replace(/\\s*\\([^)]*\\)\\s*/g, '').trim();
+
+                showRenewalRequestModal(customerNumber, applicantName);
+            });
+        }
+
+        // 다운로드 버튼
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                console.log('📊 다운로드 버튼 클릭');
+                if (currentPatents.length === 0) {
+                    alert('다운로드할 데이터가 없습니다.');
+                    return;
+                }
+
+                // 검색에 사용된 번호 가져오기
+                const searchValue = document.getElementById('searchInput').value.trim();
+
+                if (typeof downloadExcel === 'function') {
+                    downloadExcel(currentPatents, 'registered', searchValue);
+                } else {
+                    alert('다운로드 기능을 준비 중입니다.');
+                }
+            });
+        }
+    });
+
+    // 납부의뢰 모달 표시 함수 (백업용)
+    function showRenewalRequestModal(customerNumber, applicantName) {
+        const modalHTML = `
+            <div id="renewalModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                <div class="modal-content" style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="border-bottom: 2px solid #54B435; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                        <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">연차료 납부의뢰</h2>
+                    </div>
+                    <div class="guidance-text" style="background: #f0fdf4; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #54B435;">
+                        <div style="color: #047857; line-height: 1.6;">
+                            <p style="margin: 0 0 0.5rem 0;">1. 연차료 납부를 대행해 드립니다</p>
+                            <p style="margin: 0 0 1rem 0;">2. 대리인 수수료는 건당 20,000원입니다 (부가세 별도)</p>
+                            <p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; color: #059669;">- 개인, 중소기업 70% 감면 금액 확인하여 연차료 비용 청구서 발송</p>
+                            <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #059669;">- 세금 계산서와 영수증 송부</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #059669;">3. 특허청 특허로에 접속하시거나 특허청으로부터 받으신 지로용지로 직접 납부하실 수 있습니다</p>
+                        </div>
+                    </div>
+                    <form action="https://api.web3forms.com/submit" method="POST" id="renewalRequestForm">
+                        <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                        <input type="hidden" name="redirect" value="${window.location.origin}/r_thanks">
+                        <input type="hidden" name="subject" value="연차료 납부의뢰">
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호</label>
+                            <input type="text" name="customer_number" value="${customerNumber}" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름</label>
+                            <input type="text" name="name" value="${applicantName}" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;">
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label>
+                            <input type="email" name="email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="example@email.com">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
+                            <input type="tel" name="phone" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="010-0000-0000">
+                        </div>
+
+                        <textarea name="message" style="display: none;">연차료 납부의뢰 - 고객번호: ${customerNumber}, 고객명: ${applicantName}</textarea>
+
+                        <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
+                            <p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>
+                            <p style="margin: 0 0 0.5rem 0;">수집·이용 목적: 연차료 납부 대행 처리</p>
+                            <p style="margin: 0 0 0.5rem 0;">수집 항목: 특허 고객번호, 이름, 연락처, 이메일</p>
+                            <p style="margin: 0 0 0.75rem 0;">보유 및 이용 기간: 납부료 대행처리 완료 시</p>
+                            <label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">
+                                <input type="checkbox" name="privacy_consent" required style="margin-right: 0.5rem; width: 16px; height: 16px;">
+                                개인정보 수집 및 이용에 동의합니다.
+                            </label>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" onclick="document.getElementById('renewalModal').remove()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>
+                            <button type="submit" style="padding: 0.75rem 1.5rem; background: #54B435; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">납부의뢰</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+}
+</script>
 
 <script>
 // 기존 연차료 계산 관련 상수들과 함수들은 외부 파일로 이동

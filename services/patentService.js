@@ -8,7 +8,7 @@ class PatentService {
     constructor() {
         // 환경변수는 이미 상위에서 로드되어 있어야 함
         this.apiKey = process.env.KIPRIS_API_KEY;
-        this.baseUrl = process.env.KIPRIS_API_BASE_URL || 'http://plus.kipris.or.kr/kipo-api/kipi';
+        this.baseUrl = process.env.KIPRIS_API_BASE_URL || 'https://plus.kipris.or.kr/kipo-api/kipi';
         this.parser = new xml2js.Parser({ explicitArray: false });
 
         // HTTPS Agent 설정 (정부 API SSL 인증서 처리용)
@@ -931,7 +931,7 @@ class PatentService {
                     // 공고전문 URL은 일반적으로 등록번호 기반으로 구성
                     return {
                         docName: `${registrationNumber}.pdf`,
-                        path: `http://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=${registrationNumber}_announcement`
+                        path: `https://plus.kipris.or.kr/kiprisplusws/fileToss.jsp?arg=${registrationNumber}_announcement`
                     };
                 }
             }
@@ -1027,7 +1027,7 @@ class PatentService {
             headers = [
                 '출원번호', '등록번호', '출원인', '발명자', '출원일',
                 '우선일', 'PCT마감일', '발명의 명칭', '현재상태',
-                '공개전문', '공고전문', 'PCT출원번호', '검색번호'
+                '공개전문', '공고전문', '고객번호'
             ];
         }
 
@@ -1069,8 +1069,7 @@ class PatentService {
                     p.registrationStatus,
                     p.publicationFullText || '-',
                     p.announcementFullText || '-',
-                    p.pctApplicationNumber || '-',
-                    searchValue || '-'  // 검색번호 (출원특허도 마지막에 추가)
+                    searchValue || '-'  // 고객번호 (사용자가 입력한 고객번호)
                 ];
             }
         });

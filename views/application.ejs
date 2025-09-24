@@ -491,8 +491,11 @@ function exportToExcel() {
         showError('다운로드할 데이터가 없습니다.');
         return;
     }
-    
-    downloadExcel(currentPatents, 'application');
+
+    // 사용자가 입력한 고객번호 가져오기
+    const customerNumber = document.getElementById('customerNumber').value.trim();
+
+    downloadExcel(currentPatents, 'application', customerNumber);
 }
 
 // PCT 납부의뢰 함수
@@ -550,7 +553,7 @@ function showPCTRequestModal(customerNumber, applicantName) {
                 
                 <form action="https://api.web3forms.com/submit" method="POST" id="pctRequestForm">
                     <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
-                    <input type="hidden" name="redirect" value="${window.location.origin}/thanks">
+                    <input type="hidden" name="redirect" value="${window.location.origin}/p_thanks">
                     <input type="hidden" name="subject" value="PCT 출원의뢰">
                     
                     <div style="margin-bottom: 1rem;">

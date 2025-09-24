@@ -99,41 +99,35 @@ module.exports = async (req, res) => {
         if ((url === '/login' || url === '/api/login') && req.method === 'POST') {
             console.log('🔗 login API 요청 감지, 라우팅 중...');
 
-            let body = '';
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
+            try {
+                // Use req.body directly if already parsed by server.local.js
+                const { email, password } = req.body || {};
+                console.log('로그인 시도:', { email });
 
-            return new Promise((resolve) => {
-                req.on('end', async () => {
-                    try {
-                        const { email, password } = JSON.parse(body);
-                        console.log('로그인 시도:', { email });
+                if (!email || !password) {
+                    return res.status(400).json({ success: false, message: '이메일과 패스워드를 입력해주세요.' });
+                }
 
-                        // Read member data
-                        const memberPath = path.join(__dirname, '..', 'unic_member.json');
-                        if (!fs.existsSync(memberPath)) {
-                            res.status(500).json({ success: false, message: '회원 정보 파일을 찾을 수 없습니다.' });
-                            return resolve();
-                        }
+                // Read member data
+                const memberPath = path.join(__dirname, '..', 'unic_member.json');
+                if (!fs.existsSync(memberPath)) {
+                    return res.status(500).json({ success: false, message: '회원 정보 파일을 찾을 수 없습니다.' });
+                }
 
-                        const memberData = JSON.parse(fs.readFileSync(memberPath, 'utf8'));
-                        const user = memberData.find(u => u.email === email && u.password === password && u.status === 'active');
+                const memberData = JSON.parse(fs.readFileSync(memberPath, 'utf8'));
+                const user = memberData.find(u => u.email === email && u.password === password && u.status === 'active');
 
-                        if (user) {
-                            // Set authentication cookie
-                            res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400'); // 24 hours
-                            res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
-                        } else {
-                            res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
-                        }
-                    } catch (error) {
-                        console.error('로그인 처리 오류:', error);
-                        res.status(500).json({ success: false, message: '로그인 처리 중 오류가 발생했습니다.' });
-                    }
-                    resolve();
-                });
-            });
+                if (user) {
+                    // Set authentication cookie
+                    res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400'); // 24 hours
+                    return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
+                } else {
+                    return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
+                }
+            } catch (error) {
+                console.error('로그인 처리 오류:', error);
+                return res.status(500).json({ success: false, message: '로그인 처리 중 오류가 발생했습니다.' });
+            }
         }
 
         // Logout API
@@ -189,6 +183,9 @@ module.exports = async (req, res) => {
         } else if (url === '/thanks') {
             viewName = 'thanks';
             title = '신청 완료';
+        } else if (url === '/p_thanks' || url === '/p-thanks') {
+            viewName = 'p_thanks';
+            title = 'PCT 납부의뢰 완료';
         } else if (url === '/s_thanks' || url === '/s-thanks') {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
