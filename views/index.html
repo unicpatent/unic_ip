@@ -26,10 +26,11 @@
 
     <main>
         <section class="hero">
+            <div class="hero-overlay"></div>
             <div class="hero-content">
-                <h1>내 특허의 모든 것</h1>
-                <h2>유니크에서 실시간으로 찾고 관리하세요</h2>
-                <p>사업자번호와 특허고객번호로 등록 특허, 실시간 연차료 납부상황, 출원 특허를 한번에 통합 검색하고 관리할 수 있는 혁신적인 특허 검색 플랫폼입니다.</p>
+                <h1 style="color: #000; font-weight: 700;">내 특허의 모든 것</h1>
+                <h2 style="color: #000; font-weight: 800;">유니크에서 실시간으로 찾고 관리하세요</h2>
+                <p style="color: #000; font-weight: 500; line-height: 1.8; opacity: 0.9;">사업자번호와 특허고객번호로 등록 특허, 실시간 연차료 납부상황, 출원 특허를 한번에 통합 검색하고 관리할 수 있는 혁신적인 특허 검색 플랫폼입니다.</p>
                 <button class="cta-button">특허검색</button>
             </div>
         </section>
@@ -520,6 +521,22 @@
 
     <!-- Modal Styles -->
     <style>
+        /* Hero Section Overlay */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.03);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
         .modal {
             position: fixed;
             top: 0;
