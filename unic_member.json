@@ -1,0 +1,30 @@
+[
+  {
+    "email": "admin@unic.com",
+    "password": "admin123",
+    "name": "관리자",
+    "status": "active",
+    "role": "admin"
+  },
+  {
+    "email": "test@unic.com",
+    "password": "test123",
+    "name": "테스트 사용자",
+    "status": "active",
+    "role": "user"
+  },
+  {
+    "email": "ljunhyek@naver.com",
+    "password": "unic2024",
+    "name": "이준혁",
+    "status": "active",
+    "role": "user"
+  },
+  {
+    "email": "demo@unic.com",
+    "password": "demo123",
+    "name": "데모 사용자",
+    "status": "active",
+    "role": "user"
+  }
+]

@@ -108,9 +108,26 @@ module.exports = async (req, res) => {
                     return res.status(400).json({ success: false, message: '이메일과 패스워드를 입력해주세요.' });
                 }
 
-                // Read member data
-                const memberPath = path.join(__dirname, '..', 'unic_member.json');
-                if (!fs.existsSync(memberPath)) {
+                // Read member data - multiple path resolution for Vercel compatibility
+                const possibleMemberPaths = [
+                    path.join(__dirname, '..', 'unic_member.json'),
+                    path.join(process.cwd(), 'unic_member.json'),
+                    path.join(__dirname, 'unic_member.json'),
+                    './unic_member.json',
+                    'unic_member.json'
+                ];
+
+                let memberPath = null;
+                for (const testPath of possibleMemberPaths) {
+                    if (fs.existsSync(testPath)) {
+                        memberPath = testPath;
+                        console.log('✅ 회원 파일 발견:', memberPath);
+                        break;
+                    }
+                }
+
+                if (!memberPath) {
+                    console.error('❌ 회원 파일을 찾을 수 없음. 시도한 경로들:', possibleMemberPaths);
                     return res.status(500).json({ success: false, message: '회원 정보 파일을 찾을 수 없습니다.' });
                 }
 
