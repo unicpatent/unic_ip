@@ -156,7 +156,7 @@ module.exports = async (req, res) => {
 
         // Static files handling
         if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
-            url === '/favicon.ico' || url === '/favicon.png') {
+            url === '/favicon.ico' || url === '/favicon.png' || url === '/logo.png' || url === '/unic_logo.png' || url === '/excel-icon.png') {
             return handleStaticFile(req, res);
         }
         

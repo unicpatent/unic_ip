@@ -5,6 +5,11 @@ user123@testcompany.com, 비번 ??
 ljunhyek@naver.com, password123
 특허고객번호 420190604003
 
+git add .
+git commit -m "공고전문 수정2"
+git push
+
+
 🔧 SSL 문제 해결 (어제 작동했던 방법)
 1. SSL 검증 비활성화 (어제 사용했던 방법)
 bash
