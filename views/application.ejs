@@ -402,12 +402,15 @@ function createFileLink(filePath, docName, linkText) {
         const url = new URL(filePath);
         const displayName = docName && docName !== '-' ? docName : linkText;
 
-        // 파일 URL이 JSP 에러를 발생시킬 수 있는 경우 체크
-        if (filePath.includes('fileToss') || filePath.includes('.jsp')) {
+        // 에러 페이지 패턴만 차단 (예: fileToss(8).jsp 같은 경우)
+        if (/fileToss\s*\(\d+\)\.jsp/i.test(filePath)) {
+            console.warn('에러 페이지 감지됨:', filePath);
             return `<span class="invalid-file" title="파일을 사용할 수 없습니다">❌ ${linkText}</span>`;
         }
 
-        return `<a href="#" class="file-link" data-file-url="${filePath}" data-file-name="${displayName}"
+        return `<a href="${filePath}" target="_blank" class="file-link"
+                   data-file-url="${filePath}"
+                   data-file-name="${displayName}"
                    title="클릭: 새창 열기 | 더블클릭: 다운로드">
                     <span class="file-icon">📄</span> ${linkText}
                 </a>`;
@@ -660,28 +663,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // File link click handlers (delegation for dynamic content)
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.file-link')) {
-            e.preventDefault();
-            const link = e.target.closest('.file-link');
-            const fileUrl = link.getAttribute('data-file-url');
-            const fileName = link.getAttribute('data-file-name');
-
-            // Single click - open in new window
-            window.open(fileUrl, '_blank');
-        }
-    });
-
-    // Double click - download file
+    // Double click - download file (이벤트 위임 사용)
     document.addEventListener('dblclick', function(e) {
-        if (e.target.closest('.file-link')) {
+        const link = e.target.closest('.file-link');
+        if (link) {
             e.preventDefault();
-            const link = e.target.closest('.file-link');
             const fileUrl = link.getAttribute('data-file-url');
             const fileName = link.getAttribute('data-file-name');
 
             if (fileUrl && fileName) {
+                console.log('📥 더블클릭 다운로드 시도:', { fileUrl, fileName });
                 downloadFile(fileUrl, fileName);
             }
         }
