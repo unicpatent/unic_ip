@@ -1,12 +1,13 @@
-Failed to load resource: the server responded with a status of 404 (Not Found)
-(index):476 ✅ 서비스 이용신청 모달 생성 완료 - JavaScript 제출 방식
-script.js:10  Uncaught SyntaxError: Failed to execute 'querySelector' on 'Document': '#' is not a valid selector.
-    at HTMLAnchorElement.<anonymous> (script.js:10:48)
-api.web3forms.com/submit:1   Failed to load resource: the server responded with a status of 400 (Bad Request)
-(index):466  ❌ 서비스 이용신청 전송 오류: Error: 전송 실패
-    at HTMLFormElement.<anonymous> ((index):462:35)
-(anonymous) @ (index):466
-[NEW] Explain Console errors by using Copilot in Edge: click
-         
-         to explain an error. 
-        Learn m
+
+0. 아직도 메인화면에서 좌측 상단에서 유니크 특허사무소 앞과 화면 중간 쯤 logo.png가 제대로 안뜸 (public/images/logo.png가 있음)
+1. 메인화면에서 서비스 이용신청 입력항목 입력하고 서비스 이용신청 누른 경우 나타나는 오류
+{"success":false,"data":{"access_key":"dd3c9ad5-1802-4bd1-b7e6-397002308afa","redirect":"https://unic-ip.vercel.app/s_thanks","subject":"서비스 이용신청","business_number":"1234567890","customer_number":"120230740981","name":"주경애","email":"bluejka@naver.com","password":"1234","phone":"010-3131-8130","message":"서비스 이용신청\r\n\r\n사업자번호: [사업자번호]\r\n특허 고객번호: [고객번호]\r\n이름: [이름]\r\n이메일: [이메일]\r\n패스워드: [패스워드]\r\n연락처: [연락처]\r\n\r\n수신자: ljunhyek@naver.com\r\n제목: 서비스 이용신청","to":"ljunhyek@naver.com","privacy_consent":"on"},"message":"Error!! Could not submit this form for security reasons. Contact support if you feel its an error."}
+2. registered.ejs 에서 납부의뢰 항목 입력하고 납부의뢰 버튼 누른 경우 나타나는 오류 (e_thanks.ejs로 가야된다고 5번 넘게 말함)
+https://unic-ip.vercel.app/thanks , 이게 뜨고, Template not found: thanks.ejs 됨
+3. 출원특허 현황에서 pct납부의뢰 후 항목 입력한 후 납부의뢰 버튼 누르면 p_thanks.ejs는 잘 표출이 되는데 로그아웃 되고 메인화면으로 감
+
+
+다음을 읽고 수정해줘 --think hard
+내가 view폴더 밑에 유니크 특허사무소 메인페이지 소스인 u_index.ejs와 메뉴중 하나인 patent.ejs를 복사해놨어, 그리고 C:\unic_ip\views\partials 에 u_header.ejs가 있어
+이걸 참고해서 나의 프로젝트를 이런 구조로 만들어줘, 즉 메뉴가 변경될 경우 header.ejs만 변경하면(이 안에 로그인, 서비스 이용신청, 등록특허 현황, 출원특허 현황, 유니크 소개, 로그아웃(?) 등) 자동으로 적용되게 등록특허 현황, 출원특허 현황, 메인 페이지 등 모두 수정해주고, 필요시 index.html을 index.ejs로 수정
+그리고 C:\unic_ip\views\partials 에 nav.ejs 참조를 한다면 없애고 header.ejs에 통합해줘
