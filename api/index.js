@@ -358,13 +358,16 @@ module.exports = async (req, res) => {
 };
 
 function handleStaticFile(req, res) {
-    const { url } = req;
-    const publicDir = path.join(__dirname, '..', 'public');
-    const filePath = path.join(publicDir, url);
-    
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).send('File not found');
-    }
+  const rawUrl = req.url.split('?')[0];              // 쿼리 제거
+  const safePath = rawUrl.replace(/^\/+/, '');       // 맨 앞 "/" 제거
+
+  const publicDir = path.join(__dirname, '..', 'public');
+  const filePath = path.join(publicDir, safePath);   // public/images/logo.png 로 정확히 연결
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('File not found');
+  }
+
     
     const ext = path.extname(filePath).toLowerCase();
     const contentTypeMap = {
