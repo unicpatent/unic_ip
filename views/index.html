@@ -325,21 +325,7 @@
                             <input type="hidden" name="redirect" value="${window.location.origin}/s_thanks">                                                  
                             <input type="hidden" name="subject" value="서비스 이용신청">
 
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">사업자번호</label>
-                                <input type="text" name="business_number" id="business_number"
-                                       pattern="[0-9]{10}" maxlength="10"
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="10자리 숫자를 입력하세요">
-                            </div>
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">특허 고객번호</label>
-                                <input type="text" name="customer_number" id="customer_number_service"
-                                       pattern="[0-9]{12}" maxlength="12"
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="12자리 숫자를 입력하세요">
-                            </div>
+                            
 
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름 <span style="color: #ef4444;">*</span></label>
@@ -355,13 +341,7 @@
                                        placeholder="example@email.com">
                             </div>
 
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">패스워드 <span style="color: #ef4444;">*</span></label>
-                                <input type="text" name="password" id="password_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="패스워드를 입력하세요">
-                            </div>
-
+                          
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
                                 <input type="tel" name="phone" id="phone_service" required
@@ -371,21 +351,18 @@
 
                             <textarea name="message" style="display: none;">서비스 이용신청
 
-사업자번호: [사업자번호]
-특허 고객번호: [고객번호]
+
 이름: [이름]
 이메일: [이메일]
-패스워드: [패스워드]
 연락처: [연락처]
 
-수신자: ljunhyek@naver.com
 제목: 서비스 이용신청</textarea>
-                            <input type="hidden" name="to" value="ljunhyek@naver.com">
+                         
 
                             <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
                                 <p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>
                                 <p style="margin: 0 0 0.5rem 0;">수집·이용 목적: 등록특허 현황 및 출원특허 현황 서비스</p>
-                                <p style="margin: 0 0 0.5rem 0;">수집 항목: 사업자번호, 특허 고객번호, 이름, 연락처, 이메일</p>
+                                <p style="margin: 0 0 0.5rem 0;">수집 항목: 이름, 연락처, 이메일</p>
                                 <p style="margin: 0 0 0.75rem 0;">보유 및 이용 기간: 서비스 이용 신청 해제시</p>
                                 <label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">
                                     <input type="checkbox" name="privacy_consent" id="privacy_consent_service" required style="margin-right: 0.5rem; width: 16px; height: 16px;">
