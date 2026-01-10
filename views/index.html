@@ -139,228 +139,11 @@
             </div>
             <div class="modal-body">
                 <form id="loginForm" autocomplete="on" novalidate>
-                    <div class="form-group">
-                        <label for="email">이메일</label>
-                        <input type="email" id="email" name="email" required autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">패스워드</label>
-                        <input type="text" id="password" name="password" required autocomplete="off">
-                    </div>
-                    <div id="errorMessage" class="error-message" style="display: none;"></div>
-                    <div class="form-actions">
-                        <button type="submit" class="login-submit-btn">로그인</button>
-                    </div>
-                </form>
-                <div class="service-notice">
-                    <p>서비스를 이용하기 위해서는 서비스 이용신청을 진행해주세요.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                    
 
-    <!-- Login JavaScript -->
-    <script>
-        // Modal elements
-        const loginModal = document.getElementById('loginModal');
-        const loginBtn = document.getElementById('loginBtn');
-        const closeModal = document.getElementById('closeModal');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const loginForm = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const registeredBtn = document.getElementById('registeredBtn');
-        const applicationBtn = document.getElementById('applicationBtn');
+                            
 
-        // Show modal
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        });
-
-        // Close modal
-        function closeLoginModal() {
-            loginModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            errorMessage.style.display = 'none';
-            loginForm.reset();
-        }
-
-        closeModal.addEventListener('click', closeLoginModal);
-        modalOverlay.addEventListener('click', closeLoginModal);
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && loginModal.style.display === 'block') {
-                closeLoginModal();
-            }
-        });
-
-        // Handle login form submission
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Login successful
-                    closeLoginModal();
-                    updateNavigation(true);
-                    window.location.href = '/registered';
-                } else {
-                    // Login failed
-                    showError(result.message || '로그인에 실패했습니다.');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                showError('로그인 처리 중 오류가 발생했습니다.');
-            }
-        });
-
-        // Logout functionality
-        logoutBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-
-            try {
-                const response = await fetch('/api/logout');
-                const result = await response.json();
-
-                if (result.success) {
-                    updateNavigation(false);
-                    alert('로그아웃 되었습니다.');
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        });
-
-        // Show error message
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
-
-        // Update navigation based on login status
-        function updateNavigation(isLoggedIn) {
-            if (isLoggedIn) {
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'inline';
-                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
-            } else {
-                loginBtn.style.display = 'inline';
-                logoutBtn.style.display = 'none';
-                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
-            }
-        }
-
-        // Check login status on page load
-        function checkLoginStatus() {
-            const cookies = document.cookie.split(';');
-            const authCookie = cookies.find(cookie => cookie.trim().startsWith('authToken='));
-
-            if (authCookie && authCookie.includes('authenticated')) {
-                updateNavigation(true);
-            } else {
-                updateNavigation(false);
-            }
-        }
-
-        // Initialize navigation on page load
-        document.addEventListener('DOMContentLoaded', checkLoginStatus);
-
-        // 서비스 이용신청 버튼 기능
-        const serviceApplicationBtn = document.getElementById('serviceApplicationBtn');
-        if (serviceApplicationBtn) {
-            serviceApplicationBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                showServiceApplicationModal();
-            });
-        }
-
-        // 서비스 이용신청 모달 표시
-        function showServiceApplicationModal() {
-            // 모달 닫기 함수를 전역으로 등록
-            window.closeServiceApplicationModal = function() {
-                const modal = document.getElementById('serviceApplicationModal');
-                if (modal) {
-                    modal.remove();
-                }
-            };
-
-            // 서비스 이용신청 안내문
-            const serviceApplicationGuidanceText = `
-                <h3 style="color: #0F172A; font-size: 1.2rem; font-weight: 600; margin: 0 0 1rem 0;">서비스 이용 신청</h3>
-                <div style="line-height: 1.6; color: #374151; margin-bottom: 1.5rem;">
-                    <p style="margin: 0 0 0.5rem 0; font-weight: 600;">실시간 등록특허 현황 및 출원특허 현황 서비스 이용을 신청합니다</p>
-                </div>
-            `;
-
-            // 모달 HTML 생성
-            const modalHTML = `
-                <div id="serviceApplicationModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-                    <div class="modal-content" style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-                        <div class="modal-header" style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                            <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">서비스 이용신청</h2>
-                        </div>
-
-                        <div class="guidance-text" style="background: #fef3c7; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #F59E0B;">
-                            ${serviceApplicationGuidanceText}
-                        </div>
-
-                        <form id="serviceApplicationForm" action="https://api.web3forms.com/submit" method="POST">
-                            <input type="hidden" name="access_key" value="f5100f0a-22e2-4d2b-9b68-d42362efb1bf">
-                            <input type="hidden" name="redirect" value="${window.location.origin}/s_thanks">                                                  
-                            <input type="hidden" name="subject" value="서비스 이용신청">
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">사업자번호</label>
-                                <input type="text" name="business_number" id="business_number"
-                                       pattern="[0-9]{10}" maxlength="10"
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="10자리 숫자를 입력하세요">
-                            </div>
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">특허 고객번호</label>
-                                <input type="text" name="customer_number" id="customer_number_service"
-                                       pattern="[0-9]{12}" maxlength="12"
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="12자리 숫자를 입력하세요">
-                            </div>
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름 <span style="color: #ef4444;">*</span></label>
-                                <input type="text" name="name" id="name_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="이름을 입력하세요">
-                            </div>
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label>
-                                <input type="email" name="email" id="email_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="example@email.com">
-                            </div>
-
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">패스워드 <span style="color: #ef4444;">*</span></label>
-                                <input type="text" name="password" id="password_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
-                                       placeholder="패스워드를 입력하세요">
-                            </div>
+                            
 
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
@@ -371,21 +154,14 @@
 
                             <textarea name="message" style="display: none;">서비스 이용신청
 
-사업자번호: [사업자번호]
-특허 고객번호: [고객번호]
 이름: [이름]
 이메일: [이메일]
-패스워드: [패스워드]
 연락처: [연락처]
-
-수신자: ljunhyek@naver.com
-제목: 서비스 이용신청</textarea>
-                            <input type="hidden" name="to" value="ljunhyek@naver.com">
-
-                            <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
+</textarea>
+<div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
                                 <p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>
                                 <p style="margin: 0 0 0.5rem 0;">수집·이용 목적: 등록특허 현황 및 출원특허 현황 서비스</p>
-                                <p style="margin: 0 0 0.5rem 0;">수집 항목: 사업자번호, 특허 고객번호, 이름, 연락처, 이메일</p>
+                                <p style="margin: 0 0 0.5rem 0;">수집 항목: 이름, 연락처, 이메일</p>
                                 <p style="margin: 0 0 0.75rem 0;">보유 및 이용 기간: 서비스 이용 신청 해제시</p>
                                 <label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">
                                     <input type="checkbox" name="privacy_consent" id="privacy_consent_service" required style="margin-right: 0.5rem; width: 16px; height: 16px;">
