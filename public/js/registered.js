@@ -682,7 +682,7 @@ function showRenewalRequestModal(customerNumber, applicantName) {
         '</div></div>' +
         '<form action="https://api.web3forms.com/submit" method="POST" id="renewalRequestForm">' +
         '<input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">' +
-        '<input type="hidden" name="redirect" value="' + window.location.origin + '/e_thanks">' +
+        '<input type="hidden" name="redirect" value="' + window.location.origin + '/r_thanks">' +
         '<input type="hidden" name="subject" value="연차료 납부의뢰">' +
         '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호</label><input type="text" name="customer_number" id="customer_number" value="' + customerNumber + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
         '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름</label><input type="text" name="name" id="applicant_name" value="' + applicantName + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
