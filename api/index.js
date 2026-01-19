@@ -49,7 +49,8 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { url } = req;
+        const rawUrl = req.url || '';
+        const url = rawUrl.split('?')[0];  // 쿼리스트링 제거
 
         // API 요청 처리
 
