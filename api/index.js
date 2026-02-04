@@ -191,6 +191,126 @@ module.exports = async (req, res) => {
             }
         }
 
+        // Update Profile API (나의 정보 수정)
+        if ((url === '/update-profile' || url === '/api/update-profile') && req.method === 'POST') {
+            console.log('🔗 update-profile API 요청 감지');
+
+            try {
+                const { current_email, current_password, new_email, phone, new_password } = req.body || {};
+
+                if (!current_email || !current_password) {
+                    return res.status(400).json({ success: false, message: '현재 이메일과 패스워드를 입력해주세요.' });
+                }
+
+                // 현재 사용자 확인
+                const { data: user, error: queryError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', current_email)
+                    .eq('status', 'active')
+                    .single();
+
+                if (queryError || !user) {
+                    return res.status(401).json({ success: false, message: '이메일을 찾을 수 없습니다.' });
+                }
+
+                const passwordMatch = await bcrypt.compare(current_password, user.password);
+                if (!passwordMatch) {
+                    return res.status(401).json({ success: false, message: '현재 패스워드가 올바르지 않습니다.' });
+                }
+
+                // 변경할 데이터 구성
+                const updateData = {};
+                if (new_email) {
+                    // 새 이메일 중복 확인
+                    const { data: existing } = await supabase
+                        .from('users')
+                        .select('email')
+                        .eq('email', new_email)
+                        .neq('id', user.id)
+                        .single();
+                    if (existing) {
+                        return res.status(409).json({ success: false, message: '이미 사용 중인 이메일입니다.' });
+                    }
+                    updateData.email = new_email;
+                }
+                if (phone) updateData.phone = phone;
+                if (new_password) {
+                    if (new_password.length < 6) {
+                        return res.status(400).json({ success: false, message: '새 패스워드는 6자 이상이어야 합니다.' });
+                    }
+                    updateData.password = await bcrypt.hash(new_password, 10);
+                }
+
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update(updateData)
+                    .eq('id', user.id);
+
+                if (updateError) {
+                    console.error('정보 수정 DB 오류:', updateError);
+                    return res.status(500).json({ success: false, message: '정보 수정 처리 중 오류가 발생했습니다.' });
+                }
+
+                console.log('정보 수정 성공:', current_email);
+                return res.json({ success: true, message: '정보가 성공적으로 수정되었습니다.' });
+            } catch (error) {
+                console.error('정보 수정 처리 오류:', error);
+                return res.status(500).json({ success: false, message: '정보 수정 처리 중 오류가 발생했습니다.' });
+            }
+        }
+
+        // Reset Password API (패스워드 재설정)
+        if ((url === '/reset-password' || url === '/api/reset-password') && req.method === 'POST') {
+            console.log('🔗 reset-password API 요청 감지');
+
+            try {
+                const { email, name } = req.body || {};
+
+                if (!email || !name) {
+                    return res.status(400).json({ success: false, message: '이메일과 이름을 입력해주세요.' });
+                }
+
+                // 이메일과 이름으로 사용자 확인
+                const { data: user, error: queryError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', email)
+                    .eq('name', name)
+                    .eq('status', 'active')
+                    .single();
+
+                if (queryError || !user) {
+                    return res.status(404).json({ success: false, message: '일치하는 사용자 정보를 찾을 수 없습니다.' });
+                }
+
+                // 임시 패스워드 생성 (8자리 영숫자)
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+                let tempPassword = '';
+                for (let i = 0; i < 8; i++) {
+                    tempPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+
+                // 임시 패스워드 해싱 후 저장
+                const hashedPassword = await bcrypt.hash(tempPassword, 10);
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({ password: hashedPassword })
+                    .eq('id', user.id);
+
+                if (updateError) {
+                    console.error('패스워드 재설정 DB 오류:', updateError);
+                    return res.status(500).json({ success: false, message: '패스워드 재설정 처리 중 오류가 발생했습니다.' });
+                }
+
+                console.log('패스워드 재설정 성공:', email);
+                return res.json({ success: true, temp_password: tempPassword });
+            } catch (error) {
+                console.error('패스워드 재설정 처리 오류:', error);
+                return res.status(500).json({ success: false, message: '패스워드 재설정 처리 중 오류가 발생했습니다.' });
+            }
+        }
+
         // Logout API
         if (url === '/logout' || url === '/api/logout') {
             res.setHeader('Set-Cookie', 'authToken=; Path=/; HttpOnly; Max-Age=0'); // Clear cookie

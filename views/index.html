@@ -18,7 +18,8 @@
                 <li><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
                 <li><a href="#" id="registeredBtn">등록특허 현황</a></li>
                 <li><a href="#" id="applicationBtn">출원특허 현황</a></li>
-                <li><a href="https://www.unicpat.com" target="_blank">유니크 소개</a></li>
+                <li><a href="https://www.unicpat.com" target="_blank">유니크 홈페이지</a></li>
+                <li><a href="#" id="myInfoBtn" style="display:none;">나의 정보 수정</a></li>
                 <li><a href="#" id="logoutBtn" style="display:none;">로그아웃</a></li>
             </ul>
         </nav>
@@ -152,6 +153,9 @@
                         <button type="submit" class="login-submit-btn">로그인</button>
                     </div>
                 </form>
+                <div style="text-align: center; margin-top: 0.75rem;">
+                    <a href="#" onclick="event.preventDefault(); closeLoginModal(); showResetPasswordModal();" style="color: #6b7280; font-size: 0.85rem; text-decoration: underline;">패스워드를 잊으셨나요?</a>
+                </div>
                 <div class="service-notice">
                     <p>서비스를 이용하기 위해서는 서비스 이용신청을 진행해주세요.</p>
                 </div>
@@ -254,15 +258,16 @@
         }
 
         // Update navigation based on login status
+        const myInfoBtn = document.getElementById('myInfoBtn');
         function updateNavigation(isLoggedIn) {
             if (isLoggedIn) {
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline';
-                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
+                myInfoBtn.style.display = 'inline';
             } else {
                 loginBtn.style.display = 'inline';
                 logoutBtn.style.display = 'none';
-                // 등록특허/출원특허 메뉴는 항상 표시 (로그인 상태 관계없이)
+                myInfoBtn.style.display = 'none';
             }
         }
 
@@ -438,6 +443,253 @@
                     errorDiv.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.textContent = '서비스 이용신청';
+                }
+            });
+        }
+
+        // 나의 정보 수정 버튼 클릭 핸들러
+        myInfoBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showMyInfoModal();
+        });
+
+        // 나의 정보 수정 모달 표시
+        function showMyInfoModal() {
+            window.closeMyInfoModal = function() {
+                const modal = document.getElementById('myInfoModal');
+                if (modal) modal.remove();
+            };
+
+            const modalHTML = `
+                <div id="myInfoModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0;">나의 정보 수정</h2>
+                            <button type="button" onclick="closeMyInfoModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+                        </div>
+
+                        <form id="myInfoForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">현재 이메일 (로그인 ID)</label>
+                                <input type="email" id="myinfo_current_email" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;"
+                                       placeholder="현재 이메일을 입력하세요">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">현재 패스워드 <span style="color: #ef4444;">*</span></label>
+                                <input type="password" id="myinfo_current_password" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="본인 확인을 위해 현재 패스워드를 입력하세요">
+                            </div>
+
+                            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0;">
+                            <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">변경할 항목만 입력하세요. 비워두면 기존 정보가 유지됩니다.</p>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 이메일</label>
+                                <input type="email" id="myinfo_new_email"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="변경할 이메일 (선택)">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처</label>
+                                <input type="tel" id="myinfo_phone"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="변경할 연락처 (선택)">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 패스워드</label>
+                                <input type="password" id="myinfo_new_password" minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="변경할 패스워드 (선택, 6자 이상)">
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 패스워드 확인</label>
+                                <input type="password" id="myinfo_new_password_confirm" minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="새 패스워드를 다시 입력하세요">
+                            </div>
+
+                            <div id="myInfoErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+                            <div id="myInfoSuccessMessage" style="display: none; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeMyInfoModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>
+                                <button type="submit" id="myInfoSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">정보 수정</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            document.getElementById('myInfoForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const errorDiv = document.getElementById('myInfoErrorMessage');
+                const successDiv = document.getElementById('myInfoSuccessMessage');
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                const currentEmail = document.getElementById('myinfo_current_email').value;
+                const currentPassword = document.getElementById('myinfo_current_password').value;
+                const newEmail = document.getElementById('myinfo_new_email').value;
+                const phone = document.getElementById('myinfo_phone').value;
+                const newPassword = document.getElementById('myinfo_new_password').value;
+                const newPasswordConfirm = document.getElementById('myinfo_new_password_confirm').value;
+
+                if (!currentEmail || !currentPassword) {
+                    errorDiv.textContent = '현재 이메일과 패스워드를 입력해주세요.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (newPassword && newPassword !== newPasswordConfirm) {
+                    errorDiv.textContent = '새 패스워드가 일치하지 않습니다.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (newPassword && newPassword.length < 6) {
+                    errorDiv.textContent = '새 패스워드는 6자 이상이어야 합니다.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (!newEmail && !phone && !newPassword) {
+                    errorDiv.textContent = '변경할 항목을 하나 이상 입력해주세요.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                const submitBtn = document.getElementById('myInfoSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '처리 중...';
+
+                try {
+                    const response = await fetch('/api/update-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            current_email: currentEmail,
+                            current_password: currentPassword,
+                            new_email: newEmail || undefined,
+                            phone: phone || undefined,
+                            new_password: newPassword || undefined
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successDiv.textContent = result.message || '정보가 수정되었습니다.';
+                        successDiv.style.display = 'block';
+                        submitBtn.textContent = '정보 수정';
+                        submitBtn.disabled = false;
+                    } else {
+                        errorDiv.textContent = result.message || '정보 수정에 실패했습니다.';
+                        errorDiv.style.display = 'block';
+                        submitBtn.textContent = '정보 수정';
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Update profile error:', error);
+                    errorDiv.textContent = '정보 수정 처리 중 오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.textContent = '정보 수정';
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        // 패스워드 찾기 모달 표시
+        function showResetPasswordModal() {
+            window.closeResetPasswordModal = function() {
+                const modal = document.getElementById('resetPasswordModal');
+                if (modal) modal.remove();
+            };
+
+            const modalHTML = `
+                <div id="resetPasswordModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1100;">
+                    <div style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="color: #0F172A; font-size: 1.3rem; font-weight: 700; margin: 0;">패스워드 재설정</h2>
+                            <button type="button" onclick="closeResetPasswordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+                        </div>
+
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">가입 시 등록한 이메일과 이름을 입력하시면 임시 패스워드로 재설정됩니다.</p>
+
+                        <form id="resetPasswordForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label>
+                                <input type="email" id="reset_email" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="가입 시 등록한 이메일">
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름 <span style="color: #ef4444;">*</span></label>
+                                <input type="text" id="reset_name" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="가입 시 등록한 이름">
+                            </div>
+
+                            <div id="resetErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+                            <div id="resetSuccessMessage" style="display: none; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeResetPasswordModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>
+                                <button type="submit" id="resetSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">패스워드 재설정</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const errorDiv = document.getElementById('resetErrorMessage');
+                const successDiv = document.getElementById('resetSuccessMessage');
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                const submitBtn = document.getElementById('resetSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '처리 중...';
+
+                try {
+                    const response = await fetch('/api/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: document.getElementById('reset_email').value,
+                            name: document.getElementById('reset_name').value
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successDiv.innerHTML = '임시 패스워드: <strong>' + result.temp_password + '</strong><br>이 패스워드로 로그인 후 반드시 패스워드를 변경해주세요.';
+                        successDiv.style.display = 'block';
+                        submitBtn.style.display = 'none';
+                    } else {
+                        errorDiv.textContent = result.message || '패스워드 재설정에 실패했습니다.';
+                        errorDiv.style.display = 'block';
+                        submitBtn.textContent = '패스워드 재설정';
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    errorDiv.textContent = '처리 중 오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.textContent = '패스워드 재설정';
+                    submitBtn.disabled = false;
                 }
             });
         }
