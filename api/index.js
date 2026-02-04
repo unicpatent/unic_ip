@@ -226,19 +226,23 @@ module.exports = async (req, res) => {
         if (url === '/registered') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
                 res.setHeader('Location', '/?loginRequired=true');
                 res.status(302).end();
                 return;
             }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'registered';
             title = '등록특허 현황';
         } else if (url === '/application') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
                 res.setHeader('Location', '/?loginRequired=true');
                 res.status(302).end();
                 return;
             }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'application';
             title = '출원특허 현황';
         } else if (url === '/thanks') {
