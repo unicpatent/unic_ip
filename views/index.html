@@ -320,44 +320,41 @@
                             ${serviceApplicationGuidanceText}
                         </div>
 
-                        <form id="serviceApplicationForm" action="https://api.web3forms.com/submit" method="POST">
-                            <input type="hidden" name="access_key" value="f5100f0a-22e2-4d2b-9b68-d42362efb1bf">
-                            <input type="hidden" name="redirect" value="${window.location.origin}/s_thanks">                                                  
-                            <input type="hidden" name="subject" value="서비스 이용신청">
-
-                            
-
+                        <form id="serviceApplicationForm">
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름 <span style="color: #ef4444;">*</span></label>
                                 <input type="text" name="name" id="name_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                        placeholder="이름을 입력하세요">
                             </div>
 
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label>
                                 <input type="email" name="email" id="email_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                        placeholder="example@email.com">
                             </div>
 
-                          
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">패스워드 <span style="color: #ef4444;">*</span></label>
+                                <input type="password" name="password" id="password_service" required minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="6자 이상 입력하세요">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">패스워드 확인 <span style="color: #ef4444;">*</span></label>
+                                <input type="password" name="password_confirm" id="password_confirm_service" required minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="패스워드를 다시 입력하세요">
+                            </div>
+
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
                                 <input type="tel" name="phone" id="phone_service" required
-                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                        placeholder="010-0000-0000">
                             </div>
-
-                            <textarea name="message" style="display: none;">서비스 이용신청
-
-
-이름: [이름]
-이메일: [이메일]
-연락처: [연락처]
-
-제목: 서비스 이용신청</textarea>
-                         
 
                             <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
                                 <p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>
@@ -370,9 +367,11 @@
                                 </label>
                             </div>
 
+                            <div id="registerErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
                             <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                                 <button type="button" onclick="closeServiceApplicationModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>
-                                <button type="submit" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">서비스 이용신청</button>
+                                <button type="submit" id="registerSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">서비스 이용신청</button>
                             </div>
                         </form>
                     </div>
@@ -381,9 +380,66 @@
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            // Form now submits directly to Web3Forms via HTML form action
+            // 서비스 이용신청 폼 제출 처리
+            const serviceForm = document.getElementById('serviceApplicationForm');
+            serviceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-            console.log('✅ 서비스 이용신청 모달 생성 완료 - JavaScript 제출 방식');
+                const password = document.getElementById('password_service').value;
+                const passwordConfirm = document.getElementById('password_confirm_service').value;
+                const errorDiv = document.getElementById('registerErrorMessage');
+
+                // 패스워드 일치 확인
+                if (password !== passwordConfirm) {
+                    errorDiv.textContent = '패스워드가 일치하지 않습니다.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                // 패스워드 길이 확인
+                if (password.length < 6) {
+                    errorDiv.textContent = '패스워드는 6자 이상이어야 합니다.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                errorDiv.style.display = 'none';
+                const submitBtn = document.getElementById('registerSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '처리 중...';
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: document.getElementById('name_service').value,
+                            email: document.getElementById('email_service').value,
+                            password: password,
+                            phone: document.getElementById('phone_service').value,
+                            privacy_consent: document.getElementById('privacy_consent_service').checked
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        closeServiceApplicationModal();
+                        window.location.href = '/s_thanks';
+                    } else {
+                        errorDiv.textContent = result.message || '서비스 이용신청에 실패했습니다.';
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '서비스 이용신청';
+                    }
+                } catch (error) {
+                    console.error('Register error:', error);
+                    errorDiv.textContent = '서비스 이용신청 처리 중 오류가 발생했습니다.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '서비스 이용신청';
+                }
+            });
         }
 
         // 로그인 상태 확인 함수

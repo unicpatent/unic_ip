@@ -2,6 +2,8 @@
 const path = require('path');
 const ejs = require('ejs');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
+const supabase = require('../lib/supabase');
 
 // Helper functions for authentication
 function parseCookies(cookieHeader) {
@@ -96,12 +98,65 @@ module.exports = async (req, res) => {
             return await getPatentDetailsHandler(req, res);
         }
 
+        // Register API (서비스 이용신청)
+        if ((url === '/register' || url === '/api/register') && req.method === 'POST') {
+            console.log('🔗 register API 요청 감지');
+
+            try {
+                const { name, email, password, phone, privacy_consent } = req.body || {};
+
+                if (!name || !email || !password) {
+                    return res.status(400).json({ success: false, message: '이름, 이메일, 패스워드는 필수 입력항목입니다.' });
+                }
+
+                if (password.length < 6) {
+                    return res.status(400).json({ success: false, message: '패스워드는 6자 이상이어야 합니다.' });
+                }
+
+                // 이메일 중복 확인
+                const { data: existing } = await supabase
+                    .from('users')
+                    .select('email')
+                    .eq('email', email)
+                    .single();
+
+                if (existing) {
+                    return res.status(409).json({ success: false, message: '이미 등록된 이메일입니다.' });
+                }
+
+                // 패스워드 해싱 후 저장
+                const hashedPassword = await bcrypt.hash(password, 10);
+
+                const { error: insertError } = await supabase
+                    .from('users')
+                    .insert({
+                        name,
+                        email,
+                        password: hashedPassword,
+                        phone: phone || null,
+                        status: 'active',
+                        role: 'user',
+                        privacy_consent: privacy_consent || false
+                    });
+
+                if (insertError) {
+                    console.error('회원가입 DB 오류:', insertError);
+                    return res.status(500).json({ success: false, message: '회원가입 처리 중 오류가 발생했습니다.' });
+                }
+
+                console.log('회원가입 성공:', email);
+                return res.json({ success: true, message: '서비스 이용신청이 완료되었습니다.' });
+            } catch (error) {
+                console.error('회원가입 처리 오류:', error);
+                return res.status(500).json({ success: false, message: '서비스 이용신청 처리 중 오류가 발생했습니다.' });
+            }
+        }
+
         // Login API
         if ((url === '/login' || url === '/api/login') && req.method === 'POST') {
             console.log('🔗 login API 요청 감지, 라우팅 중...');
 
             try {
-                // Use req.body directly if already parsed by server.local.js
                 const { email, password } = req.body || {};
                 console.log('로그인 시도:', { email });
 
@@ -109,35 +164,23 @@ module.exports = async (req, res) => {
                     return res.status(400).json({ success: false, message: '이메일과 패스워드를 입력해주세요.' });
                 }
 
-                // Read member data - multiple path resolution for Vercel compatibility
-                const possibleMemberPaths = [
-                    path.join(__dirname, '..', 'unic_member.json'),
-                    path.join(process.cwd(), 'unic_member.json'),
-                    path.join(__dirname, 'unic_member.json'),
-                    './unic_member.json',
-                    'unic_member.json'
-                ];
+                // Supabase에서 사용자 조회
+                const { data: user, error: queryError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', email)
+                    .eq('status', 'active')
+                    .single();
 
-                let memberPath = null;
-                for (const testPath of possibleMemberPaths) {
-                    if (fs.existsSync(testPath)) {
-                        memberPath = testPath;
-                        console.log('✅ 회원 파일 발견:', memberPath);
-                        break;
-                    }
+                if (queryError || !user) {
+                    return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
                 }
 
-                if (!memberPath) {
-                    console.error('❌ 회원 파일을 찾을 수 없음. 시도한 경로들:', possibleMemberPaths);
-                    return res.status(500).json({ success: false, message: '회원 정보 파일을 찾을 수 없습니다.' });
-                }
+                // bcrypt로 패스워드 비교
+                const passwordMatch = await bcrypt.compare(password, user.password);
 
-                const memberData = JSON.parse(fs.readFileSync(memberPath, 'utf8'));
-                const user = memberData.find(u => u.email === email && u.password === password && u.status === 'active');
-
-                if (user) {
-                    // Set authentication cookie
-                    res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400'); // 24 hours
+                if (passwordMatch) {
+                    res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400');
                     return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
                 } else {
                     return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
