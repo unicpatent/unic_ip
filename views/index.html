@@ -274,9 +274,9 @@
         // Check login status on page load
         function checkLoginStatus() {
             const cookies = document.cookie.split(';');
-            const authCookie = cookies.find(cookie => cookie.trim().startsWith('authToken='));
+            const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
 
-            if (authCookie && authCookie.includes('authenticated')) {
+            if (loginCookie && loginCookie.includes('true')) {
                 updateNavigation(true);
             } else {
                 updateNavigation(false);
@@ -697,8 +697,8 @@
         // 로그인 상태 확인 함수
         function isLoggedIn() {
             const cookies = document.cookie.split(';');
-            const authCookie = cookies.find(cookie => cookie.trim().startsWith('authToken='));
-            return authCookie && authCookie.includes('authenticated');
+            const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
+            return loginCookie && loginCookie.includes('true');
         }
 
         // 등록특허 현황 클릭 핸들러

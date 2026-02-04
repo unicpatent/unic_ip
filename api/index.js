@@ -180,7 +180,10 @@ module.exports = async (req, res) => {
                 const passwordMatch = await bcrypt.compare(password, user.password);
 
                 if (passwordMatch) {
-                    res.setHeader('Set-Cookie', 'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400');
+                    res.setHeader('Set-Cookie', [
+                        'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400',
+                        'loginStatus=true; Path=/; Max-Age=86400'
+                    ]);
                     return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
                 } else {
                     return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
@@ -313,7 +316,10 @@ module.exports = async (req, res) => {
 
         // Logout API
         if (url === '/logout' || url === '/api/logout') {
-            res.setHeader('Set-Cookie', 'authToken=; Path=/; HttpOnly; Max-Age=0'); // Clear cookie
+            res.setHeader('Set-Cookie', [
+                'authToken=; Path=/; HttpOnly; Max-Age=0',
+                'loginStatus=; Path=/; Max-Age=0'
+            ]);
             res.json({ success: true, message: '로그아웃 되었습니다.' });
             return;
         }
@@ -343,7 +349,7 @@ module.exports = async (req, res) => {
         let title = '페이지를 찾을 수 없습니다';
 
         // Authentication required routes
-        if (url === '/registered') {
+        if (url === '/registered' || url === '/registered/') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
                 res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -354,7 +360,7 @@ module.exports = async (req, res) => {
             res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'registered';
             title = '등록특허 현황';
-        } else if (url === '/application') {
+        } else if (url === '/application' || url === '/application/') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
                 res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
