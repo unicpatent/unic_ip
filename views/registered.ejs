@@ -43,8 +43,8 @@
                     <a href="/registered" class="nav-link">등록특허 현황</a>
                     <a href="/application" class="nav-link">출원특허 현황</a>
                     <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 홈페이지</a>
-                    <a href="#" class="nav-link" id="myInfoBtn">나의 정보 수정</a>
-                    <a href="#" class="nav-link" id="logoutBtn">로그아웃</a>
+                    <a href="javascript:void(0)" class="nav-link" id="myInfoBtn">나의 정보 수정</a>
+                    <a href="javascript:void(0)" class="nav-link" id="logoutBtn">로그아웃</a>
                 </nav>
             </div>
         </div>
@@ -358,19 +358,6 @@ if (typeof handleSearch === 'undefined') {
     window.currentPatents = currentPatents;
     window.currentPage = currentPage;
     window.itemsPerPage = itemsPerPage;
-
-    // 로그아웃 기능
-    document.addEventListener('DOMContentLoaded', function() {
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
-                fetch('/api/logout').catch(function() {});
-                window.location.href = '/';
-            });
-        }
-    });
 
     // 검색 폼 이벤트 리스너
     document.addEventListener('DOMContentLoaded', function() {
@@ -711,6 +698,21 @@ if (typeof handleSearch === 'undefined') {
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 }
+</script>
+
+<!-- 로그아웃 기능 (백업 블록 밖에서 항상 실행) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+            fetch('/api/logout').catch(function() {});
+            window.location.href = '/';
+        });
+    }
+});
 </script>
 
 <script>
