@@ -363,19 +363,11 @@ if (typeof handleSearch === 'undefined') {
     document.addEventListener('DOMContentLoaded', function() {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', async function(e) {
+            logoutBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                try {
-                    const response = await fetch('/api/logout');
-                    const result = await response.json();
-                    if (result.success) {
-                        alert('로그아웃 되었습니다.');
-                        window.location.href = '/';
-                    }
-                } catch (error) {
-                    console.error('로그아웃 오류:', error);
-                    alert('로그아웃 중 오류가 발생했습니다.');
-                }
+                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+                fetch('/api/logout').catch(function() {});
+                window.location.href = '/';
             });
         }
     });

@@ -235,20 +235,12 @@
         });
 
         // Logout functionality
-        logoutBtn.addEventListener('click', async function(e) {
+        logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
-
-            try {
-                const response = await fetch('/api/logout');
-                const result = await response.json();
-
-                if (result.success) {
-                    updateNavigation(false);
-                    alert('로그아웃 되었습니다.');
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
+            // 클라이언트 쿠키 즉시 삭제 후 리다이렉트 (서버 응답 대기 없음)
+            document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+            fetch('/api/logout').catch(function() {});
+            window.location.href = '/';
         });
 
         // Show error message
