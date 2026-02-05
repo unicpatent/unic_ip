@@ -80,29 +80,32 @@
                 </div>
 
                 <!-- 검색 입력 + 액션 버튼들 (한 줄) -->
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <label for="searchInput" class="form-label" id="searchInputLabel" style="margin: 0; min-width: 70px;">사업자번호</label>
-                    <input
-                        type="text"
-                        id="searchInput"
-                        name="searchInput"
-                        class="form-input"
-                        style="width: 160px;"
-                        placeholder="예: 1234567890"
-                        maxlength="10"
-                        pattern="[0-9]{10}"
-                        required
-                        value="<%= userBusinessNumber %>"
-                        data-user-business-number="<%= userBusinessNumber %>"
-                        data-user-customer-number="<%= userCustomerNumber %>"
-                    >
-                    <button type="submit" class="btn btn-primary" id="searchBtn">🔍 검색</button>
-                    <span style="border-left: 1px solid #e2e8f0; height: 24px; margin: 0 0.25rem;"></span>
-                    <button type="button" class="btn btn-info" id="calculateAnnuityBtn">🧮 연차료 계산</button>
-                    <button type="button" class="btn btn-primary" id="renewalRequestBtn">💰 납부의뢰</button>
-                    <button type="button" class="btn btn-secondary" id="exportBtn">📊 엑셀</button>
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label for="searchInput" class="form-label" id="searchInputLabel" style="margin: 0; min-width: 70px;">사업자번호</label>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            name="searchInput"
+                            class="form-input"
+                            style="width: 160px;"
+                            placeholder="예: 1234567890"
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            required
+                            value="<%= userBusinessNumber %>"
+                            data-user-business-number="<%= userBusinessNumber %>"
+                            data-user-customer-number="<%= userCustomerNumber %>"
+                        >
+                        <button type="submit" class="btn btn-primary" id="searchBtn">🔍 검색</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button type="button" class="btn btn-info" id="calculateAnnuityBtn">🧮 연차료 계산</button>
+                        <button type="button" class="btn btn-primary" id="renewalRequestBtn">💰 납부의뢰</button>
+                        <button type="button" class="btn btn-secondary" id="exportBtn">📊 엑셀</button>
+                    </div>
                 </div>
-                <div class="form-hint" id="searchInputHint" style="margin-top: 0.25rem; margin-left: 78px;">10자리 숫자 입력하세요</div>
+                <div class="form-hint" id="searchInputHint" style="display: none;">10자리 숫자 입력하세요</div>
             </form>
         </section>
 
