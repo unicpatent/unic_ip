@@ -1,5 +1,16 @@
 /* public/css/admin.css - 관리자 페이지 스타일 */
 
+/* 검색 섹션 */
+.search-section .form-group {
+    flex: 0 0 auto;
+    min-width: auto;
+    max-width: 400px;
+}
+
+.search-section .form-input {
+    width: 200px;
+}
+
 /* 관리자 헤더 */
 .admin-header {
     border-bottom: 3px solid #F59E0B;
