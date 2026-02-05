@@ -196,7 +196,33 @@ function displayResults(data) {
     document.getElementById('resultRightHolderName').textContent = displayText;
     // 필터링된 건수로 표시 (30, 40으로 시작하는 등록번호 제외 후)
     document.getElementById('resultTotalCount').textContent = filteredPatents.length;
-    
+
+    // 검색 버튼 옆에 조회 결과 정보 표시
+    const searchResultInfo = document.getElementById('searchResultInfo');
+    if (searchResultInfo) {
+        // 사업자번호 가져오기
+        let businessNo = '';
+        if (searchType === '1') {
+            // 사업자번호로 검색한 경우: 검색값 사용
+            businessNo = document.getElementById('searchInput').value.trim();
+        } else {
+            // 고객번호로 검색한 경우: 특허 데이터에서 가져오기
+            if (data.patents && data.patents.length > 0 && data.patents[0].businessNo) {
+                businessNo = data.patents[0].businessNo;
+            }
+        }
+
+        // 사업자번호 형식화 (000-00-00000)
+        let formattedBusinessNo = businessNo;
+        if (businessNo && businessNo.length === 10) {
+            formattedBusinessNo = businessNo.substring(0, 3) + '-' + businessNo.substring(3, 5) + '-' + businessNo.substring(5);
+        }
+
+        const infoText = `조회일자: ${currentDate} 권리자: ${rightHolderToDisplay} (사업자번호: ${formattedBusinessNo})`;
+        searchResultInfo.textContent = infoText;
+        searchResultInfo.style.display = 'inline-block';
+    }
+
     const resultsSection = document.getElementById('resultsSection');
     
     if (currentPatents.length === 0) {
@@ -630,6 +656,11 @@ function updatePaymentHistoryDisplay() {
 // 결과 숨기기
 function hideResults() {
     document.getElementById('resultsSection').style.display = 'none';
+    // 검색 버튼 옆 결과 정보도 숨김
+    const searchResultInfo = document.getElementById('searchResultInfo');
+    if (searchResultInfo) {
+        searchResultInfo.style.display = 'none';
+    }
 }
 
 // 연차료 납부의뢰 함수
