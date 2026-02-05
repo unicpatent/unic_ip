@@ -145,6 +145,15 @@
     background: #059669;
 }
 
+.btn-delete {
+    background: #6B7280;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #4B5563;
+}
+
 /* 모달 */
 .modal-overlay {
     position: fixed;

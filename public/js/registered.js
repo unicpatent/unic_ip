@@ -36,6 +36,10 @@ function setupSearchTypeListeners() {
     const searchInputLabel = document.getElementById('searchInputLabel');
     const searchInputHint = document.getElementById('searchInputHint');
 
+    // 사용자의 사업자번호/고객번호 가져오기
+    const userBusinessNumber = searchInput.dataset.userBusinessNumber || '';
+    const userCustomerNumber = searchInput.dataset.userCustomerNumber || '';
+
     function updateInputField() {
         const selectedType = document.querySelector('input[name="searchType"]:checked').value;
 
@@ -45,14 +49,17 @@ function setupSearchTypeListeners() {
             searchInput.maxLength = 10;
             searchInput.pattern = '[0-9]{10}';
             searchInputHint.textContent = '10자리 숫자 입력하세요';
+            // 사용자의 사업자번호 자동 입력
+            searchInput.value = userBusinessNumber;
         } else { // 고객번호
             searchInputLabel.textContent = '고객번호';
             searchInput.placeholder = '예: 120190612244';
             searchInput.maxLength = 12;
             searchInput.pattern = '[0-9]{12}';
             searchInputHint.textContent = '12자리 숫자 입력하세요';
+            // 사용자의 고객번호 자동 입력
+            searchInput.value = userCustomerNumber;
         }
-        searchInput.value = ''; // 입력값 초기화
     }
 
     businessNumberType.addEventListener('change', updateInputField);

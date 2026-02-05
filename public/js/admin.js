@@ -55,6 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (btn.classList.contains('btn-suspend') || btn.classList.contains('btn-activate')) {
                 const status = btn.dataset.status;
                 toggleUserStatus(userId, status);
+            } else if (btn.classList.contains('btn-delete')) {
+                deleteUser(userId);
             }
         });
     }
@@ -179,6 +181,13 @@ function renderUsers(users) {
         statusBtn.dataset.status = user.status;
         statusBtn.textContent = user.status === 'active' ? '정지' : '해제';
         tdAction.appendChild(statusBtn);
+
+        // 삭제 버튼
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-action btn-delete';
+        deleteBtn.dataset.userId = user.id;
+        deleteBtn.textContent = '삭제';
+        tdAction.appendChild(deleteBtn);
 
         row.appendChild(tdAction);
         tableBody.appendChild(row);
@@ -379,6 +388,31 @@ async function toggleUserStatus(userId, currentStatus) {
             loadUsers();
         } else {
             alert(result.message || '상태 변경에 실패했습니다.');
+        }
+    } catch (error) {
+        alert('서버 오류가 발생했습니다.');
+    }
+}
+
+// 회원 삭제
+async function deleteUser(userId) {
+    if (!confirm('정말 삭제하시겠습니까?\n\n삭제된 회원 정보는 복구할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        var response = await fetch('/api/admin/users/' + userId, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        var result = await response.json();
+
+        if (result.success) {
+            alert(result.message || '회원이 삭제되었습니다.');
+            loadUsers();
+        } else {
+            alert(result.message || '삭제에 실패했습니다.');
         }
     } catch (error) {
         alert('서버 오류가 발생했습니다.');

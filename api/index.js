@@ -381,27 +381,31 @@ module.exports = async (req, res) => {
         let viewName = '404';
         let title = '페이지를 찾을 수 없습니다';
 
-        // 사용자 고객번호 조회 함수
-        async function getUserCustomerNumber(req) {
+        // 사용자 사업자번호/고객번호 조회 함수
+        async function getUserNumbers(req) {
             try {
                 const cookies = parseCookies(req.headers.cookie);
                 const userEmail = cookies.userEmail;
-                if (!userEmail) return null;
+                if (!userEmail) return { businessNumber: null, customerNumber: null };
 
                 const { data: user } = await supabase
                     .from('users')
-                    .select('customer_number')
+                    .select('business_number, customer_number')
                     .eq('email', userEmail)
                     .single();
 
-                return user?.customer_number || null;
+                return {
+                    businessNumber: user?.business_number || null,
+                    customerNumber: user?.customer_number || null
+                };
             } catch (error) {
-                console.error('사용자 고객번호 조회 오류:', error);
-                return null;
+                console.error('사용자 번호 조회 오류:', error);
+                return { businessNumber: null, customerNumber: null };
             }
         }
 
-        // 사용자 고객번호 변수 초기화
+        // 사용자 번호 변수 초기화
+        let userBusinessNumber = null;
         let userCustomerNumber = null;
 
         // Authentication required routes
@@ -416,7 +420,9 @@ module.exports = async (req, res) => {
             res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'registered';
             title = '등록특허 현황';
-            userCustomerNumber = await getUserCustomerNumber(req);
+            const userNumbers = await getUserNumbers(req);
+            userBusinessNumber = userNumbers.businessNumber;
+            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/application' || url === '/application/') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
@@ -428,7 +434,9 @@ module.exports = async (req, res) => {
             res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'application';
             title = '출원특허 현황';
-            userCustomerNumber = await getUserCustomerNumber(req);
+            const userNumbers = await getUserNumbers(req);
+            userBusinessNumber = userNumbers.businessNumber;
+            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/thanks') {
             viewName = 'thanks';
             title = '신청 완료';
@@ -539,6 +547,7 @@ module.exports = async (req, res) => {
 
         const html = await ejs.renderFile(viewPath, {
             title: title,
+            userBusinessNumber: userBusinessNumber || '',
             userCustomerNumber: userCustomerNumber || '',
         }, ejsOptions);
         
