@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title><%= title %> - 유니크 특허사무소</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="유니크 특허사무소 관리자 페이지">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/ejs-style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+    <link rel="alternate icon" href="/images/favicon.svg">
+</head>
+<body>
+    <header class="header admin-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    유니크<span>특허</span>
+                    <span class="admin-badge">관리자</span>
+                </a>
+                <nav class="nav-tabs">
+                    <a href="/registered" class="nav-link">등록특허 현황</a>
+                    <a href="/application" class="nav-link">출원특허 현황</a>
+                    <a href="/admin" class="nav-link active">회원 관리</a>
+                    <a href="javascript:void(0)" class="nav-link" id="logoutBtn">로그아웃</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title">
+                <h1>회원 관리</h1>
+                <p>등록된 회원 정보를 조회하고 관리합니다</p>
+            </div>
+
+            <!-- 검색 섹션 -->
+            <section class="search-section">
+                <form class="search-form" id="searchForm">
+                    <div class="form-group">
+                        <label for="searchInput" class="form-label">이름 검색</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="searchInput"
+                                name="searchInput"
+                                class="form-input"
+                                placeholder="회원 이름을 입력하세요"
+                            >
+                            <button type="submit" class="btn btn-primary" id="searchBtn">
+                                검색
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="resetBtn">
+                                초기화
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 결과 섹션 -->
+            <section class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <div class="results-info">
+                        <div class="info-item">
+                            <span class="info-label">전체 회원:</span>
+                            <span class="info-value" id="totalCount">0</span>명
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>전화번호</th>
+                                <th>상태</th>
+                                <th>역할</th>
+                                <th>가입일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- 회원 목록이 여기에 표시됩니다 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 빈 상태 -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">👥</div>
+                    <div class="empty-title">회원이 없습니다</div>
+                    <div class="empty-description">검색 결과가 없거나 등록된 회원이 없습니다.</div>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pagination-container" id="paginationContainer">
+                    <div class="pagination-info" id="paginationInfo">
+                        <!-- 페이지 정보 -->
+                    </div>
+                    <div class="pagination-controls" id="paginationControls">
+                        <!-- 페이지 버튼 -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 회원 정보 수정 모달 -->
+    <div id="editModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>회원 정보 수정</h2>
+                <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" id="editName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이메일</label>
+                    <input type="email" id="editEmail" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">전화번호</label>
+                    <input type="tel" id="editPhone" class="form-input" placeholder="010-0000-0000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">역할</label>
+                    <select id="editRole" class="form-input">
+                        <option value="user">일반 사용자</option>
+                        <option value="admin">관리자</option>
+                    </select>
+                </div>
+                <div id="editErrorMessage" class="error-message" style="display: none;"></div>
+                <div id="editSuccessMessage" class="success-message" style="display: none;"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+                    <button type="submit" class="btn btn-primary" id="editSubmitBtn">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <strong>유니크 특허사무소</strong> - 관리자 시스템
+                </div>
+                <div class="footer-text" style="margin-top: 1rem; font-size: 0.875rem; color: #94a3b8;">
+                    &copy; 2024 유니크 특허사무소. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/admin.js"></script>
+
+    <!-- 클라이언트 측 인증 및 권한 체크 -->
+    <script>
+    (function() {
+        var cookies = document.cookie.split(';');
+        var hasLogin = cookies.some(function(c) { return c.trim().startsWith('loginStatus=') && c.includes('true'); });
+        var isAdmin = cookies.some(function(c) { return c.trim().startsWith('userRole=') && c.includes('admin'); });
+        if (!hasLogin || !isAdmin) {
+            window.location.href = '/';
+        }
+    })();
+    </script>
+
+    <!-- 로그아웃 기능 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+                document.cookie = 'userRole=; Path=/; Max-Age=0';
+                fetch('/api/logout').catch(function() {});
+                window.location.href = '/';
+            });
+        }
+    });
+    </script>
+</body>
+</html>

@@ -182,7 +182,9 @@ module.exports = async (req, res) => {
                 if (passwordMatch) {
                     res.setHeader('Set-Cookie', [
                         'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400',
-                        'loginStatus=true; Path=/; Max-Age=86400'
+                        'loginStatus=true; Path=/; Max-Age=86400',
+                        `userEmail=${encodeURIComponent(user.email)}; Path=/; HttpOnly; Max-Age=86400`,
+                        `userRole=${user.role}; Path=/; Max-Age=86400`
                     ]);
                     return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
                 } else {
@@ -318,10 +320,19 @@ module.exports = async (req, res) => {
         if (url === '/logout' || url === '/api/logout') {
             res.setHeader('Set-Cookie', [
                 'authToken=; Path=/; HttpOnly; Max-Age=0',
-                'loginStatus=; Path=/; Max-Age=0'
+                'loginStatus=; Path=/; Max-Age=0',
+                'userEmail=; Path=/; HttpOnly; Max-Age=0',
+                'userRole=; Path=/; Max-Age=0'
             ]);
             res.json({ success: true, message: '로그아웃 되었습니다.' });
             return;
+        }
+
+        // Admin API routes
+        if (url.startsWith('/api/admin/users') || url.startsWith('/admin/users')) {
+            console.log('🔗 admin-users API 요청 감지, 라우팅 중...');
+            const adminUsersHandler = require('../lib/admin-users.js');
+            return await adminUsersHandler(req, res);
         }
 
         // Static files handling
@@ -384,6 +395,27 @@ module.exports = async (req, res) => {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
             title = '서비스 이용신청 완료';
+        } else if (url === '/admin' || url === '/admin/') {
+            // 관리자 페이지 - 인증 및 권한 검증
+            if (!isAuthenticated(req)) {
+                console.log('🔒 관리자 페이지: 인증 필요');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                res.setHeader('Location', '/?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
+            // 쿠키에서 역할 확인 (userRole)
+            const cookies = parseCookies(req.headers.cookie);
+            if (cookies.userRole !== 'admin') {
+                console.log('🔒 관리자 페이지: 권한 없음');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                res.setHeader('Location', '/?accessDenied=true');
+                res.status(302).end();
+                return;
+            }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+            viewName = 'admin';
+            title = '회원 관리';
         } else {
             console.log('❌ 알 수 없는 라우트:', url);
             viewName = '404';
