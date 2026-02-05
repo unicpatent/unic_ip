@@ -112,9 +112,8 @@ body {
 
 .search-form {
     display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .form-group {
