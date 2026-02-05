@@ -98,12 +98,19 @@ module.exports = async (req, res) => {
             return await getPatentDetailsHandler(req, res);
         }
 
+        // Lookup Customer API (사업자번호로 고객번호 조회)
+        if ((url === '/lookup-customer' || url === '/api/lookup-customer') && req.method === 'POST') {
+            console.log('🔗 lookup-customer API 요청 감지, 라우팅 중...');
+            const lookupCustomerHandler = require('../lib/lookup-customer.js');
+            return await lookupCustomerHandler(req, res);
+        }
+
         // Register API (서비스 이용신청)
         if ((url === '/register' || url === '/api/register') && req.method === 'POST') {
             console.log('🔗 register API 요청 감지');
 
             try {
-                const { name, email, password, phone, privacy_consent } = req.body || {};
+                const { name, email, password, phone, privacy_consent, business_number, customer_number } = req.body || {};
 
                 if (!name || !email || !password) {
                     return res.status(400).json({ success: false, message: '이름, 이메일, 패스워드는 필수 입력항목입니다.' });
@@ -127,6 +134,10 @@ module.exports = async (req, res) => {
                 // 패스워드 해싱 후 저장
                 const hashedPassword = await bcrypt.hash(password, 10);
 
+                // 사업자번호/고객번호 정리 (숫자만 추출)
+                const cleanBusinessNumber = business_number ? business_number.replace(/[^0-9]/g, '') : null;
+                const cleanCustomerNumber = customer_number ? customer_number.replace(/[^0-9]/g, '') : null;
+
                 const { error: insertError } = await supabase
                     .from('users')
                     .insert({
@@ -136,7 +147,9 @@ module.exports = async (req, res) => {
                         phone: phone || null,
                         status: 'active',
                         role: 'user',
-                        privacy_consent: privacy_consent || false
+                        privacy_consent: privacy_consent || false,
+                        business_number: cleanBusinessNumber || null,
+                        customer_number: cleanCustomerNumber || null
                     });
 
                 if (insertError) {
@@ -144,7 +157,7 @@ module.exports = async (req, res) => {
                     return res.status(500).json({ success: false, message: '회원가입 처리 중 오류가 발생했습니다.' });
                 }
 
-                console.log('회원가입 성공:', email);
+                console.log('회원가입 성공:', email, { business_number: cleanBusinessNumber, customer_number: cleanCustomerNumber });
                 return res.json({ success: true, message: '서비스 이용신청이 완료되었습니다.' });
             } catch (error) {
                 console.error('회원가입 처리 오류:', error);

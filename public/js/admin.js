@@ -66,7 +66,7 @@ async function loadUsers() {
     const emptyState = document.getElementById('emptyState');
     const totalCount = document.getElementById('totalCount');
 
-    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">로딩 중...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">로딩 중...</td></tr>';
 
     try {
         const params = new URLSearchParams({
@@ -103,7 +103,7 @@ async function loadUsers() {
         renderPagination(pagination);
     } catch (error) {
         console.error('회원 목록 로드 오류:', error);
-        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #ef4444;">' + escapeHtml(error.message) + '</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: #ef4444;">' + escapeHtml(error.message) + '</td></tr>';
     }
 }
 
@@ -129,6 +129,16 @@ function renderUsers(users) {
         const tdPhone = document.createElement('td');
         tdPhone.textContent = user.phone || '-';
         row.appendChild(tdPhone);
+
+        // 사업자번호
+        const tdBusinessNumber = document.createElement('td');
+        tdBusinessNumber.textContent = user.business_number || '-';
+        row.appendChild(tdBusinessNumber);
+
+        // 고객번호
+        const tdCustomerNumber = document.createElement('td');
+        tdCustomerNumber.textContent = user.customer_number || '-';
+        row.appendChild(tdCustomerNumber);
 
         // 상태
         const tdStatus = document.createElement('td');
@@ -267,6 +277,8 @@ function openEditModal(user) {
     document.getElementById('editName').value = user.name || '';
     document.getElementById('editEmail').value = user.email || '';
     document.getElementById('editPhone').value = user.phone || '';
+    document.getElementById('editBusinessNumber').value = user.business_number || '';
+    document.getElementById('editCustomerNumber').value = user.customer_number || '';
     document.getElementById('editRole').value = user.role || 'user';
 
     document.getElementById('editErrorMessage').style.display = 'none';
@@ -288,6 +300,8 @@ async function handleEditSubmit(e) {
     var name = document.getElementById('editName').value.trim();
     var email = document.getElementById('editEmail').value.trim();
     var phone = document.getElementById('editPhone').value.trim();
+    var businessNumber = document.getElementById('editBusinessNumber').value.trim();
+    var customerNumber = document.getElementById('editCustomerNumber').value.trim();
     var role = document.getElementById('editRole').value;
 
     var errorDiv = document.getElementById('editErrorMessage');
@@ -310,7 +324,14 @@ async function handleEditSubmit(e) {
         var response = await fetch('/api/admin/users/' + userId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, email: email, phone: phone, role: role })
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                phone: phone,
+                business_number: businessNumber,
+                customer_number: customerNumber,
+                role: role
+            })
         });
 
         var result = await response.json();

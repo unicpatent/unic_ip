@@ -346,11 +346,34 @@
                                        placeholder="패스워드를 다시 입력하세요">
                             </div>
 
-                            <div style="margin-bottom: 1.5rem;">
+                            <div style="margin-bottom: 1rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label>
                                 <input type="tel" name="phone" id="phone_service" required
                                        style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                        placeholder="010-0000-0000">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">사업자번호</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" name="business_number" id="business_number_service"
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                           placeholder="10자리 숫자 (예: 1234567890)"
+                                           maxlength="10"
+                                           pattern="[0-9]{10}">
+                                    <span id="businessNumberStatus" style="font-size: 0.85rem; color: #6b7280; white-space: nowrap;"></span>
+                                </div>
+                                <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">사업자번호 입력 후 고객번호가 자동으로 조회됩니다</p>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호 (특허고객번호)</label>
+                                <input type="text" name="customer_number" id="customer_number_service"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="12자리 숫자 (예: 120190612244)"
+                                       maxlength="12"
+                                       pattern="[0-9]{12}">
+                                <p id="customerNumberHint" style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">사업자번호로 조회되거나 직접 입력 가능합니다</p>
                             </div>
 
                             <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
@@ -376,6 +399,60 @@
             `;
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // 사업자번호 blur 이벤트 - 고객번호 자동 조회
+            const businessNumberInput = document.getElementById('business_number_service');
+            const customerNumberInput = document.getElementById('customer_number_service');
+            const businessNumberStatus = document.getElementById('businessNumberStatus');
+            const customerNumberHint = document.getElementById('customerNumberHint');
+
+            businessNumberInput.addEventListener('blur', async function() {
+                const businessNumber = this.value.replace(/[^0-9]/g, '');
+
+                if (businessNumber.length !== 10) {
+                    if (businessNumber.length > 0) {
+                        businessNumberStatus.textContent = '10자리 숫자를 입력하세요';
+                        businessNumberStatus.style.color = '#ef4444';
+                    } else {
+                        businessNumberStatus.textContent = '';
+                    }
+                    return;
+                }
+
+                // 조회 중 표시
+                businessNumberStatus.textContent = '조회 중...';
+                businessNumberStatus.style.color = '#6b7280';
+
+                try {
+                    const response = await fetch('/api/lookup-customer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessNumber: businessNumber })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success && result.customerNumber) {
+                        customerNumberInput.value = result.customerNumber;
+                        businessNumberStatus.textContent = '조회 완료';
+                        businessNumberStatus.style.color = '#059669';
+                        customerNumberHint.textContent = result.applicantName ?
+                            '권리자: ' + result.applicantName : '고객번호가 자동 입력되었습니다';
+                        customerNumberHint.style.color = '#059669';
+                    } else {
+                        businessNumberStatus.textContent = '조회 결과 없음';
+                        businessNumberStatus.style.color = '#f59e0b';
+                        customerNumberHint.textContent = result.message || '고객번호를 직접 입력해주세요';
+                        customerNumberHint.style.color = '#f59e0b';
+                    }
+                } catch (error) {
+                    console.error('Customer lookup error:', error);
+                    businessNumberStatus.textContent = '조회 실패';
+                    businessNumberStatus.style.color = '#ef4444';
+                    customerNumberHint.textContent = '고객번호를 직접 입력해주세요';
+                    customerNumberHint.style.color = '#ef4444';
+                }
+            });
 
             // 서비스 이용신청 폼 제출 처리
             const serviceForm = document.getElementById('serviceApplicationForm');
@@ -414,7 +491,9 @@
                             email: document.getElementById('email_service').value,
                             password: password,
                             phone: document.getElementById('phone_service').value,
-                            privacy_consent: document.getElementById('privacy_consent_service').checked
+                            privacy_consent: document.getElementById('privacy_consent_service').checked,
+                            business_number: document.getElementById('business_number_service').value,
+                            customer_number: document.getElementById('customer_number_service').value
                         })
                     });
 
