@@ -226,6 +226,12 @@ function displayResults(data) {
     
     resultsSection.style.display = 'block';
 
+    // 액션 버튼 표시
+    const actionButtons = document.getElementById('actionButtons');
+    if (actionButtons) {
+        actionButtons.style.display = 'flex';
+    }
+
     // 필터 섹션 표시 및 초기화
     showFilterSection();
     resetFilterUI();
@@ -671,6 +677,11 @@ function hideResults() {
     const searchResultInfo = document.getElementById('searchResultInfo');
     if (searchResultInfo) {
         searchResultInfo.style.display = 'none';
+    }
+    // 액션 버튼 숨김
+    const actionButtons = document.getElementById('actionButtons');
+    if (actionButtons) {
+        actionButtons.style.display = 'none';
     }
     // 필터 섹션도 숨김
     hideFilterSection();
