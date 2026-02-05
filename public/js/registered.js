@@ -1,12 +1,15 @@
 // registered.js - 등록특허 현황 검색 기능
-console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2025.09.19.v12');
+console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2025.09.19.v13');
 
 let currentPatents = [];
+let originalPatents = []; // 필터링 전 원본 데이터 보관용
 let currentPage = 1;
 const itemsPerPage = 10;
+let isAnnuityCalculated = false; // 연차료 계산 완료 여부
 
 // 전역 변수로 설정하여 다른 스크립트에서 접근 가능하도록 함
 window.currentPatents = currentPatents;
+window.originalPatents = originalPatents;
 window.currentPage = currentPage;
 window.itemsPerPage = itemsPerPage;
 
@@ -26,6 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 버튼 이벤트 리스너들
     setupButtonListeners();
+
+    // 필터 이벤트 리스너
+    setupFilterListeners();
 });
 
 // 라디오 버튼 이벤트 리스너 설정
@@ -162,9 +168,12 @@ function displayResults(data) {
     console.log(`📊 필터링 결과: 전체 ${allPatents.length}건 중 ${filteredPatents.length}건 표시`);
 
     currentPatents = filteredPatents;
+    originalPatents = [...filteredPatents]; // 원본 데이터 보관
     window.currentPatents = currentPatents;
+    window.originalPatents = originalPatents;
     currentPage = 1; // 검색 시 첫 페이지로 초기화
     window.currentPage = currentPage; // 전역변수 동기화
+    isAnnuityCalculated = false; // 새 검색 시 연차료 계산 상태 초기화
     
     // 현재 날짜 표시
     const currentDate = new Date().toLocaleDateString('ko-KR', {
@@ -236,6 +245,11 @@ function displayResults(data) {
     }
     
     resultsSection.style.display = 'block';
+
+    // 필터 섹션 표시 및 초기화
+    showFilterSection();
+    resetFilterUI();
+
     console.log('✅ 결과 섹션 표시');
 }
 
@@ -661,6 +675,8 @@ function hideResults() {
     if (searchResultInfo) {
         searchResultInfo.style.display = 'none';
     }
+    // 필터 섹션도 숨김
+    hideFilterSection();
 }
 
 // 연차료 납부의뢰 함수
@@ -838,6 +854,270 @@ function setupButtonListeners() {
                 console.warn('엑셀 다운로드 함수를 찾을 수 없습니다.');
             }
         });
+    }
+}
+
+// ========== 필터 관련 함수들 ==========
+
+// 필터 이벤트 리스너 설정
+function setupFilterListeners() {
+    // 필터 적용 버튼
+    const applyFilterBtn = document.getElementById('applyFilterBtn');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', applyFilters);
+    }
+
+    // 필터 초기화 버튼
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
+    if (resetFilterBtn) {
+        resetFilterBtn.addEventListener('click', resetFilters);
+    }
+
+    // 등록상태 라디오 버튼 변경 시 자동 필터 적용
+    const statusRadios = document.querySelectorAll('input[name="statusFilter"]');
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', applyFilters);
+    });
+
+    // 마감임박 체크박스 변경 시 자동 필터 적용
+    const deadlineFilter = document.getElementById('deadlineFilter');
+    const unpaidFilter = document.getElementById('unpaidFilter');
+    const graceFilter = document.getElementById('graceFilter');
+
+    if (deadlineFilter) deadlineFilter.addEventListener('change', applyFilters);
+    if (unpaidFilter) unpaidFilter.addEventListener('change', applyFilters);
+    if (graceFilter) graceFilter.addEventListener('change', applyFilters);
+
+    console.log('✅ 필터 이벤트 리스너 등록 완료');
+}
+
+// 필터 섹션 표시
+function showFilterSection() {
+    const filterSection = document.getElementById('filterSection');
+    if (filterSection) {
+        filterSection.style.display = 'block';
+    }
+}
+
+// 필터 섹션 숨김
+function hideFilterSection() {
+    const filterSection = document.getElementById('filterSection');
+    if (filterSection) {
+        filterSection.style.display = 'none';
+    }
+}
+
+// 필터 UI 초기화
+function resetFilterUI() {
+    // 등록상태 라디오 버튼 초기화
+    const allStatusRadio = document.querySelector('input[name="statusFilter"][value="all"]');
+    if (allStatusRadio) allStatusRadio.checked = true;
+
+    // 마감임박 체크박스 초기화
+    const deadlineFilter = document.getElementById('deadlineFilter');
+    const unpaidFilter = document.getElementById('unpaidFilter');
+    const graceFilter = document.getElementById('graceFilter');
+
+    if (deadlineFilter) {
+        deadlineFilter.checked = false;
+        deadlineFilter.disabled = true;
+    }
+    if (unpaidFilter) {
+        unpaidFilter.checked = false;
+        unpaidFilter.disabled = true;
+    }
+    if (graceFilter) {
+        graceFilter.checked = false;
+        graceFilter.disabled = true;
+    }
+
+    // 힌트 텍스트 표시
+    const deadlineFilterHint = document.getElementById('deadlineFilterHint');
+    if (deadlineFilterHint) {
+        deadlineFilterHint.style.display = 'inline';
+    }
+
+    // 필터 결과 건수 초기화
+    updateFilterResultCount(originalPatents.length, originalPatents.length);
+}
+
+// 마감임박 필터 활성화 (연차료 계산 후 호출)
+function enableDeadlineFilters() {
+    isAnnuityCalculated = true;
+
+    const deadlineFilter = document.getElementById('deadlineFilter');
+    const unpaidFilter = document.getElementById('unpaidFilter');
+    const graceFilter = document.getElementById('graceFilter');
+
+    if (deadlineFilter) deadlineFilter.disabled = false;
+    if (unpaidFilter) unpaidFilter.disabled = false;
+    if (graceFilter) graceFilter.disabled = false;
+
+    // 힌트 텍스트 숨김
+    const deadlineFilterHint = document.getElementById('deadlineFilterHint');
+    if (deadlineFilterHint) {
+        deadlineFilterHint.style.display = 'none';
+    }
+
+    console.log('✅ 마감임박 필터 활성화됨');
+}
+
+// 전역에서 접근 가능하도록 등록
+window.enableDeadlineFilters = enableDeadlineFilters;
+
+// 필터 적용
+function applyFilters() {
+    console.log('📋 필터 적용 시작');
+
+    // 원본 데이터 동기화
+    if (window.originalPatents && window.originalPatents.length > 0) {
+        originalPatents = window.originalPatents;
+    }
+
+    if (originalPatents.length === 0) {
+        console.warn('⚠️ 필터링할 원본 데이터가 없습니다.');
+        return;
+    }
+
+    // 필터 조건 가져오기
+    const statusFilter = document.querySelector('input[name="statusFilter"]:checked')?.value || 'all';
+    const deadlineFilter = document.getElementById('deadlineFilter')?.checked || false;
+    const unpaidFilter = document.getElementById('unpaidFilter')?.checked || false;
+    const graceFilter = document.getElementById('graceFilter')?.checked || false;
+
+    console.log('📝 필터 조건:', { statusFilter, deadlineFilter, unpaidFilter, graceFilter });
+
+    let filtered = [...originalPatents];
+
+    // 등록상태 필터 적용
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(patent => patent.registrationStatus === statusFilter);
+        console.log(`📊 등록상태 필터 후: ${filtered.length}건`);
+    }
+
+    // 마감임박 필터 적용 (OR 조건)
+    if (isAnnuityCalculated && (deadlineFilter || unpaidFilter || graceFilter)) {
+        filtered = filtered.filter(patent => {
+            const calcData = patent.calculatedData;
+            if (!calcData) return false;
+
+            // 납부기한 1개월 이내
+            if (deadlineFilter && isWithinOneMonth(calcData.dueDate)) {
+                return true;
+            }
+
+            // 미납
+            if (unpaidFilter && calcData.validityStatus === '미납') {
+                return true;
+            }
+
+            // 추납/회복기간 1개월 이내
+            if (graceFilter) {
+                if (isWithinOneMonth(calcData.latePaymentPeriod) || isWithinOneMonth(calcData.recoveryPeriod)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+        console.log(`📊 마감임박 필터 후: ${filtered.length}건`);
+    }
+
+    // 필터된 결과로 업데이트
+    currentPatents = filtered;
+    window.currentPatents = currentPatents;
+    currentPage = 1;
+    window.currentPage = currentPage;
+
+    // 테이블 갱신
+    if (filtered.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+    } else {
+        document.getElementById('emptyState').style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        displayPaginatedResults();
+    }
+
+    // 필터 결과 건수 업데이트
+    updateFilterResultCount(filtered.length, originalPatents.length);
+
+    console.log(`✅ 필터 적용 완료: ${filtered.length}건 / 전체 ${originalPatents.length}건`);
+}
+
+// 필터 초기화
+function resetFilters() {
+    console.log('🔄 필터 초기화');
+
+    // 원본 데이터 복원
+    if (window.originalPatents && window.originalPatents.length > 0) {
+        originalPatents = window.originalPatents;
+    }
+
+    currentPatents = [...originalPatents];
+    window.currentPatents = currentPatents;
+    currentPage = 1;
+    window.currentPage = currentPage;
+
+    // UI 초기화
+    resetFilterUI();
+
+    // 연차료 계산이 완료된 상태면 마감임박 필터 다시 활성화
+    if (isAnnuityCalculated) {
+        enableDeadlineFilters();
+    }
+
+    // 테이블 갱신
+    if (currentPatents.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+    } else {
+        document.getElementById('emptyState').style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        displayPaginatedResults();
+    }
+
+    console.log(`✅ 필터 초기화 완료: ${currentPatents.length}건`);
+}
+
+// 날짜가 오늘부터 1개월 이내인지 확인
+function isWithinOneMonth(dateStr) {
+    if (!dateStr || dateStr === '-' || dateStr === '해당없음') {
+        return false;
+    }
+
+    try {
+        // 날짜 문자열 파싱 (YYYY.MM.DD 또는 YYYY-MM-DD 형식)
+        const cleanDateStr = dateStr.replace(/\./g, '-').replace(/\s/g, '');
+        const targetDate = new Date(cleanDateStr);
+
+        if (isNaN(targetDate.getTime())) {
+            return false;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const oneMonthLater = new Date(today);
+        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+
+        // 오늘 이후이고 1개월 이내인 경우
+        return targetDate >= today && targetDate <= oneMonthLater;
+    } catch (e) {
+        console.warn('날짜 파싱 오류:', dateStr, e);
+        return false;
+    }
+}
+
+// 필터 결과 건수 업데이트
+function updateFilterResultCount(filteredCount, totalCount) {
+    const filterResultCount = document.getElementById('filterResultCount');
+    if (filterResultCount) {
+        if (filteredCount === totalCount) {
+            filterResultCount.textContent = `전체 ${totalCount}건`;
+        } else {
+            filterResultCount.textContent = `필터 결과: ${filteredCount}건 / 전체 ${totalCount}건`;
+        }
     }
 }
 

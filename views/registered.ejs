@@ -136,6 +136,57 @@
                 </div>
             </div>
 
+            <!-- 결과 내 재검색 필터 -->
+            <div class="filter-section" id="filterSection" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #334155;">📋 결과 내 재검색</h3>
+                    <span id="filterResultCount" style="font-size: 0.85rem; color: #64748b;"></span>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start;">
+                    <!-- 등록상태 필터 -->
+                    <div class="filter-group">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">등록상태</label>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="radio" name="statusFilter" value="all" checked style="margin-right: 0.35rem;"> 전체
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="radio" name="statusFilter" value="등록유지" style="margin-right: 0.35rem;"> 등록유지
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="radio" name="statusFilter" value="존속기간만료" style="margin-right: 0.35rem;"> 존속기간만료
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="radio" name="statusFilter" value="등록료불납" style="margin-right: 0.35rem;"> 등록료불납
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 마감임박 필터 -->
+                    <div class="filter-group" id="deadlineFilterGroup">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">마감임박 <span id="deadlineFilterHint" style="font-size: 0.75rem; color: #94a3b8;">(연차료 계산 후 사용 가능)</span></label>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="checkbox" id="deadlineFilter" disabled style="margin-right: 0.35rem;"> 납부기한 1개월 이내
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="checkbox" id="unpaidFilter" disabled style="margin-right: 0.35rem;"> 미납
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
+                                <input type="checkbox" id="graceFilter" disabled style="margin-right: 0.35rem;"> 추납/회복기간 1개월 이내
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 필터 버튼 -->
+                    <div class="filter-buttons" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-left: auto;">
+                        <button type="button" id="applyFilterBtn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">필터 적용</button>
+                        <button type="button" id="resetFilterBtn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">초기화</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="table-container">
                 <table class="patent-table" id="patentTable">
                     <thead>
@@ -1406,6 +1457,11 @@ function performNewAnnuityCalculation(discountType) {
         console.log('   페이지당 항목 수:', window.itemsPerPage || 10);
     }
     
+    // 마감임박 필터 활성화
+    if (typeof window.enableDeadlineFilters === 'function') {
+        window.enableDeadlineFilters();
+    }
+
     // 계산 완료 메시지 (감면 유형 포함)
     const discountInfo = NEW_DISCOUNT_TYPES[discountType];
     const successDiv = document.createElement('div');
