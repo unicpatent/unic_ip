@@ -57,133 +57,94 @@
             <p>고객번호로 등록된 특허 목록을 조회합니다</p>
         </div>
 
-        <!-- 검색 섹션 -->
+        <!-- 검색 섹션 (압축 레이아웃) -->
         <section class="search-section">
             <form class="search-form" id="searchForm">
-                <div class="form-group">
-                    <!-- 검색 유형 선택 -->
-                    <div class="search-type-group" style="margin-bottom: 1rem;">
-                        <label class="form-label">검색 유형</label>
-                        <div class="radio-group" style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <label class="radio-option" style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="radio" name="searchType" value="1" id="businessNumberType" checked style="margin-right: 0.5rem;">
-                                <span>사업자번호 (10자리)</span>
-                            </label>
-                            <label class="radio-option" style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="radio" name="searchType" value="2" id="customerNumberType" style="margin-right: 0.5rem;">
-                                <span>고객번호 (12자리)</span>
-                            </label>
-                        </div>
+                <!-- 검색 유형 + 조회 결과 정보 (한 줄) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        <span class="form-label" style="margin: 0; font-weight: 600;">검색 유형</span>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem;">
+                            <input type="radio" name="searchType" value="1" id="businessNumberType" checked style="margin-right: 0.35rem;">
+                            사업자번호 (10자리)
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem;">
+                            <input type="radio" name="searchType" value="2" id="customerNumberType" style="margin-right: 0.35rem;">
+                            고객번호 (12자리)
+                        </label>
                     </div>
-
-                    <!-- 검색 입력 -->
-                    <label for="searchInput" class="form-label" id="searchInputLabel">사업자번호</label>
-                    <div class="input-group">
-                        <input
-                            type="text"
-                            id="searchInput"
-                            name="searchInput"
-                            class="form-input customer-number-input"
-                            placeholder="예: 1234567890"
-                            maxlength="10"
-                            pattern="[0-9]{10}"
-                            required
-                            value="<%= userBusinessNumber %>"
-                            data-user-business-number="<%= userBusinessNumber %>"
-                            data-user-customer-number="<%= userCustomerNumber %>"
-                        >
-                        <button type="submit" class="btn btn-primary" id="searchBtn">
-                            🔍 검색하기
-                        </button>
-                        <span id="searchResultInfo" style="display: none; margin-left: 1rem; padding: 0.5rem 1rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; font-size: 0.9rem; color: #166534; white-space: nowrap;"></span>
+                    <!-- 조회 결과 정보 (검색 후 표시) -->
+                    <div id="searchResultInfo" style="display: none; padding: 0.4rem 0.75rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; font-size: 0.85rem; color: #166534;">
+                        <span id="resultCurrentDate">-</span> | <span id="resultRightHolderName">-</span> | <span id="resultTotalCount">0</span>건
                     </div>
-                    <div class="form-hint" id="searchInputHint">10자리 숫자 입력하세요</div>
                 </div>
-                <button type="button" class="btn btn-secondary find-customer-btn" id="findCustomerBtn">
-                    고객번호 찾기
-                </button>
+
+                <!-- 검색 입력 + 액션 버튼들 (한 줄) -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <label for="searchInput" class="form-label" id="searchInputLabel" style="margin: 0; min-width: 70px;">사업자번호</label>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        name="searchInput"
+                        class="form-input"
+                        style="width: 160px;"
+                        placeholder="예: 1234567890"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        required
+                        value="<%= userBusinessNumber %>"
+                        data-user-business-number="<%= userBusinessNumber %>"
+                        data-user-customer-number="<%= userCustomerNumber %>"
+                    >
+                    <button type="submit" class="btn btn-primary" id="searchBtn">🔍 검색</button>
+                    <span style="border-left: 1px solid #e2e8f0; height: 24px; margin: 0 0.25rem;"></span>
+                    <button type="button" class="btn btn-info" id="calculateAnnuityBtn">🧮 연차료 계산</button>
+                    <button type="button" class="btn btn-primary" id="renewalRequestBtn">💰 납부의뢰</button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">📊 엑셀</button>
+                </div>
+                <div class="form-hint" id="searchInputHint" style="margin-top: 0.25rem; margin-left: 78px;">10자리 숫자 입력하세요</div>
             </form>
         </section>
 
         <!-- 결과 섹션 -->
         <section class="results-section" id="resultsSection" style="display: none;">
-            <div class="results-header">
-                <div class="results-info">
-                    <div class="info-item">
-                        <span class="info-label">조회일자:</span>
-                        <span class="info-value" id="resultCurrentDate">-</span>
+            <!-- 결과 내 재검색 필터 (압축 레이아웃) -->
+            <div class="filter-section" id="filterSection" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.6rem 1rem; margin-bottom: 0.75rem;">
+                <!-- 첫째 줄: 등록상태 필터 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #334155;">📋 결과 내 재검색</span>
+                        <span style="font-size: 0.8rem; color: #64748b;">등록상태:</span>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                            <input type="radio" name="statusFilter" value="all" checked style="margin-right: 0.2rem;"> 전체
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                            <input type="radio" name="statusFilter" value="등록유지" style="margin-right: 0.2rem;"> 등록유지
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                            <input type="radio" name="statusFilter" value="존속기간 만료" style="margin-right: 0.2rem;"> 존속기간 만료
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                            <input type="radio" name="statusFilter" value="등록료 불납" style="margin-right: 0.2rem;"> 등록료 불납
+                        </label>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">권리자:</span>
-                        <span class="info-value" id="resultRightHolderName">-</span>
-                    </div>
-                                    
-                    <div class="info-item">
-                        <span class="info-label">건수:</span>
-                        <span class="info-value" id="resultTotalCount">0</span>건
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="filterResultCount" style="font-size: 0.8rem; color: #64748b;"></span>
                     </div>
                 </div>
-                <div class="action-buttons">
-                    <button type="button" class="btn btn-info" id="calculateAnnuityBtn">
-                        🧮 연차료 계산
-                    </button>
-                    <button type="button" class="btn btn-primary" id="renewalRequestBtn">
-                        💰 납부의뢰
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="exportBtn">
-                        📊 다운로드
-                    </button>
-                </div>
-            </div>
-
-            <!-- 결과 내 재검색 필터 -->
-            <div class="filter-section" id="filterSection" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #334155;">📋 결과 내 재검색</h3>
-                    <span id="filterResultCount" style="font-size: 0.85rem; color: #64748b;"></span>
-                </div>
-
-                <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start;">
-                    <!-- 등록상태 필터 -->
-                    <div class="filter-group">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">등록상태</label>
-                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="radio" name="statusFilter" value="all" checked style="margin-right: 0.35rem;"> 전체
-                            </label>
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="radio" name="statusFilter" value="등록유지" style="margin-right: 0.35rem;"> 등록유지
-                            </label>
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="radio" name="statusFilter" value="존속기간만료" style="margin-right: 0.35rem;"> 존속기간만료
-                            </label>
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="radio" name="statusFilter" value="등록료불납" style="margin-right: 0.35rem;"> 등록료불납
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- 마감임박 필터 -->
-                    <div class="filter-group" id="deadlineFilterGroup">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">마감임박 <span id="deadlineFilterHint" style="font-size: 0.75rem; color: #94a3b8;">(연차료 계산 후 사용 가능)</span></label>
-                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="checkbox" id="deadlineFilter" disabled style="margin-right: 0.35rem;"> 납부기한 1개월 이내
-                            </label>
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="checkbox" id="unpaidFilter" disabled style="margin-right: 0.35rem;"> 미납
-                            </label>
-                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #374151;">
-                                <input type="checkbox" id="graceFilter" disabled style="margin-right: 0.35rem;"> 추납/회복기간 1개월 이내
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- 필터 버튼 -->
-                    <div class="filter-buttons" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-left: auto;">
-                        <button type="button" id="applyFilterBtn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">필터 적용</button>
-                        <button type="button" id="resetFilterBtn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">초기화</button>
-                    </div>
+                <!-- 둘째 줄: 마감임박 필터 + 초기화 -->
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <span style="font-size: 0.8rem; color: #64748b;">마감임박<span id="deadlineFilterHint" style="font-size: 0.7rem; color: #94a3b8;"> (연차료 계산 후)</span>:</span>
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                        <input type="checkbox" id="deadlineFilter" disabled style="margin-right: 0.2rem;"> 납부기한 1개월 이내
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                        <input type="checkbox" id="unpaidFilter" disabled style="margin-right: 0.2rem;"> 미납
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
+                        <input type="checkbox" id="graceFilter" disabled style="margin-right: 0.2rem;"> 추납/회복 1개월 이내
+                    </label>
+                    <button type="button" id="resetFilterBtn" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; margin-left: auto;">초기화</button>
                 </div>
             </div>
 

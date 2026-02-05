@@ -1,5 +1,5 @@
 // registered.js - 등록특허 현황 검색 기능
-console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2025.09.19.v13');
+console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2026.02.05.v15');
 
 let currentPatents = [];
 let originalPatents = []; // 필터링 전 원본 데이터 보관용
@@ -206,30 +206,10 @@ function displayResults(data) {
     // 필터링된 건수로 표시 (30, 40으로 시작하는 등록번호 제외 후)
     document.getElementById('resultTotalCount').textContent = filteredPatents.length;
 
-    // 검색 버튼 옆에 조회 결과 정보 표시
+    // 검색 결과 정보 표시 (개별 span 요소에 이미 설정됨)
     const searchResultInfo = document.getElementById('searchResultInfo');
     if (searchResultInfo) {
-        // 사업자번호 가져오기
-        let businessNo = '';
-        if (searchType === '1') {
-            // 사업자번호로 검색한 경우: 검색값 사용
-            businessNo = document.getElementById('searchInput').value.trim();
-        } else {
-            // 고객번호로 검색한 경우: 특허 데이터에서 가져오기
-            if (data.patents && data.patents.length > 0 && data.patents[0].businessNo) {
-                businessNo = data.patents[0].businessNo;
-            }
-        }
-
-        // 사업자번호 형식화 (000-00-00000)
-        let formattedBusinessNo = businessNo;
-        if (businessNo && businessNo.length === 10) {
-            formattedBusinessNo = businessNo.substring(0, 3) + '-' + businessNo.substring(3, 5) + '-' + businessNo.substring(5);
-        }
-
-        const infoText = `조회일자: ${currentDate} 권리자: ${rightHolderToDisplay} (사업자번호: ${formattedBusinessNo})`;
-        searchResultInfo.textContent = infoText;
-        searchResultInfo.style.display = 'inline-block';
+        searchResultInfo.style.display = 'flex';
     }
 
     const resultsSection = document.getElementById('resultsSection');
@@ -352,7 +332,7 @@ function displayPaginatedResults() {
             '<td>' + formatDate(patent.expirationDate) + '</td>',
             '<td class="invention-title-natural invention-title">' + inventionTitle + '</td>',
             '<td>' + safeValue(patent.claimCount) + '</td>',
-            '<td>' + safeValue(patent.registrationStatus) + '</td>'
+            '<td>' + formatRegistrationStatus(patent.registrationStatus) + '</td>'
         ];
 
         // calculatedData가 있는 경우 특별한 스타일 적용
@@ -632,9 +612,26 @@ function formatPaymentAmount(amount) {
     return Number(amount).toLocaleString('ko-KR') + '원';
 }
 
+// 등록상태 형식 변환 (간소화)
+function formatRegistrationStatus(status) {
+    if (!status || status === '-') {
+        return '-';
+    }
+    // "등록료 불납" 또는 "등록료불납" 포함 시 "등록료 불납"으로 표시
+    if (status.includes('등록료 불납') || status.includes('등록료불납') || status.includes('등록표 불납')) {
+        return '등록료 불납';
+    }
+    // "존속기간 만료" 또는 "존속기간만료" 포함 시 "존속기간 만료"로 표시
+    if (status.includes('존속기간 만료') || status.includes('존속기간만료')) {
+        return '존속기간 만료';
+    }
+    return status;
+}
+
 // window 객체에 함수 등록 (registered.ejs에서 사용하기 위함)
 window.formatPaymentDate = formatPaymentDate;
 window.formatPaymentAmount = formatPaymentAmount;
+window.formatRegistrationStatus = formatRegistrationStatus;
 
 // 납부정보를 화면에 업데이트
 function updatePaymentHistoryDisplay() {
@@ -861,12 +858,6 @@ function setupButtonListeners() {
 
 // 필터 이벤트 리스너 설정
 function setupFilterListeners() {
-    // 필터 적용 버튼
-    const applyFilterBtn = document.getElementById('applyFilterBtn');
-    if (applyFilterBtn) {
-        applyFilterBtn.addEventListener('click', applyFilters);
-    }
-
     // 필터 초기화 버튼
     const resetFilterBtn = document.getElementById('resetFilterBtn');
     if (resetFilterBtn) {
@@ -989,9 +980,9 @@ function applyFilters() {
 
     let filtered = [...originalPatents];
 
-    // 등록상태 필터 적용
+    // 등록상태 필터 적용 (formatRegistrationStatus로 정규화된 값 비교)
     if (statusFilter !== 'all') {
-        filtered = filtered.filter(patent => patent.registrationStatus === statusFilter);
+        filtered = filtered.filter(patent => formatRegistrationStatus(patent.registrationStatus) === statusFilter);
         console.log(`📊 등록상태 필터 후: ${filtered.length}건`);
     }
 
