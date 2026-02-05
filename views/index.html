@@ -572,6 +572,26 @@
                             </div>
 
                             <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">사업자번호</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" id="myinfo_business_number"
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                           placeholder="10자리 숫자 (선택)"
+                                           maxlength="10">
+                                    <span id="myinfo_business_status" style="font-size: 0.85rem; color: #6b7280; white-space: nowrap;"></span>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호 (특허고객번호)</label>
+                                <input type="text" id="myinfo_customer_number"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="12자리 숫자 (선택)"
+                                       maxlength="12">
+                                <p id="myinfo_customer_hint" style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">사업자번호 입력 후 자동 조회되거나 직접 입력</p>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
                                 <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 패스워드</label>
                                 <input type="password" id="myinfo_new_password" minlength="6"
                                        style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
@@ -599,6 +619,59 @@
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+            // 사업자번호 blur 이벤트 - 고객번호 자동 조회
+            const myinfoBusinessInput = document.getElementById('myinfo_business_number');
+            const myinfoCustomerInput = document.getElementById('myinfo_customer_number');
+            const myinfoBusinessStatus = document.getElementById('myinfo_business_status');
+            const myinfoCustomerHint = document.getElementById('myinfo_customer_hint');
+
+            myinfoBusinessInput.addEventListener('blur', async function() {
+                const businessNumber = this.value.replace(/[^0-9]/g, '');
+
+                if (businessNumber.length !== 10) {
+                    if (businessNumber.length > 0) {
+                        myinfoBusinessStatus.textContent = '10자리 숫자를 입력하세요';
+                        myinfoBusinessStatus.style.color = '#ef4444';
+                    } else {
+                        myinfoBusinessStatus.textContent = '';
+                    }
+                    return;
+                }
+
+                myinfoBusinessStatus.textContent = '조회 중...';
+                myinfoBusinessStatus.style.color = '#6b7280';
+
+                try {
+                    const response = await fetch('/api/lookup-customer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessNumber: businessNumber })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success && result.customerNumber) {
+                        myinfoCustomerInput.value = result.customerNumber;
+                        myinfoBusinessStatus.textContent = '조회 완료';
+                        myinfoBusinessStatus.style.color = '#059669';
+                        myinfoCustomerHint.textContent = result.applicantName ?
+                            '권리자: ' + result.applicantName : '고객번호가 자동 입력되었습니다';
+                        myinfoCustomerHint.style.color = '#059669';
+                    } else {
+                        myinfoBusinessStatus.textContent = '조회 결과 없음';
+                        myinfoBusinessStatus.style.color = '#f59e0b';
+                        myinfoCustomerHint.textContent = result.message || '고객번호를 직접 입력해주세요';
+                        myinfoCustomerHint.style.color = '#f59e0b';
+                    }
+                } catch (error) {
+                    console.error('Customer lookup error:', error);
+                    myinfoBusinessStatus.textContent = '조회 실패';
+                    myinfoBusinessStatus.style.color = '#ef4444';
+                    myinfoCustomerHint.textContent = '고객번호를 직접 입력해주세요';
+                    myinfoCustomerHint.style.color = '#ef4444';
+                }
+            });
+
             document.getElementById('myInfoForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const errorDiv = document.getElementById('myInfoErrorMessage');
@@ -610,6 +683,8 @@
                 const currentPassword = document.getElementById('myinfo_current_password').value;
                 const newEmail = document.getElementById('myinfo_new_email').value;
                 const phone = document.getElementById('myinfo_phone').value;
+                const businessNumber = document.getElementById('myinfo_business_number').value;
+                const customerNumber = document.getElementById('myinfo_customer_number').value;
                 const newPassword = document.getElementById('myinfo_new_password').value;
                 const newPasswordConfirm = document.getElementById('myinfo_new_password_confirm').value;
 
@@ -631,7 +706,7 @@
                     return;
                 }
 
-                if (!newEmail && !phone && !newPassword) {
+                if (!newEmail && !phone && !newPassword && !businessNumber && !customerNumber) {
                     errorDiv.textContent = '변경할 항목을 하나 이상 입력해주세요.';
                     errorDiv.style.display = 'block';
                     return;
@@ -650,6 +725,8 @@
                             current_password: currentPassword,
                             new_email: newEmail || undefined,
                             phone: phone || undefined,
+                            business_number: businessNumber || undefined,
+                            customer_number: customerNumber || undefined,
                             new_password: newPassword || undefined
                         })
                     });

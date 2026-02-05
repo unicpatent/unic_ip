@@ -214,7 +214,7 @@ module.exports = async (req, res) => {
             console.log('🔗 update-profile API 요청 감지');
 
             try {
-                const { current_email, current_password, new_email, phone, new_password } = req.body || {};
+                const { current_email, current_password, new_email, phone, business_number, customer_number, new_password } = req.body || {};
 
                 if (!current_email || !current_password) {
                     return res.status(400).json({ success: false, message: '현재 이메일과 패스워드를 입력해주세요.' });
@@ -253,6 +253,15 @@ module.exports = async (req, res) => {
                     updateData.email = new_email;
                 }
                 if (phone) updateData.phone = phone;
+
+                // 사업자번호/고객번호 처리 (숫자만 추출)
+                if (business_number !== undefined) {
+                    updateData.business_number = business_number ? business_number.replace(/[^0-9]/g, '') : null;
+                }
+                if (customer_number !== undefined) {
+                    updateData.customer_number = customer_number ? customer_number.replace(/[^0-9]/g, '') : null;
+                }
+
                 if (new_password) {
                     if (new_password.length < 6) {
                         return res.status(400).json({ success: false, message: '새 패스워드는 6자 이상이어야 합니다.' });
