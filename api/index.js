@@ -101,6 +101,12 @@ module.exports = async (req, res) => {
             return await searchApplicationHandler(req, res);
         }
 
+        if (url === '/search-application2' || url === '/api/search-application2') {
+            console.log('🔗 search-application2 API 요청 감지 (키프리스 스크래핑)');
+            const searchApplication2Handler = require('../lib/search-application2.js');
+            return await searchApplication2Handler(req, res);
+        }
+
         if (url === '/send-renewal-request' || url === '/api/send-renewal-request') {
             console.log('🔗 send-renewal-request API 요청 감지, 라우팅 중...');
             const sendRenewalRequestHandler = require('../lib/send-renewal-request.js');

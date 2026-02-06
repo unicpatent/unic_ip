@@ -339,7 +339,11 @@
 
     <!-- 검색 및 이벤트 스크립트 -->
     <script>
-    // 검색 폼 제출 이벤트 (추후 키프리스 스크래핑으로 구현 예정)
+    let currentPatents = [];
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+    // 검색 폼 제출 이벤트
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -347,7 +351,6 @@
         const searchBtn = document.getElementById('searchBtn');
         const originalText = searchBtn.innerHTML;
 
-        // 입력 검증 (12자리 숫자)
         if (!/^\d{12}$/.test(customerNumber)) {
             showError('고객번호는 12자리 숫자여야 합니다.');
             return;
@@ -357,8 +360,19 @@
         showLoading(searchBtn);
 
         try {
-            // TODO: 키프리스 검색 결과를 가져오는 로직으로 대체 예정
-            alert('키프리스 검색 기능이 아직 구현되지 않았습니다.\n고객번호: ' + customerNumber);
+            const response = await fetch('/api/search-application2', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customerNumber })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+            }
+
+            displayResults(data);
         } catch (error) {
             console.error('검색 오류:', error);
             showError(error.message);
@@ -367,10 +381,137 @@
         }
     });
 
+    // 결과 표시
+    function displayResults(data) {
+        currentPatents = data.patents || [];
+        currentPage = 1;
+
+        if (currentPatents.length === 0) {
+            document.getElementById('patentTableBody').innerHTML =
+                '<tr><td colspan="11" style="text-align:center; padding:2rem; color:#6b7280;">해당 고객번호로 출원 중인 특허를 찾을 수 없습니다.</td></tr>';
+            // 페이지네이션 숨기기
+            var pc = document.getElementById('paginationContainer');
+            if (pc) pc.style.display = 'none';
+        } else {
+            displayPaginatedResults();
+        }
+    }
+
+    // 페이지네이션된 결과 표시
+    function displayPaginatedResults() {
+        const tableBody = document.getElementById('patentTableBody');
+        const totalPages = Math.ceil(currentPatents.length / itemsPerPage);
+
+        tableBody.innerHTML = '';
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, currentPatents.length);
+        const paginatedPatents = currentPatents.slice(startIndex, endIndex);
+
+        paginatedPatents.forEach(function(patent) {
+            const row = document.createElement('tr');
+            const safeValue = function(value) { return value && value !== '-' ? value : '-'; };
+
+            row.innerHTML =
+                '<td class="patent-number">' + safeValue(patent.applicationNumber) + '</td>' +
+                '<td class="patent-number">' + safeValue(patent.registrationNumber) + '</td>' +
+                '<td class="applicant-name-clean applicant-name">' + safeValue(patent.applicantName) + '</td>' +
+                '<td>' + safeValue(patent.inventorName) + '</td>' +
+                '<td>' + formatDate(patent.applicationDate) + '</td>' +
+                '<td>' + safeValue(patent.priorityApplicationDate) + '</td>' +
+                '<td>' + safeValue(patent.pctDeadline) + '</td>' +
+                '<td class="invention-title-natural invention-title">' + safeValue(patent.inventionTitle) + '</td>' +
+                '<td>' + safeValue(patent.currentStatus) + '</td>' +
+                '<td><span class="no-file">-</span></td>' +
+                '<td><span class="no-file">-</span></td>';
+            tableBody.appendChild(row);
+        });
+
+        createPaginationControls(totalPages);
+    }
+
+    // 페이지네이션 컨트롤 생성
+    function createPaginationControls(totalPages) {
+        var paginationContainer = document.getElementById('paginationContainer');
+
+        if (!paginationContainer) {
+            paginationContainer = document.createElement('div');
+            paginationContainer.id = 'paginationContainer';
+            paginationContainer.className = 'pagination-container';
+            var tableContainer = document.querySelector('.table-container');
+            tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+        }
+
+        if (totalPages <= 1) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        paginationContainer.style.display = 'flex';
+
+        var html = '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
+        html += '<div class="pagination-controls">';
+
+        if (currentPage > 1) {
+            html += '<button class="pagination-btn" data-page="1">« 처음</button>';
+            html += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ 이전</button>';
+        } else {
+            html += '<button class="pagination-btn disabled">« 처음</button>';
+            html += '<button class="pagination-btn disabled">‹ 이전</button>';
+        }
+
+        var endPage = Math.min(totalPages, currentPage + 2);
+        var startPage = Math.max(1, endPage - 4);
+        endPage = Math.min(totalPages, startPage + 4);
+
+        for (var i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += '<button class="pagination-btn active">' + i + '</button>';
+            } else {
+                html += '<button class="pagination-btn" data-page="' + i + '">' + i + '</button>';
+            }
+        }
+
+        if (currentPage < totalPages) {
+            html += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">다음 ›</button>';
+            html += '<button class="pagination-btn" data-page="' + totalPages + '">마지막 »</button>';
+        } else {
+            html += '<button class="pagination-btn disabled">다음 ›</button>';
+            html += '<button class="pagination-btn disabled">마지막 »</button>';
+        }
+
+        html += '</div>';
+        paginationContainer.innerHTML = html;
+
+        var btns = paginationContainer.querySelectorAll('.pagination-btn[data-page]');
+        btns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var targetPage = parseInt(this.getAttribute('data-page'));
+                if (targetPage && targetPage !== currentPage) {
+                    currentPage = targetPage;
+                    displayPaginatedResults();
+                    document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    }
+
+    // 날짜 포맷 (YYYY-MM-DD 또는 YYYYMMDD → YYYY-MM-DD)
+    function formatDate(dateStr) {
+        if (!dateStr || dateStr === '-') return '-';
+        // 이미 YYYY-MM-DD 형식이면 그대로
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        // YYYYMMDD → YYYY-MM-DD
+        if (/^\d{8}$/.test(dateStr)) {
+            return dateStr.substring(0,4) + '-' + dateStr.substring(4,6) + '-' + dateStr.substring(6,8);
+        }
+        return dateStr;
+    }
+
     // Event listeners setup
     document.addEventListener('DOMContentLoaded', function() {
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
+        var logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function(e) {
                 e.preventDefault();
