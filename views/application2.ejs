@@ -83,6 +83,12 @@
             </form>
         </section>
 
+        <!-- 필터 섹션 -->
+        <div id="filterSection" style="display:none; margin-bottom:1rem;">
+            <span style="font-weight:500; margin-right:0.5rem;">상태별 보기:</span>
+            <div id="filterButtons" style="display:inline-flex; gap:0.5rem; flex-wrap:wrap;"></div>
+        </div>
+
         <!-- 테이블 섹션 (항상 표시) -->
         <div class="table-container">
             <table class="patent-table" id="patentTable">
@@ -340,8 +346,26 @@
     <!-- 검색 및 이벤트 스크립트 -->
     <script>
     let currentPatents = [];
+    let allPatents = [];
     let currentPage = 1;
-    const itemsPerPage = 5;
+    let currentFilter = '전체';
+    const itemsPerPage = 10;
+
+    // 출원번호 포맷 (1020200001867 → 10-2020-0001867)
+    function formatApplicationNumber(num) {
+        if (!num || num === '-') return '-';
+        var clean = num.replace(/[^0-9]/g, '');
+        if (clean.length === 13) return clean.substring(0,2) + '-' + clean.substring(2,6) + '-' + clean.substring(6);
+        return num;
+    }
+
+    // 발명자 이름 표시 제한 (2명까지, 3명 이상이면 ... 표시)
+    function formatInventorName(name) {
+        if (!name || name === '-') return '-';
+        var names = name.split(',').map(function(n) { return n.trim(); }).filter(Boolean);
+        if (names.length <= 2) return names.join(', ');
+        return names[0] + ', ' + names[1] + ' ...';
+    }
 
     // 검색 폼 제출 이벤트
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
@@ -383,18 +407,93 @@
 
     // 결과 표시
     function displayResults(data) {
-        currentPatents = data.patents || [];
+        allPatents = data.patents || [];
+        currentFilter = '전체';
+        currentPatents = allPatents.slice();
         currentPage = 1;
 
-        if (currentPatents.length === 0) {
+        if (allPatents.length === 0) {
             document.getElementById('patentTableBody').innerHTML =
                 '<tr><td colspan="11" style="text-align:center; padding:2rem; color:#6b7280;">해당 고객번호로 출원 중인 특허를 찾을 수 없습니다.</td></tr>';
-            // 페이지네이션 숨기기
             var pc = document.getElementById('paginationContainer');
             if (pc) pc.style.display = 'none';
+            document.getElementById('filterSection').style.display = 'none';
         } else {
+            buildFilterButtons();
             displayPaginatedResults();
         }
+    }
+
+    // 필터 버튼 생성
+    function buildFilterButtons() {
+        var filterSection = document.getElementById('filterSection');
+        var filterButtons = document.getElementById('filterButtons');
+
+        // 고유 상태값 추출
+        var statuses = [];
+        allPatents.forEach(function(p) {
+            var s = p.currentStatus;
+            if (s && s !== '-' && statuses.indexOf(s) === -1) {
+                statuses.push(s);
+            }
+        });
+
+        if (statuses.length <= 1) {
+            filterSection.style.display = 'none';
+            return;
+        }
+
+        filterSection.style.display = 'block';
+        filterButtons.innerHTML = '';
+
+        // "전체" 버튼
+        var allBtn = document.createElement('button');
+        allBtn.textContent = '전체 (' + allPatents.length + ')';
+        allBtn.className = 'filter-btn active';
+        allBtn.setAttribute('data-filter', '전체');
+        allBtn.style.cssText = 'padding:0.4rem 0.8rem; border:1px solid #d1d5db; border-radius:4px; cursor:pointer; font-size:0.85rem; background:#F59E0B; color:white; font-weight:500;';
+        allBtn.addEventListener('click', function() { applyFilter('전체'); });
+        filterButtons.appendChild(allBtn);
+
+        // 상태별 버튼
+        statuses.forEach(function(status) {
+            var count = allPatents.filter(function(p) { return p.currentStatus === status; }).length;
+            var btn = document.createElement('button');
+            btn.textContent = status + ' (' + count + ')';
+            btn.className = 'filter-btn';
+            btn.setAttribute('data-filter', status);
+            btn.style.cssText = 'padding:0.4rem 0.8rem; border:1px solid #d1d5db; border-radius:4px; cursor:pointer; font-size:0.85rem; background:white; color:#374151;';
+            btn.addEventListener('click', function() { applyFilter(status); });
+            filterButtons.appendChild(btn);
+        });
+    }
+
+    // 필터 적용
+    function applyFilter(filter) {
+        currentFilter = filter;
+        currentPage = 1;
+
+        if (filter === '전체') {
+            currentPatents = allPatents.slice();
+        } else {
+            currentPatents = allPatents.filter(function(p) { return p.currentStatus === filter; });
+        }
+
+        // 버튼 스타일 업데이트
+        var btns = document.querySelectorAll('#filterButtons .filter-btn');
+        btns.forEach(function(btn) {
+            if (btn.getAttribute('data-filter') === filter) {
+                btn.style.background = '#F59E0B';
+                btn.style.color = 'white';
+                btn.style.fontWeight = '500';
+            } else {
+                btn.style.background = 'white';
+                btn.style.color = '#374151';
+                btn.style.fontWeight = 'normal';
+            }
+        });
+
+        displayPaginatedResults();
     }
 
     // 페이지네이션된 결과 표시
@@ -413,10 +512,10 @@
             const safeValue = function(value) { return value && value !== '-' ? value : '-'; };
 
             row.innerHTML =
-                '<td class="patent-number">' + safeValue(patent.applicationNumber) + '</td>' +
+                '<td class="patent-number">' + formatApplicationNumber(safeValue(patent.applicationNumber)) + '</td>' +
                 '<td class="patent-number">' + safeValue(patent.registrationNumber) + '</td>' +
                 '<td class="applicant-name-clean applicant-name">' + safeValue(patent.applicantName) + '</td>' +
-                '<td>' + safeValue(patent.inventorName) + '</td>' +
+                '<td>' + formatInventorName(safeValue(patent.inventorName)) + '</td>' +
                 '<td>' + formatDate(patent.applicationDate) + '</td>' +
                 '<td>' + safeValue(patent.priorityApplicationDate) + '</td>' +
                 '<td>' + safeValue(patent.pctDeadline) + '</td>' +
