@@ -23,6 +23,13 @@ router.get('/application', (req, res) => {
     });
 });
 
+// 출원특허 현황2
+router.get('/application2', (req, res) => {
+    res.render('application2', {
+        title: '출원특허 현황2'
+    });
+});
+
 // 감사 페이지 (연차료 납부의뢰 완료 후)
 router.get('/thanks', (req, res) => {
     res.render('thanks', {
