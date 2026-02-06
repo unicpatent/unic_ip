@@ -391,21 +391,30 @@ class PatentService {
     // 출원특허 검색 (출원번호 기반 서지상세정보 조회)
     async searchApplicationPatents(customerNumber) {
         try {
+            console.log('🔍 출원특허 검색 시작:', customerNumber);
+
             // 1단계: 기본 검색으로 출원번호 목록 가져오기
             const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getWordSearch`;
-            
+
+            console.log('🌐 KIPRIS API 호출:', { url, customerNumber });
+
             const response = await axios.get(url, {
                 params: {
                     word: customerNumber,
                     ServiceKey: this.apiKey,
-                    numOfRows: 100, // 한 번에 최대 100개까지 요청
+                    numOfRows: 500, // 더 많은 결과를 위해 500으로 증가
                     pageNo: 1
                 },
-                timeout: 10000
+                timeout: 15000
             });
+
+            console.log('📡 API 응답 상태:', response.status);
+            console.log('📊 API 응답 데이터 (처음 1000자):', JSON.stringify(response.data).substring(0, 1000));
 
             // 응답 데이터 파싱
             const allPatents = await this.parseResponse(response.data);
+
+            console.log(`📊 파싱된 특허 수: ${allPatents.length}건`);
             
             // 출원번호가 있는 모든 특허 필터링
             const basicPatents = allPatents.filter(p => 
