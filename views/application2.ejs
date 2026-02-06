@@ -83,63 +83,29 @@
             </form>
         </section>
 
-        <!-- 결과 섹션 -->
-        <section class="results-section" id="resultsSection" style="display: none;">
-            <div class="results-header">
-                <div class="results-info">
-                    <div class="info-item">
-                        <span class="info-label">고객번호:</span>
-                        <span class="info-value" id="resultCustomerNumber">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">출원인:</span>
-                        <span class="info-value" id="resultApplicantName">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">출원특허 수:</span>
-                        <span class="info-value" id="resultTotalCount">0</span>건
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <button type="button" class="btn btn-primary" id="pctRequestBtn">
-                        🌐 PCT 납부의뢰
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="exportBtn">
-                        📊 엑셀 다운로드
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="patent-table" id="patentTable">
-                    <thead>
-                        <tr>
-                            <th>출원번호</th>
-                            <th>등록번호</th>
-                            <th>출원인</th>
-                            <th>발명자</th>
-                            <th>출원일</th>
-                            <th>우선일</th>
-                            <th>PCT마감일</th>
-                            <th>발명의 명칭</th>
-                            <th>현재상태</th>
-                            <th>공개전문</th>
-                            <th>공고전문</th>
-                        </tr>
-                    </thead>
-                    <tbody id="patentTableBody">
-                        <!-- 검색 결과가 여기에 표시됩니다 -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 빈 상태 -->
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <div class="empty-icon">📄</div>
-                <div class="empty-title">출원특허가 없습니다</div>
-                <div class="empty-description">해당 고객번호로 출원 중인 특허를 찾을 수 없습니다.</div>
-            </div>
-        </section>
+        <!-- 테이블 섹션 (항상 표시) -->
+        <div class="table-container">
+            <table class="patent-table" id="patentTable">
+                <thead>
+                    <tr>
+                        <th>출원번호</th>
+                        <th>등록번호</th>
+                        <th>출원인</th>
+                        <th>발명자</th>
+                        <th>출원일</th>
+                        <th>우선일</th>
+                        <th>PCT마감일</th>
+                        <th>발명의 명칭</th>
+                        <th>현재상태</th>
+                        <th>공개전문</th>
+                        <th>공고전문</th>
+                    </tr>
+                </thead>
+                <tbody id="patentTableBody">
+                    <!-- 검색 결과가 여기에 표시됩니다 -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 
@@ -370,49 +336,50 @@
         });
     }
     </script>
+
+    <!-- 검색 및 이벤트 스크립트 -->
+    <script>
+    // 검색 폼 제출 이벤트 (추후 키프리스 스크래핑으로 구현 예정)
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const customerNumber = document.getElementById('customerNumber').value.trim();
+        const searchBtn = document.getElementById('searchBtn');
+        const originalText = searchBtn.innerHTML;
+
+        // 입력 검증 (12자리 숫자)
+        if (!/^\d{12}$/.test(customerNumber)) {
+            showError('고객번호는 12자리 숫자여야 합니다.');
+            return;
+        }
+
+        hideError();
+        showLoading(searchBtn);
+
+        try {
+            // TODO: 키프리스 검색 결과를 가져오는 로직으로 대체 예정
+            alert('키프리스 검색 기능이 아직 구현되지 않았습니다.\n고객번호: ' + customerNumber);
+        } catch (error) {
+            console.error('검색 오류:', error);
+            showError(error.message);
+        } finally {
+            hideLoading(searchBtn, originalText);
+        }
+    });
+
+    // Event listeners setup
+    document.addEventListener('DOMContentLoaded', function() {
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+                fetch('/api/logout').catch(function() {});
+                window.location.href = '/';
+            });
+        }
+    });
+    </script>
 </body>
 </html>
-
-<script>
-// 검색 폼 제출 이벤트 (추후 키프리스 스크래핑으로 구현 예정)
-document.getElementById('searchForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const customerNumber = document.getElementById('customerNumber').value.trim();
-    const searchBtn = document.getElementById('searchBtn');
-    const originalText = searchBtn.innerHTML;
-
-    // 입력 검증 (12자리 숫자)
-    if (!/^\d{12}$/.test(customerNumber)) {
-        showError('고객번호는 12자리 숫자여야 합니다.');
-        return;
-    }
-
-    hideError();
-    showLoading(searchBtn);
-
-    try {
-        // TODO: 키프리스 검색 결과를 가져오는 로직으로 대체 예정
-        alert('키프리스 검색 기능이 아직 구현되지 않았습니다.\n고객번호: ' + customerNumber);
-    } catch (error) {
-        console.error('검색 오류:', error);
-        showError(error.message);
-    } finally {
-        hideLoading(searchBtn, originalText);
-    }
-});
-
-// Event listeners setup
-document.addEventListener('DOMContentLoaded', function() {
-    // Logout button
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.cookie = 'loginStatus=; Path=/; Max-Age=0';
-            fetch('/api/logout').catch(function() {});
-            window.location.href = '/';
-        });
-    }
-});
-</script>
