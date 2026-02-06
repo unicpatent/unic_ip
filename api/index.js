@@ -458,6 +458,20 @@ module.exports = async (req, res) => {
             const userNumbers = await getUserNumbers(req);
             userBusinessNumber = userNumbers.businessNumber;
             userCustomerNumber = userNumbers.customerNumber;
+        } else if (url === '/application2' || url === '/application2/') {
+            if (!isAuthenticated(req)) {
+                console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                res.setHeader('Location', '/?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+            viewName = 'application2';
+            title = '출원특허 현황2';
+            const userNumbers = await getUserNumbers(req);
+            userBusinessNumber = userNumbers.businessNumber;
+            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/thanks') {
             viewName = 'thanks';
             title = '신청 완료';
