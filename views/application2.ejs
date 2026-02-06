@@ -373,7 +373,8 @@
     // 발명자 이름 표시 제한 (2명까지, 3명 이상이면 ... 표시)
     function formatInventorName(name) {
         if (!name || name === '-') return '-';
-        var names = name.split(',').map(function(n) { return n.trim(); }).filter(Boolean);
+        // 파이프(|) 또는 쉼표(,)로 구분
+        var names = name.split(/[|,]/).map(function(n) { return n.trim(); }).filter(Boolean);
         if (names.length <= 2) return names.join(', ');
         return names[0] + ', ' + names[1] + ' ...';
     }
