@@ -415,18 +415,26 @@ function createPaginationControls(totalPages) {
     
     let paginationHTML = '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
     paginationHTML += '<div class="pagination-controls">';
-    
+
+    // 맨 처음 버튼
+    if (currentPage > 1) {
+        paginationHTML += '<button class="pagination-btn" data-page="1">« 처음</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">« 처음</button>';
+    }
+
     // 이전 버튼
     if (currentPage > 1) {
         paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ 이전</button>';
     } else {
         paginationHTML += '<button class="pagination-btn disabled">‹ 이전</button>';
     }
-    
-    // 페이지 번호 (최대 5개 표시)
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, startPage + 4);
-    
+
+    // 페이지 번호 (최대 5개 표시, 항상 1부터 시작하도록 조정)
+    let endPage = Math.min(totalPages, currentPage + 2);
+    let startPage = Math.max(1, endPage - 4);
+    endPage = Math.min(totalPages, startPage + 4);
+
     for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
             paginationHTML += '<button class="pagination-btn active">' + i + '</button>';
@@ -434,12 +442,19 @@ function createPaginationControls(totalPages) {
             paginationHTML += '<button class="pagination-btn" data-page="' + i + '">' + i + '</button>';
         }
     }
-    
+
     // 다음 버튼
     if (currentPage < totalPages) {
         paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">다음 ›</button>';
     } else {
         paginationHTML += '<button class="pagination-btn disabled">다음 ›</button>';
+    }
+
+    // 맨 마지막 버튼
+    if (currentPage < totalPages) {
+        paginationHTML += '<button class="pagination-btn" data-page="' + totalPages + '">마지막 »</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">마지막 »</button>';
     }
     
     paginationHTML += '</div>';
@@ -890,6 +905,10 @@ function setupFilterListeners() {
     if (unpaidFilter) unpaidFilter.addEventListener('change', applyFilters);
     if (graceFilter) graceFilter.addEventListener('change', applyFilters);
 
+    // 정렬 옵션 변경 시 자동 필터 적용
+    const sortFilter = document.getElementById('sortFilter');
+    if (sortFilter) sortFilter.addEventListener('change', applyFilters);
+
     console.log('✅ 필터 이벤트 리스너 등록 완료');
 }
 
@@ -939,6 +958,12 @@ function resetFilterUI() {
         deadlineFilterHint.style.display = 'inline';
     }
 
+    // 정렬 옵션 초기화
+    const sortFilter = document.getElementById('sortFilter');
+    if (sortFilter) {
+        sortFilter.value = 'default';
+    }
+
     // 필터 결과 건수 초기화
     updateFilterResultCount(originalPatents.length, originalPatents.length);
 }
@@ -986,8 +1011,9 @@ function applyFilters() {
     const deadlineFilter = document.getElementById('deadlineFilter')?.checked || false;
     const unpaidFilter = document.getElementById('unpaidFilter')?.checked || false;
     const graceFilter = document.getElementById('graceFilter')?.checked || false;
+    const sortFilter = document.getElementById('sortFilter')?.value || 'default';
 
-    console.log('📝 필터 조건:', { statusFilter, deadlineFilter, unpaidFilter, graceFilter });
+    console.log('📝 필터 조건:', { statusFilter, deadlineFilter, unpaidFilter, graceFilter, sortFilter });
 
     let filtered = [...originalPatents];
 
@@ -1023,6 +1049,23 @@ function applyFilters() {
             return false;
         });
         console.log(`📊 마감임박 필터 후: ${filtered.length}건`);
+    }
+
+    // 정렬 적용
+    if (sortFilter !== 'default') {
+        filtered.sort((a, b) => {
+            // 등록일 기준 정렬
+            const dateA = a.registrationDate ? new Date(a.registrationDate.replace(/\./g, '-')) : new Date(0);
+            const dateB = b.registrationDate ? new Date(b.registrationDate.replace(/\./g, '-')) : new Date(0);
+
+            if (sortFilter === 'registrationDate_desc') {
+                return dateB - dateA; // 최신순 (내림차순)
+            } else if (sortFilter === 'registrationDate_asc') {
+                return dateA - dateB; // 오래된순 (오름차순)
+            }
+            return 0;
+        });
+        console.log(`📊 정렬 적용: ${sortFilter}`);
     }
 
     // 필터된 결과로 업데이트

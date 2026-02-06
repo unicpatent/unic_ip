@@ -515,18 +515,26 @@ function createPaginationControls(totalPages) {
     
     let paginationHTML = '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
     paginationHTML += '<div class="pagination-controls">';
-    
+
+    // 맨 처음 버튼
+    if (currentPage > 1) {
+        paginationHTML += '<button class="pagination-btn" data-page="1">« 처음</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">« 처음</button>';
+    }
+
     // 이전 버튼
     if (currentPage > 1) {
         paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ 이전</button>';
     } else {
         paginationHTML += '<button class="pagination-btn disabled">‹ 이전</button>';
     }
-    
-    // 페이지 번호 (최대 5개 표시)
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, startPage + 4);
-    
+
+    // 페이지 번호 (최대 5개 표시, 항상 1부터 시작하도록 조정)
+    let endPage = Math.min(totalPages, currentPage + 2);
+    let startPage = Math.max(1, endPage - 4);
+    endPage = Math.min(totalPages, startPage + 4);
+
     for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
             paginationHTML += '<button class="pagination-btn active">' + i + '</button>';
@@ -534,12 +542,19 @@ function createPaginationControls(totalPages) {
             paginationHTML += '<button class="pagination-btn" data-page="' + i + '">' + i + '</button>';
         }
     }
-    
+
     // 다음 버튼
     if (currentPage < totalPages) {
         paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">다음 ›</button>';
     } else {
         paginationHTML += '<button class="pagination-btn disabled">다음 ›</button>';
+    }
+
+    // 맨 마지막 버튼
+    if (currentPage < totalPages) {
+        paginationHTML += '<button class="pagination-btn" data-page="' + totalPages + '">마지막 »</button>';
+    } else {
+        paginationHTML += '<button class="pagination-btn disabled">마지막 »</button>';
     }
     
     paginationHTML += '</div>';

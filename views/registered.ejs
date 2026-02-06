@@ -135,7 +135,7 @@
                         <span id="filterResultCount" style="font-size: 0.8rem; color: #64748b;"></span>
                     </div>
                 </div>
-                <!-- 둘째 줄: 마감임박 필터 + 초기화 -->
+                <!-- 둘째 줄: 마감임박 필터 + 정렬 + 초기화 -->
                 <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                     <span style="font-size: 0.8rem; color: #64748b;">마감임박<span id="deadlineFilterHint" style="font-size: 0.7rem; color: #94a3b8;"> (연차료 계산 후)</span>:</span>
                     <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
@@ -147,6 +147,12 @@
                     <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; color: #374151;">
                         <input type="checkbox" id="graceFilter" disabled style="margin-right: 0.2rem;"> 추납/회복 1개월 이내
                     </label>
+                    <span style="font-size: 0.8rem; color: #64748b; margin-left: 1rem;">정렬:</span>
+                    <select id="sortFilter" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; border: 1px solid #d1d5db; border-radius: 4px; color: #374151;">
+                        <option value="default">기본순</option>
+                        <option value="registrationDate_desc">최신 등록일순</option>
+                        <option value="registrationDate_asc">오래된 등록일순</option>
+                    </select>
                     <button type="button" id="resetFilterBtn" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; margin-left: auto;">초기화</button>
                 </div>
             </div>
@@ -1201,21 +1207,13 @@ function performNewAnnuityCalculation(discountType) {
                         cells[13].className = '';
                     }
 
-                    // 추납기간 마감일 (빨간색 표시)
+                    // 추납기간 마감일
                     cells[14].textContent = patent.calculatedData.latePaymentPeriod;
-                    if (patent.calculatedData.latePaymentPeriod !== '-') {
-                        cells[14].className = 'deadline-danger';
-                    } else {
-                        cells[14].className = '';
-                    }
+                    cells[14].className = '';
 
-                    // 회복기간 마감일 (빨간색 표시)
+                    // 회복기간 마감일
                     cells[15].textContent = patent.calculatedData.recoveryPeriod;
-                    if (patent.calculatedData.recoveryPeriod !== '-') {
-                        cells[15].className = 'deadline-danger';
-                    } else {
-                        cells[15].className = '';
-                    }
+                    cells[15].className = '';
                 }
                 continue;
             }
@@ -1359,21 +1357,13 @@ function performNewAnnuityCalculation(discountType) {
                     cells[13].className = '';
                 }
 
-                // 추납기간 마감일 (빨간색 표시)
+                // 추납기간 마감일
                 cells[14].textContent = patent.calculatedData.latePaymentPeriod;
-                if (patent.calculatedData.latePaymentPeriod !== '-') {
-                    cells[14].className = 'deadline-danger';
-                } else {
-                    cells[14].className = '';
-                }
+                cells[14].className = '';
 
-                // 회복기간 마감일 (빨간색 표시)
+                // 회복기간 마감일
                 cells[15].textContent = patent.calculatedData.recoveryPeriod;
-                if (patent.calculatedData.recoveryPeriod !== '-') {
-                    cells[15].className = 'deadline-danger';
-                } else {
-                    cells[15].className = '';
-                }
+                cells[15].className = '';
             }
         } else {
             // 등록일이 없는 경우

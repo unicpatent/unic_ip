@@ -19,9 +19,27 @@ function parseCookies(cookieHeader) {
     return cookies;
 }
 
+// 세션 유지 시간: 30분 (1800초)
+const SESSION_MAX_AGE = 1800;
+
 function isAuthenticated(req) {
     const cookies = parseCookies(req.headers.cookie);
     return cookies.authToken === 'authenticated';
+}
+
+// 슬라이딩 세션: 사용자 활동 시 세션 만료 시간 갱신
+function refreshSession(req, res) {
+    const cookies = parseCookies(req.headers.cookie);
+    if (cookies.authToken === 'authenticated') {
+        const userEmail = cookies.userEmail || '';
+        const userRole = cookies.userRole || 'user';
+        res.setHeader('Set-Cookie', [
+            `authToken=authenticated; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
+            `loginStatus=true; Path=/; Max-Age=${SESSION_MAX_AGE}`,
+            `userEmail=${encodeURIComponent(userEmail)}; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
+            `userRole=${userRole}; Path=/; Max-Age=${SESSION_MAX_AGE}`
+        ]);
+    }
 }
 
 function serveIndexFile(res) {
@@ -49,6 +67,9 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
+
+    // 슬라이딩 세션: 인증된 사용자의 모든 요청에서 세션 갱신
+    refreshSession(req, res);
 
     try {
         const rawUrl = req.url || '';
@@ -194,10 +215,10 @@ module.exports = async (req, res) => {
 
                 if (passwordMatch) {
                     res.setHeader('Set-Cookie', [
-                        'authToken=authenticated; Path=/; HttpOnly; Max-Age=86400',
-                        'loginStatus=true; Path=/; Max-Age=86400',
-                        `userEmail=${encodeURIComponent(user.email)}; Path=/; HttpOnly; Max-Age=86400`,
-                        `userRole=${user.role}; Path=/; Max-Age=86400`
+                        `authToken=authenticated; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
+                        `loginStatus=true; Path=/; Max-Age=${SESSION_MAX_AGE}`,
+                        `userEmail=${encodeURIComponent(user.email)}; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
+                        `userRole=${user.role}; Path=/; Max-Age=${SESSION_MAX_AGE}`
                     ]);
                     return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
                 } else {

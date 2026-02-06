@@ -369,7 +369,6 @@ body {
 .patent-table .applicant-name,
 .patent-table .invention-title {
     text-decoration: none !important;
-    border-bottom: none !important;
 }
 
 /* 텍스트 자연스러운 2줄 표시 */
@@ -398,7 +397,6 @@ body {
 /* 출원인명 스타일 개선 */
 .applicant-name-clean {
     text-decoration: none !important;
-    border-bottom: none !important;
     line-height: 1.4;
     max-height: 2.8em;
     overflow: hidden;
@@ -426,7 +424,6 @@ body {
     max-width: 250px;
     min-width: 150px;
     text-decoration: none !important;
-    border-bottom: none !important;
 }
 
 /* 페이지네이션 */
