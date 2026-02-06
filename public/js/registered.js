@@ -128,18 +128,23 @@ async function handleSearch(e) {
         displayResults(data);
         console.log('✅ 결과 표시 완료');
 
-        // 직전년도 납부정보 조회
+        // 로딩 해제 (결과 표시 완료 후 즉시)
+        hideLoading(searchBtn, originalText);
+
+        // 직전년도 납부정보 조회 (백그라운드에서 실행)
         if (data.patents && data.patents.length > 0) {
-            console.log('💰 직전년도 납부정보 조회 시작');
-            await fetchPaymentHistory(data.patents);
-            console.log('✅ 직전년도 납부정보 조회 완료');
+            console.log('💰 직전년도 납부정보 조회 시작 (백그라운드)');
+            fetchPaymentHistory(data.patents).then(() => {
+                console.log('✅ 직전년도 납부정보 조회 완료');
+            }).catch(err => {
+                console.error('❌ 납부정보 조회 오류:', err);
+            });
         }
-        
+
     } catch (error) {
         console.error('❌ 검색 오류:', error);
         showError(error.message);
         hideResults();
-    } finally {
         hideLoading(searchBtn, originalText);
     }
 }
