@@ -389,14 +389,12 @@
 
             if (applicationNumber && applicationNumber !== '-') {
                 var cleanAppNumber = applicationNumber.replace(/[^0-9]/g, '');
-                var pubReg = patent.currentStatus === '등록' ? 'R' : 'P';
-
-                // KIPRIS 상세페이지 바로가기
-                var detailUrl = 'https://kpat.kipris.or.kr/kpat/biblioa.do?method=biblioMain&applno=' + cleanAppNumber + '&pub_reg=' + pubReg;
+                // KIPRIS 검색 결과 페이지 바로가기 (출원번호로 검색)
+                var detailUrl = 'https://www.kipris.or.kr/khome/search/searchResult.do?sPn=' + cleanAppNumber;
 
                 return '<a href="' + detailUrl + '" target="_blank" ' +
                        'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;" ' +
-                       'title="KIPRIS 상세페이지에서 전문다운 가능">전문보기</a>';
+                       'title="KIPRIS에서 전문다운 가능">바로가기</a>';
             }
         }
         return '<span class="no-file">-</span>';
