@@ -117,7 +117,7 @@
                         <th>출원일</th>
                         <th>발명의 명칭</th>
                         <th>현재상태</th>
-                        <th>전문다운</th>
+                        <th>전문보기</th>
                     </tr>
                 </thead>
                 <tbody id="patentTableBody">
@@ -383,17 +383,20 @@
 
     // 전문다운로드 셀 생성
     function generateDownloadCell(patent) {
-        // 등록 또는 공개 상태인 경우만 다운로드 링크 표시
+        // 등록 또는 공개 상태인 경우만 링크 표시
         if (patent.currentStatus === '등록' || patent.currentStatus === '공개') {
             var applicationNumber = patent.applicationNumber;
-            var pubReg = patent.currentStatus === '등록' ? 'P' : 'R';  // 등록이면 P, 공개면 R
 
             if (applicationNumber && applicationNumber !== '-') {
-                // 출원번호에서 하이픈 제거 (1020200001867 형태로 변환)
                 var cleanAppNumber = applicationNumber.replace(/[^0-9]/g, '');
+                var pubReg = patent.currentStatus === '등록' ? 'R' : 'P';
 
-                return '<a href="javascript:void(0)" onclick="downloadFullText(\'' + cleanAppNumber + '\', \'' + pubReg + '\')" ' +
-                       'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;">전문다운</a>';
+                // KIPRIS 상세페이지 바로가기
+                var detailUrl = 'https://kpat.kipris.or.kr/kpat/biblioa.do?method=biblioMain&applno=' + cleanAppNumber + '&pub_reg=' + pubReg;
+
+                return '<a href="' + detailUrl + '" target="_blank" ' +
+                       'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;" ' +
+                       'title="KIPRIS 상세페이지에서 전문다운 가능">전문보기</a>';
             }
         }
         return '<span class="no-file">-</span>';
@@ -670,50 +673,6 @@
         return dateStr;
     }
 
-    // 전문 다운로드 함수
-    async function downloadFullText(applicationNumber, pubReg) {
-        try {
-            console.log('전문 다운로드 시도:', { applicationNumber, pubReg });
-
-            // KIPRIS 전문다운로드 URL 구성
-            var downloadUrl = 'https://plus.kipris.or.kr/kpat/cm/download.do';
-
-            // form 파라미터 구성
-            var formParams = {
-                applno: applicationNumber,
-                pub_reg: pubReg
-            };
-
-            // 새 창에서 다운로드 실행
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = downloadUrl;
-            form.target = '_blank';
-            form.style.display = 'none';
-
-            // applno 파라미터 추가
-            var applnoInput = document.createElement('input');
-            applnoInput.type = 'hidden';
-            applnoInput.name = 'applno';
-            applnoInput.value = applicationNumber;
-            form.appendChild(applnoInput);
-
-            // pub_reg 파라미터 추가
-            var pubRegInput = document.createElement('input');
-            pubRegInput.type = 'hidden';
-            pubRegInput.name = 'pub_reg';
-            pubRegInput.value = pubReg;
-            form.appendChild(pubRegInput);
-
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-
-        } catch (error) {
-            console.error('전문 다운로드 오류:', error);
-            alert('전문 다운로드 중 오류가 발생했습니다.');
-        }
-    }
 
     // Event listeners setup
     document.addEventListener('DOMContentLoaded', function() {
