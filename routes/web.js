@@ -16,17 +16,17 @@ router.get('/registered', (req, res) => {
     });
 });
 
-// 출원특허 현황
+// 출원특허 현황 (application2 뷰 사용)
 router.get('/application', (req, res) => {
-    res.render('application', {
+    res.render('application2', {
         title: '출원특허 현황'
     });
 });
 
-// 출원특허 현황2
+// 출원특허 현황2 (호환용 - 동일 뷰)
 router.get('/application2', (req, res) => {
     res.render('application2', {
-        title: '출원특허 현황2'
+        title: '출원특허 현황'
     });
 });
 

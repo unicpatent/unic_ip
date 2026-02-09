@@ -18,7 +18,6 @@
                 <li><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
                 <li><a href="#" id="registeredBtn">등록특허 현황</a></li>
                 <li><a href="#" id="applicationBtn">출원특허 현황</a></li>
-                <li><a href="#" id="application2Btn">출원특허 현황2</a></li>
                 <li><a href="https://www.unicpat.com" target="_blank">유니크 홈페이지</a></li>
                 <li><a href="#" id="myInfoBtn" style="display:none;">나의 정보 수정</a></li>
                 <li><a href="#" id="logoutBtn" style="display:none;">로그아웃</a></li>
@@ -864,19 +863,6 @@
 
         // 출원특허 현황 클릭 핸들러
         applicationBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (isLoggedIn()) {
-                // 로그인 되어 있으면 페이지로 이동
-                window.location.href = '/application';
-            } else {
-                // 로그인 안 되어 있으면 메시지 표시
-                alert('로그인하고 이용할 수 있습니다.');
-            }
-        });
-
-        // 출원특허 현황2 클릭 핸들러
-        const application2Btn = document.getElementById('application2Btn');
-        application2Btn.addEventListener('click', function(e) {
             e.preventDefault();
             if (isLoggedIn()) {
                 window.location.href = '/application2';
