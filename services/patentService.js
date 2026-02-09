@@ -173,6 +173,11 @@ class PatentService {
     // 고객번호로 등록특허 검색 (기존 로직 유지)
     async searchByCustomerNumber(customerNumber) {
         try {
+            // 개인 고객번호 (앞자리 '4')는 키프리스 스크래핑 방식 사용
+            if (customerNumber.startsWith('4')) {
+                return await this.searchByIndividualCustomerNumber(customerNumber);
+            }
+
             const url = process.env.PATENT_OFFICE_API_URL || 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getBusinessRightList';
             const serviceKey = process.env.PATENT_OFFICE_API_KEY;
 
@@ -293,6 +298,246 @@ class PatentService {
             if (error.response) {
                 console.error('API 응답 오류:', error.response.data);
             }
+            throw error;
+        }
+    }
+
+    // 개인 고객번호 (앞자리 '4') 등록특허 검색 - 키프리스 스크래핑 + 등록원부 API 보강
+    async searchByIndividualCustomerNumber(customerNumber) {
+        try {
+            console.log('🌐 개인 고객번호 키프리스 스크래핑 시작:', customerNumber);
+
+            // Step 1: 키프리스 웹 스크래핑으로 특허 목록 조회
+            const queryText = `TRH=[${customerNumber}]`;
+            const formData = new URLSearchParams();
+            formData.append('queryText', queryText);
+            formData.append('expression', queryText);
+            formData.append('historyQuery', queryText);
+            formData.append('numPerPage', '90');
+            formData.append('numPageLinks', '10');
+            formData.append('currentPage', '1');
+            formData.append('piSearchYN', 'N');
+            formData.append('beforeExpression', '');
+            formData.append('prefixExpression', '');
+            formData.append('downYn', 'N');
+            formData.append('downStart', '');
+            formData.append('downEnd', '');
+            formData.append('viewField', '');
+            formData.append('fileType', '');
+            formData.append('inclDraw', '');
+            formData.append('inclJudg', '');
+            formData.append('inclReg', '');
+            formData.append('inclAdmin', '');
+            formData.append('sortField', 'AD');
+            formData.append('sortState', 'DESC');
+            formData.append('viewMode', '');
+            formData.append('searchInTrans', 'N');
+            formData.append('pageLanguage', '');
+
+            const kiprisResponse = await axios.post('https://www.kipris.or.kr/kpat/resulta.do', formData.toString(), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'application/json, text/html, */*',
+                    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Referer': 'https://www.kipris.or.kr/khome/search/searchResult.do'
+                },
+                timeout: 30000,
+                maxRedirects: 5
+            });
+
+            let jsonData;
+            if (typeof kiprisResponse.data === 'string') {
+                jsonData = JSON.parse(kiprisResponse.data);
+            } else {
+                jsonData = kiprisResponse.data;
+            }
+
+            const resultList = jsonData.resultList || [];
+            console.log(`📊 키프리스 스크래핑 결과: ${resultList.length}건`);
+
+            // Step 2: 등록번호 필터링 - 특허(10) 또는 실용신안(20)만 남김
+            const cleanValue = (val) => {
+                if (!val || val === '&nbsp;' || !String(val).trim()) return '';
+                return String(val).trim();
+            };
+
+            const registeredItems = resultList.filter(item => {
+                const gn = cleanValue(item.GN);
+                if (!gn) return false;
+                const cleanedGN = gn.replace(/-/g, '');
+                return cleanedGN.startsWith('10') || cleanedGN.startsWith('20');
+            });
+
+            console.log(`📊 등록번호 필터링 후: ${registeredItems.length}건 (특허/실용신안만)`);
+
+            if (registeredItems.length === 0) {
+                let applicantName = '정보 없음';
+                if (resultList.length > 0) {
+                    applicantName = cleanValue(resultList[0].AP) || '정보 없음';
+                }
+                return {
+                    customerNumber: customerNumber,
+                    applicantName: applicantName,
+                    rightHolderName: applicantName,
+                    totalCount: 0,
+                    patents: []
+                };
+            }
+
+            // Step 3: 각 등록번호로 등록원부 API 호출하여 상세정보 보강
+            const serviceKey = process.env.PATENT_OFFICE_API_KEY;
+            const patents = [];
+
+            for (let i = 0; i < registeredItems.length; i++) {
+                const item = registeredItems[i];
+                const registrationNumber = cleanValue(item.GN).replace(/-/g, '');
+                const isUM = registrationNumber.startsWith('20');
+
+                // KIPRIS 상태 → 등록특허 현황 형식 매핑
+                const kiprisStatus = cleanValue(item.LSTO) || (item.LST === 'R' ? '등록' : cleanValue(item.LST));
+                const registrationStatus = kiprisStatus === '등록' ? '등록유지' : kiprisStatus;
+
+                try {
+                    console.log(`💰 ${i + 1}/${registeredItems.length} 등록원부 조회: ${registrationNumber}`);
+
+                    // 특허(10)는 getPatentRegisterHistory, 실용신안(20)은 getUtilityModelHistory
+                    const apiEndpoint = isUM
+                        ? 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getUtilityModelHistory'
+                        : 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory';
+
+                    const regResponse = await axios.get(apiEndpoint, {
+                        params: {
+                            serviceKey: serviceKey,
+                            type: 'json',
+                            rgstNo: registrationNumber
+                        },
+                        httpsAgent: this.httpsAgent,
+                        timeout: 10000
+                    });
+
+                    const regData = regResponse.data;
+
+                    if (regData && regData.resultCode === '000' && regData.items) {
+                        const info = regData.items;
+
+                        // 출원인명 추출 (첫 번째)
+                        let applicantName = '-';
+                        if (info.applicant && Array.isArray(info.applicant) && info.applicant.length > 0) {
+                            applicantName = info.applicant[0].applicantName || '-';
+                        }
+
+                        // 권리자 정보 (콤마 구분 문자열)
+                        let rightHolderInfo = '-';
+                        if (info.owner && Array.isArray(info.owner)) {
+                            const ownerNames = info.owner
+                                .filter(o => o.ownerName && o.finalOwnerYn === 'Y')
+                                .map(o => o.ownerName);
+                            if (ownerNames.length > 0) {
+                                rightHolderInfo = ownerNames.join(',');
+                            }
+                        }
+
+                        // 대리인 정보
+                        let agentInfo = '-';
+                        if (info.applAgent && Array.isArray(info.applAgent) && info.applAgent.length > 0) {
+                            agentInfo = info.applAgent[0].applAgentName || '-';
+                        }
+
+                        patents.push({
+                            applicationNumber: info.applNo || cleanValue(item.AN) || '-',
+                            registrationNumber: info.rgstNo || registrationNumber,
+                            applicantName: applicantName,
+                            applicationDate: this.formatDateFromAPI(info.applDate),
+                            inventionTitle: info.title || cleanValue(item.TL) || '-',
+                            registrationDate: this.formatDateFromAPI(info.rgstDate),
+                            claimCount: info.claimCount || '-',
+                            publicationNumber: info.pubNo || '-',
+                            publicationDate: this.formatDateFromAPI(info.pubDate),
+                            expirationDate: this.formatDateFromAPI(info.cndrtExptnDate),
+                            registrationStatus: registrationStatus,
+                            rightHolderInfo: rightHolderInfo,
+                            agentInfo: agentInfo,
+                            businessNo: '-',
+                            applicantCd: customerNumber,
+                            examStatus: '등록',
+                            ipcCode: '-',
+                            abstract: '-'
+                        });
+                    } else {
+                        // API 실패 시 KIPRIS 데이터로 fallback
+                        console.warn(`⚠️ 등록원부 조회 실패: ${registrationNumber}, KIPRIS 데이터로 대체`);
+                        patents.push({
+                            applicationNumber: cleanValue(item.AN) || '-',
+                            registrationNumber: registrationNumber,
+                            applicantName: cleanValue(item.AP) || '-',
+                            applicationDate: cleanValue(item.AD) || '-',
+                            inventionTitle: cleanValue(item.TL) || '-',
+                            registrationDate: cleanValue(item.GD) || '-',
+                            claimCount: '-',
+                            publicationNumber: '-',
+                            publicationDate: '-',
+                            expirationDate: '-',
+                            registrationStatus: registrationStatus,
+                            rightHolderInfo: cleanValue(item.RH) || '-',
+                            agentInfo: cleanValue(item.AG) || '-',
+                            businessNo: '-',
+                            applicantCd: customerNumber,
+                            examStatus: '등록',
+                            ipcCode: '-',
+                            abstract: '-'
+                        });
+                    }
+
+                    // API 호출 간격 (과부하 방지)
+                    if (i < registeredItems.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    }
+
+                } catch (error) {
+                    console.error(`❌ 등록원부 조회 오류: ${registrationNumber}`, error.message);
+                    // KIPRIS 데이터로 fallback
+                    patents.push({
+                        applicationNumber: cleanValue(item.AN) || '-',
+                        registrationNumber: registrationNumber,
+                        applicantName: cleanValue(item.AP) || '-',
+                        applicationDate: cleanValue(item.AD) || '-',
+                        inventionTitle: cleanValue(item.TL) || '-',
+                        registrationDate: cleanValue(item.GD) || '-',
+                        claimCount: '-',
+                        publicationNumber: '-',
+                        publicationDate: '-',
+                        expirationDate: '-',
+                        registrationStatus: registrationStatus,
+                        rightHolderInfo: cleanValue(item.RH) || '-',
+                        agentInfo: cleanValue(item.AG) || '-',
+                        businessNo: '-',
+                        applicantCd: customerNumber,
+                        examStatus: '등록',
+                        ipcCode: '-',
+                        abstract: '-'
+                    });
+                }
+            }
+
+            // 출원인명 / 권리자명 추출
+            const applicantName = patents.length > 0 ? patents[0].applicantName : '정보 없음';
+            const rightHolderName = patents.length > 0
+                ? (patents[0].rightHolderInfo !== '-' ? patents[0].rightHolderInfo.split(',')[0] : applicantName)
+                : '정보 없음';
+
+            console.log(`✅ 개인 고객번호 검색 완료: ${patents.length}건`);
+
+            return {
+                customerNumber: customerNumber,
+                applicantName: applicantName,
+                rightHolderName: rightHolderName,
+                totalCount: patents.length,
+                patents: patents
+            };
+
+        } catch (error) {
+            console.error('개인 고객번호 검색 오류:', error.message);
             throw error;
         }
     }

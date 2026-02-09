@@ -832,7 +832,7 @@ const ANNUITY_POLICY = {
     ]
 };
 
-// 새로운 연차료 기본료 테이블 (최신 기준)
+// 특허 연차료 기본료 테이블 (등록번호 '10'으로 시작)
 const NEW_BASE_FEES = {
     1: 13000,   2: 13000,   3: 13000,        // 1~3년차: 13,000원
     4: 36000,   5: 36000,   6: 36000,        // 4~6년차: 36,000원
@@ -843,7 +843,7 @@ const NEW_BASE_FEES = {
     19: 324000, 20: 324000, 21: 324000, 22: 324000, 23: 324000, 24: 324000, 25: 324000
 };
 
-// 새로운 청구항 가산료 테이블 (청구범위 1항마다)
+// 특허 청구항 가산료 테이블 (등록번호 '10'으로 시작)
 const NEW_CLAIM_FEES = {
     1: 12000,   2: 12000,   3: 12000,        // 1~3년차: 12,000원
     4: 20000,   5: 20000,   6: 20000,        // 4~6년차: 20,000원
@@ -853,6 +853,36 @@ const NEW_CLAIM_FEES = {
     16: 49000,  17: 49000,  18: 49000,
     19: 49000,  20: 49000,  21: 49000, 22: 49000, 23: 49000, 24: 49000, 25: 49000
 };
+
+// 실용신안 연차료 기본료 테이블 (등록번호 '20'으로 시작)
+const UM_BASE_FEES = {
+    1: 12000,   2: 12000,   3: 12000,        // 1~3년차: 12,000원
+    4: 25000,   5: 25000,   6: 25000,        // 4~6년차: 25,000원
+    7: 60000,   8: 60000,   9: 60000,        // 7~9년차: 60,000원
+    10: 160000, 11: 160000, 12: 160000,      // 10~12년차: 160,000원
+    13: 240000, 14: 240000, 15: 240000       // 13~15년차: 240,000원
+};
+
+// 실용신안 청구항 가산료 테이블 (등록번호 '20'으로 시작)
+const UM_CLAIM_FEES = {
+    1: 4000,    2: 4000,    3: 4000,         // 1~3년차: 4,000원
+    4: 9000,    5: 9000,    6: 9000,         // 4~6년차: 9,000원
+    7: 14000,   8: 14000,   9: 14000,        // 7~9년차: 14,000원
+    10: 20000,  11: 20000,  12: 20000,       // 10~12년차: 20,000원
+    13: 20000,  14: 20000,  15: 20000        // 13~15년차: 20,000원
+};
+
+// 등록번호로 실용신안 여부 판별 (앞 2자리가 '20'이면 실용신안)
+function isUtilityModel(registrationNumber) {
+    if (!registrationNumber) return false;
+    const cleanedNo = registrationNumber.replace(/-/g, '');
+    return cleanedNo.substring(0, 2) === '20';
+}
+
+// 등록번호에 따른 최대 존속기간 반환 (특허: 25년, 실용신안: 15년)
+function getMaxYear(registrationNumber) {
+    return isUtilityModel(registrationNumber) ? 15 : 25;
+}
 
 // 연차료 계산 헬퍼 함수들 (간소화)
 
@@ -1136,7 +1166,7 @@ function performNewAnnuityCalculation(discountType) {
                 // - 추납기간, 회복기간: 해당 연차료 납부마감일 기준 계산
                 
                 // 4년차 연차료 계산
-                const fourthYearCalculation = calculateNewAnnuityFee(4, patent.claimCount || 1, discountType, "정상납부", null, null);
+                const fourthYearCalculation = calculateNewAnnuityFee(4, patent.claimCount || 1, discountType, "정상납부", null, null, patent.registrationNumber);
 
                 // 납부 마감일 계산
                 const dueDateStr = (parseInt(patent.registrationDate.substring(0, 4)) + 3) + patent.registrationDate.substring(4);
@@ -1249,8 +1279,9 @@ function performNewAnnuityCalculation(discountType) {
             // 조정된 연차수로 업데이트
             nextYear = adjustedNextYear;
 
-            // 연차수가 25년을 초과하면 특허 만료
-            if (nextYear > 25) {
+            // 연차수가 최대연차를 초과하면 특허 만료
+            const maxYear = getMaxYear(patent.registrationNumber);
+            if (nextYear > maxYear) {
                 patent.calculatedData = {
                     previousPaymentMonth: patent.paymentHistory ?
                         (patent.paymentHistory.payDate && patent.paymentHistory.payDate !== '-' ?
@@ -1279,7 +1310,7 @@ function performNewAnnuityCalculation(discountType) {
             }
             
             // 다음 연차 정보 계산 (해당연차수/해당연차료에 표시할 정보)
-            const nextCalculation = calculateNewAnnuityFee(nextYear, patent.claimCount || 1, discountType, "정상납부", null, null);
+            const nextCalculation = calculateNewAnnuityFee(nextYear, patent.claimCount || 1, discountType, "정상납부", null, null, patent.registrationNumber);
 
             // 임시값 설정
             const nextStatus = "정상납부";
@@ -1443,12 +1474,16 @@ function performNewAnnuityCalculation(discountType) {
 }
 
 // 새로운 연차료 계산 함수 (간소화)
-function calculateNewAnnuityFee(annualYear, claimCount, discountType, status) {
-    // 1. 기본료 계산
-    const baseFee = NEW_BASE_FEES[annualYear] || NEW_BASE_FEES[25];
-    
+function calculateNewAnnuityFee(annualYear, claimCount, discountType, status, latePaymentMonths, recoveryMonths, registrationNumber) {
+    // 1. 기본료 계산 (실용신안/특허 구분)
+    const isUM = isUtilityModel(registrationNumber);
+    const maxYear = isUM ? 15 : 25;
+    const baseFeeTable = isUM ? UM_BASE_FEES : NEW_BASE_FEES;
+    const claimFeeTable = isUM ? UM_CLAIM_FEES : NEW_CLAIM_FEES;
+    const baseFee = baseFeeTable[annualYear] || baseFeeTable[maxYear];
+
     // 2. 청구항 가산료 계산
-    const claimFeePerItem = NEW_CLAIM_FEES[annualYear] || NEW_CLAIM_FEES[25];
+    const claimFeePerItem = claimFeeTable[annualYear] || claimFeeTable[maxYear];
     const claims = Math.max(1, parseInt(claimCount) || 1);
     const claimSurchargeFee = claimFeePerItem * claims;
     
