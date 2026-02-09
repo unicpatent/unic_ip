@@ -107,6 +107,12 @@ module.exports = async (req, res) => {
             return await searchApplication2Handler(req, res);
         }
 
+        if (url === '/get-gazette-url' || url === '/api/get-gazette-url') {
+            console.log('🔗 get-gazette-url API 요청 감지 (공보보기 URL 조회)');
+            const getGazetteUrlHandler = require('../lib/get-gazette-url.js');
+            return await getGazetteUrlHandler(req, res);
+        }
+
         if (url === '/send-renewal-request' || url === '/api/send-renewal-request') {
             console.log('🔗 send-renewal-request API 요청 감지, 라우팅 중...');
             const sendRenewalRequestHandler = require('../lib/send-renewal-request.js');
