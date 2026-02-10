@@ -380,10 +380,12 @@
         return names[0] + ', ' + names[1] + ' ...';
     }
 
-    // 전문보기 셀 생성 (KIPRIS API URL 사용)
+    // 전문보기 셀 생성 (서버 프록시 경유)
     function generateDownloadCell(patent) {
-        if (patent.fullTextUrl && patent.fullTextUrl !== '-') {
-            return '<a href="' + patent.fullTextUrl + '" target="_blank" ' +
+        if (patent.fullTextType && patent.fullTextType !== '-') {
+            var appNo = patent.applicationNumber.replace(/[^0-9]/g, '');
+            var proxyUrl = '/api/view-fulltext?appNo=' + appNo + '&type=' + patent.fullTextType;
+            return '<a href="' + proxyUrl + '" target="_blank" ' +
                    'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;" ' +
                    'title="전문보기">전문보기</a>';
         }

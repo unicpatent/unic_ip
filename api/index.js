@@ -107,6 +107,11 @@ module.exports = async (req, res) => {
             return await searchApplication2Handler(req, res);
         }
 
+        if (url === '/view-fulltext' || url === '/api/view-fulltext') {
+            console.log('🔗 view-fulltext API 요청 감지 (전문보기 프록시)');
+            const viewFulltextHandler = require('../lib/view-fulltext.js');
+            return await viewFulltextHandler(req, res);
+        }
 
         if (url === '/send-renewal-request' || url === '/api/send-renewal-request') {
             console.log('🔗 send-renewal-request API 요청 감지, 라우팅 중...');
