@@ -14,13 +14,13 @@
                 <span>유니크 특허사무소</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="#" id="loginBtn">로그인</a></li>
-                <li><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
+                <li id="loginLi"><a href="#" id="loginBtn">로그인</a></li>
+                <li id="serviceApplicationLi"><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
                 <li><a href="#" id="registeredBtn">등록특허 현황</a></li>
                 <li><a href="#" id="applicationBtn">출원특허 현황</a></li>
                 <li><a href="https://www.unicpat.com" target="_blank">유니크 홈페이지</a></li>
-                <li><a href="#" id="myInfoBtn" style="display:none;">나의 정보 수정</a></li>
-                <li><a href="#" id="logoutBtn" style="display:none;">로그아웃</a></li>
+                <li id="myInfoLi" style="display:none;"><a href="#" id="myInfoBtn">나의 정보 수정</a></li>
+                <li id="logoutLi" style="display:none;"><a href="#" id="logoutBtn">로그아웃</a></li>
             </ul>
         </nav>
     </header>
@@ -252,14 +252,21 @@
         // Update navigation based on login status
         const myInfoBtn = document.getElementById('myInfoBtn');
         function updateNavigation(isLoggedIn) {
+            var loginLi = document.getElementById('loginLi');
+            var serviceApplicationLi = document.getElementById('serviceApplicationLi');
+            var myInfoLi = document.getElementById('myInfoLi');
+            var logoutLi = document.getElementById('logoutLi');
+
             if (isLoggedIn) {
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'inline';
-                myInfoBtn.style.display = 'inline';
+                loginLi.style.display = 'none';
+                serviceApplicationLi.style.display = 'none';
+                myInfoLi.style.display = '';
+                logoutLi.style.display = '';
             } else {
-                loginBtn.style.display = 'inline';
-                logoutBtn.style.display = 'none';
-                myInfoBtn.style.display = 'none';
+                loginLi.style.display = '';
+                serviceApplicationLi.style.display = '';
+                myInfoLi.style.display = 'none';
+                logoutLi.style.display = 'none';
             }
         }
 

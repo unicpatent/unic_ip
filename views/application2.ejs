@@ -87,14 +87,33 @@
                             maxlength="12"
                             pattern="[0-9]{12}"
                             required
+                            value="<%= userCustomerNumber %>"
                         >
                         <button type="submit" class="btn btn-primary" id="searchBtn">
                             🔍 검색하기
+                        </button>
+                        <button type="button" class="btn" id="findCustomerBtn" style="background:#6b7280; color:white; margin-left:0.5rem;" onclick="toggleLookupSection()">
+                            고객번호 찾기
                         </button>
                     </div>
                     <div class="form-hint">12자리 숫자 입력하세요</div>
                 </div>
             </form>
+
+            <!-- 고객번호 찾기 섹션 -->
+            <div id="lookupSection" style="display:none; margin-top:1rem; padding:1rem; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <label style="font-weight:500; font-size:0.9rem;">사업자번호</label>
+                    <input type="text" id="businessNumberInput" placeholder="예: 1234567890" maxlength="10" style="padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.9rem; width:160px;">
+                    <button type="button" class="btn btn-primary" id="lookupBtn" onclick="lookupCustomerNumber()" style="padding:0.5rem 1rem; font-size:0.9rem;">
+                        조회
+                    </button>
+                </div>
+                <div id="lookupResult" style="margin-top:0.75rem; display:none;"></div>
+                <div style="margin-top:0.5rem; font-size:0.82rem; color:#6b7280;">
+                    💡 '나의 정보수정'에서 사업자번호와 고객번호를 등록하세요
+                </div>
+            </div>
         </section>
 
         <!-- 필터 섹션 -->
@@ -362,6 +381,47 @@
     let currentPage = 1;
     let currentFilter = '전체';
     const itemsPerPage = 10;
+
+    // 고객번호 찾기 섹션 토글
+    function toggleLookupSection() {
+        var section = document.getElementById('lookupSection');
+        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 사업자번호로 고객번호 조회
+    async function lookupCustomerNumber() {
+        var bizInput = document.getElementById('businessNumberInput');
+        var resultDiv = document.getElementById('lookupResult');
+        var bizNumber = bizInput.value.replace(/[^0-9]/g, '');
+
+        if (bizNumber.length !== 10) {
+            resultDiv.innerHTML = '<span style="color:#ef4444;">사업자번호는 10자리 숫자여야 합니다.</span>';
+            resultDiv.style.display = 'block';
+            return;
+        }
+
+        resultDiv.innerHTML = '<span style="color:#6b7280;">조회 중...</span>';
+        resultDiv.style.display = 'block';
+
+        try {
+            var response = await fetch('/api/lookup-customer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ businessNumber: bizNumber })
+            });
+            var data = await response.json();
+
+            if (data.success && data.customerNumber) {
+                document.getElementById('customerNumber').value = data.customerNumber;
+                resultDiv.innerHTML = '<span style="color:#16a34a; font-weight:500;">고객번호: ' + data.customerNumber + '</span>' +
+                    (data.applicantName ? ' <span style="color:#374151;">(출원인: ' + data.applicantName + ')</span>' : '');
+            } else {
+                resultDiv.innerHTML = '<span style="color:#ef4444;">' + (data.message || '고객번호를 찾을 수 없습니다.') + '</span>';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '<span style="color:#ef4444;">조회 중 오류가 발생했습니다.</span>';
+        }
+    }
 
     // 출원번호 포맷 (1020200001867 → 10-2020-0001867)
     function formatApplicationNumber(num) {
