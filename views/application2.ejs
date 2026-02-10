@@ -380,63 +380,14 @@
         return names[0] + ', ' + names[1] + ' ...';
     }
 
-    // 공보보기 셀 생성
+    // 전문보기 셀 생성 (KIPRIS API URL 사용)
     function generateDownloadCell(patent) {
-        // 등록 또는 공개 상태인 경우만 링크 표시
-        if (patent.currentStatus === '등록' || patent.currentStatus === '공개') {
-            var applicationNumber = patent.applicationNumber;
-
-            if (applicationNumber && applicationNumber !== '-') {
-                var cleanAppNumber = applicationNumber.replace(/[^0-9]/g, '');
-
-                return '<a href="javascript:void(0)" ' +
-                       'onclick="openGazette(\'' + cleanAppNumber + '\', this)" ' +
-                       'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;" ' +
-                       'title="공보보기">바로가기</a>';
-            }
+        if (patent.fullTextUrl && patent.fullTextUrl !== '-') {
+            return '<a href="' + patent.fullTextUrl + '" target="_blank" ' +
+                   'class="btn-download-pdf" style="color:#F59E0B; text-decoration:underline; cursor:pointer;" ' +
+                   'title="전문보기">전문보기</a>';
         }
         return '<span class="no-file">-</span>';
-    }
-
-    // 공보보기 팝업 열기
-    async function openGazette(applicationNumber, linkEl) {
-        // 로딩 상태 표시
-        var originalText = linkEl.textContent;
-        linkEl.textContent = '로딩중...';
-        linkEl.style.pointerEvents = 'none';
-        linkEl.style.color = '#9ca3af';
-
-        try {
-            var response = await fetch('/api/get-gazette-url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ applicationNumber: applicationNumber })
-            });
-
-            var data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || '공보보기 정보를 가져올 수 없습니다.');
-            }
-
-            var params = data.gazetteParams;
-            // patent.go.kr 공보보기 URL 생성
-            var gazetteUrl = 'https://www.patent.go.kr/smart/jsp/kiponet/ma/mamarkapply/infomodifypatent/ReadGazetteInfo.do' +
-                '?encryptedId=' + encodeURIComponent(params.encryptedId) +
-                '&type=' + encodeURIComponent(params.type) +
-                '&applNo=' + encodeURIComponent(params.applNo);
-
-            window.open(gazetteUrl, '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
-
-        } catch (error) {
-            console.error('공보보기 오류:', error);
-            alert('공보보기 실패: ' + error.message);
-        } finally {
-            // 원래 상태로 복원
-            linkEl.textContent = originalText;
-            linkEl.style.pointerEvents = '';
-            linkEl.style.color = '#F59E0B';
-        }
     }
 
     // 검색 폼 제출 이벤트
