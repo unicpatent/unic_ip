@@ -31,6 +31,14 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
     <link rel="alternate icon" href="/images/favicon.svg">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="유니크특허">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 </head>
 <body>
     <header class="header">
@@ -39,7 +47,10 @@
                 <a href="/" class="logo">
                     유니크<span>특허</span>
                 </a>
-                <nav class="nav-tabs">
+                <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav class="nav-tabs" id="navTabs">
                     <a href="/registered" class="nav-link">등록특허 현황</a>
                     <a href="/application2" class="nav-link">출원특허 현황</a>
                     <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 홈페이지</a>
@@ -420,6 +431,17 @@
 
             lookupBtn.disabled = false;
             lookupBtn.textContent = '고객번호 조회';
+        });
+    }
+    </script>
+
+    <!-- Service Worker 등록 -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW 등록 성공:', reg.scope))
+                .catch(err => console.log('SW 등록 실패:', err));
         });
     }
     </script>

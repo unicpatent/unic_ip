@@ -103,40 +103,24 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
 
-    // Mobile menu toggle (for responsive design)
-    const createMobileMenu = () => {
-        const nav = document.querySelector('.navbar');
-        const menuToggle = document.createElement('div');
-        menuToggle.classList.add('mobile-menu-toggle');
-        menuToggle.innerHTML = '☰';
-        menuToggle.style.display = 'none';
-        menuToggle.style.fontSize = '1.5rem';
-        menuToggle.style.cursor = 'pointer';
-        
-        nav.appendChild(menuToggle);
-        
-        const navMenu = document.querySelector('.nav-menu');
-        
-        menuToggle.addEventListener('click', function() {
-            navMenu.classList.toggle('mobile-active');
+    // 햄버거 메뉴 토글
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navMenu = document.getElementById('navMenu');
+
+    if (hamburgerBtn && navMenu) {
+        hamburgerBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
         });
-        
-        // Show/hide mobile menu toggle based on screen size
-        const checkScreenSize = () => {
-            if (window.innerWidth <= 768) {
-                menuToggle.style.display = 'block';
-                navMenu.classList.add('mobile-menu');
-            } else {
-                menuToggle.style.display = 'none';
-                navMenu.classList.remove('mobile-menu', 'mobile-active');
-            }
-        };
-        
-        window.addEventListener('resize', checkScreenSize);
-        checkScreenSize();
-    };
-    
-    createMobileMenu();
+
+        // 메뉴 항목 클릭 시 모바일 메뉴 닫기
+        navMenu.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+    }
 
     // Add typing animation to hero title
     const heroTitle = document.querySelector('.hero h1');
@@ -195,34 +179,6 @@ style.textContent = `
         }
     }
     
-    .mobile-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        flex-direction: column;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transform: translateY(-100%);
-        opacity: 0;
-        transition: all 0.3s ease;
-        z-index: 1000;
-    }
-    
-    .mobile-menu.mobile-active {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    
-    .mobile-menu li {
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .mobile-menu li:last-child {
-        border-bottom: none;
-    }
-    
     body {
         opacity: 0;
         transition: opacity 0.5s ease;
@@ -232,11 +188,6 @@ style.textContent = `
         opacity: 1;
     }
     
-    @media (max-width: 768px) {
-        .nav-menu {
-            display: flex;
-        }
-    }
 `;
 
 document.head.appendChild(style);

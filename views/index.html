@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 특허 검색 시스템</title>
     <link rel="stylesheet" href="/css/style.css">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="유니크특허">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 </head>
 <body>
     <header>
@@ -13,7 +21,12 @@
                 <img src="/images/logo.png" alt="로고" class="logo">
                 <span>유니크 특허사무소</span>
             </div>
-            <ul class="nav-menu">
+            <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
                 <li id="loginLi"><a href="#" id="loginBtn">로그인</a></li>
                 <li id="serviceApplicationLi"><a href="#" id="serviceApplicationBtn">서비스 이용신청</a></li>
                 <li><a href="#" id="registeredBtn">등록특허 현황</a></li>
@@ -1160,5 +1173,16 @@
     </style>
 
     <script src="/js/script.js"></script>
+
+    <!-- Service Worker 등록 -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW 등록 성공:', reg.scope))
+                .catch(err => console.log('SW 등록 실패:', err));
+        });
+    }
+    </script>
 </body>
 </html>

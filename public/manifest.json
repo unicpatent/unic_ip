@@ -1,0 +1,26 @@
+{
+  "name": "유니크 특허사무소 - AI 특허 검색 시스템",
+  "short_name": "유니크특허",
+  "description": "사업자번호와 특허고객번호로 등록특허, 연차료, 출원특허를 통합 검색하고 관리하는 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

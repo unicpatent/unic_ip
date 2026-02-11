@@ -82,12 +82,13 @@ const server = http.createServer(async (req, res) => {
 
 async function handleRequest(req, res) {
 
-    // 정적 파일 처리 (CSS, JS, 이미지)
+    // 정적 파일 처리 (CSS, JS, 이미지, PWA)
     if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/images/') ||
         req.url === '/favicon.ico' || req.url === '/favicon.png' ||
         req.url === '/style.css' || req.url === '/script.js' ||
         req.url === '/logo.png' || req.url === '/excel-icon.png' ||
-        req.url === '/hero-background-tech.jpg') {
+        req.url === '/hero-background-tech.jpg' ||
+        req.url === '/manifest.json' || req.url === '/sw.js') {
         const filePath = path.join(__dirname, 'public', req.url);
 
         if (fs.existsSync(filePath)) {
@@ -100,7 +101,9 @@ async function handleRequest(req, res) {
                 '.jpeg': 'image/jpeg',
                 '.gif': 'image/gif',
                 '.svg': 'image/svg+xml',
-                '.ico': 'image/x-icon'
+                '.ico': 'image/x-icon',
+                '.json': 'application/json',
+                '.webmanifest': 'application/manifest+json'
             };
 
             const contentType = contentTypeMap[ext] || 'application/octet-stream';

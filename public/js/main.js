@@ -71,14 +71,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // 현재 페이지에 따라 네비게이션 활성화
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     navLinks.forEach(link => {
         link.classList.remove('active');
-        if (link.getAttribute('href') === currentPath || 
+        if (link.getAttribute('href') === currentPath ||
             (currentPath === '/' && link.getAttribute('href') === '/registered')) {
             link.classList.add('active');
         }
     });
+
+    // 햄버거 메뉴 토글
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navTabs = document.getElementById('navTabs');
+
+    if (hamburgerBtn && navTabs) {
+        hamburgerBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navTabs.classList.toggle('active');
+        });
+
+        // 메뉴 항목 클릭 시 모바일 메뉴 닫기
+        navTabs.querySelectorAll('.nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                navTabs.classList.remove('active');
+            });
+        });
+    }
 });
 
 // 엑셀 다운로드 함수

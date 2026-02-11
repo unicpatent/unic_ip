@@ -396,7 +396,8 @@ module.exports = async (req, res) => {
 
         // Static files handling
         if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
-            url === '/favicon.ico' || url === '/favicon.png' || url === '/logo.png' || url === '/unic_logo.png' || url === '/excel-icon.png') {
+            url === '/favicon.ico' || url === '/favicon.png' || url === '/logo.png' || url === '/unic_logo.png' || url === '/excel-icon.png' ||
+            url === '/manifest.json' || url === '/sw.js') {
             return handleStaticFile(req, res);
         }
         
@@ -678,12 +679,18 @@ function handleStaticFile(req, res) {
         '.jpeg': 'image/jpeg',
         '.gif': 'image/gif',
         '.svg': 'image/svg+xml',
-        '.ico': 'image/x-icon'
+        '.ico': 'image/x-icon',
+        '.json': 'application/json',
+        '.webmanifest': 'application/manifest+json'
     };
-    
+
     const contentType = contentTypeMap[ext] || 'application/octet-stream';
-    
+
     const file = fs.readFileSync(filePath);
     res.setHeader('Content-Type', contentType);
+    if (safePath === 'sw.js') {
+        res.setHeader('Service-Worker-Allowed', '/');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
     res.send(file);
 }// Force deployment trigger 2025년 09월 23일 화 오전 11:49:46
