@@ -369,7 +369,7 @@
 
     // 고객번호 찾기 팝업 창 열기
     function openLookupWindow() {
-        var w = 420, h = 350;
+        var w = 420, h = 400;
         var left = (screen.width - w) / 2;
         var top = (screen.height - h) / 2;
         var popup = window.open('', 'lookupCustomer', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=no,resizable=no');
@@ -380,16 +380,24 @@
             '<style>' +
             'body{font-family:"Noto Sans KR",sans-serif;margin:0;padding:1.5rem;background:#f9fafb;}' +
             'h3{margin:0 0 1rem;color:#1f2937;font-size:1.1rem;}' +
+            '.radio-row{display:flex;gap:1.5rem;margin-bottom:1rem;padding:0.6rem 0.75rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;}' +
+            '.radio-row label{font-weight:500;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;}' +
             '.row{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}' +
             'label{font-weight:500;font-size:0.9rem;white-space:nowrap;}' +
-            'input{padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.95rem;width:160px;}' +
+            'input[type="text"]{padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.95rem;width:160px;}' +
             '.btn{padding:0.5rem 1rem;border:none;border-radius:4px;cursor:pointer;font-size:0.9rem;font-weight:500;}' +
             '.btn-search{background:#F59E0B;color:white;}' +
+            '.btn-patent{background:#3B82F6;color:white;width:100%;padding:0.6rem;}' +
             '.btn-close{background:#6b7280;color:white;width:100%;margin-top:1rem;padding:0.6rem;}' +
             '#result{margin-top:0.75rem;padding:0.75rem;border-radius:6px;display:none;}' +
             '.hint{margin-top:0.75rem;font-size:0.82rem;color:#6b7280;}' +
             '</style></head><body>' +
             '<h3>고객번호 찾기</h3>' +
+            '<div class="radio-row">' +
+            '<label><input type="radio" name="lookupType" value="biz" checked onchange="switchType()"> 사업자번호로 찾기</label>' +
+            '<label><input type="radio" name="lookupType" value="patent" onchange="switchType()"> 특허로에서 찾기</label>' +
+            '</div>' +
+            '<div id="bizSection">' +
             '<div class="row">' +
             '<label>사업자번호</label>' +
             '<input type="text" id="bizNum" placeholder="예: 1234567890" maxlength="10">' +
@@ -397,8 +405,18 @@
             '</div>' +
             '<div id="result"></div>' +
             '<div class="hint">💡 \'나의 정보수정\'에서 사업자번호와 고객번호를 등록하세요</div>' +
+            '</div>' +
+            '<div id="patentSection" style="display:none;">' +
+            '<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">개인 출원인은 특허로에서 고객번호를 확인할 수 있습니다.</p>' +
+            '<button class="btn btn-patent" onclick="window.open(\'https://www.patent.go.kr/smart/jsp/kiponet/ma/mamarkapply/infomodifypatnet/ReadMyPatApplInfo.do\',\'_blank\')">특허로 바로가기</button>' +
+            '</div>' +
             '<button class="btn btn-close" onclick="window.close()">닫기</button>' +
             '<script>' +
+            'function switchType(){' +
+            '  var v=document.querySelector("input[name=lookupType]:checked").value;' +
+            '  document.getElementById("bizSection").style.display=v==="biz"?"block":"none";' +
+            '  document.getElementById("patentSection").style.display=v==="patent"?"block":"none";' +
+            '}' +
             'async function doLookup(){' +
             '  var num=document.getElementById("bizNum").value.replace(/[^0-9]/g,"");' +
             '  var rd=document.getElementById("result");' +
