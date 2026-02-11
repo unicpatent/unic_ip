@@ -48,6 +48,7 @@ function setupSearchTypeListeners() {
 
     function updateInputField() {
         const selectedType = document.querySelector('input[name="searchType"]:checked').value;
+        const findCustomerBtn = document.getElementById('findCustomerBtn');
 
         if (selectedType === '1') { // 사업자번호
             searchInputLabel.textContent = '사업자번호';
@@ -57,6 +58,7 @@ function setupSearchTypeListeners() {
             searchInputHint.textContent = '10자리 숫자 입력하세요';
             // 사용자의 사업자번호 자동 입력
             searchInput.value = userBusinessNumber;
+            if (findCustomerBtn) findCustomerBtn.style.display = 'none';
         } else { // 고객번호
             searchInputLabel.textContent = '고객번호';
             searchInput.placeholder = '예: 120190612244';
@@ -65,6 +67,7 @@ function setupSearchTypeListeners() {
             searchInputHint.textContent = '12자리 숫자 입력하세요';
             // 사용자의 고객번호 자동 입력
             searchInput.value = userCustomerNumber;
+            if (findCustomerBtn) findCustomerBtn.style.display = 'inline-block';
         }
     }
 
