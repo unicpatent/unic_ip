@@ -149,6 +149,10 @@ module.exports = async (req, res) => {
                     return res.status(400).json({ success: false, message: '이름, 이메일, 패스워드는 필수 입력항목입니다.' });
                 }
 
+                if (!customer_number || customer_number.replace(/[^0-9]/g, '').length !== 12) {
+                    return res.status(400).json({ success: false, message: '고객번호(특허고객번호) 12자리는 필수 입력항목입니다.' });
+                }
+
                 if (password.length < 6) {
                     return res.status(400).json({ success: false, message: '패스워드는 6자 이상이어야 합니다.' });
                 }
