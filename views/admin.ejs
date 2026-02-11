@@ -210,7 +210,7 @@
                 document.cookie = 'loginStatus=; Path=/; Max-Age=0';
                 document.cookie = 'userRole=; Path=/; Max-Age=0';
                 fetch('/api/logout').catch(function() {});
-                window.location.href = '/';
+                window.location.href = '/?logout=1';
             });
         }
     });

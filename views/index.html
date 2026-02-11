@@ -237,10 +237,9 @@
         // Logout functionality
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // 클라이언트 쿠키 즉시 삭제 후 리다이렉트 (서버 응답 대기 없음)
             document.cookie = 'loginStatus=; Path=/; Max-Age=0';
             fetch('/api/logout').catch(function() {});
-            window.location.href = '/';
+            window.location.href = '/?logout=1';
         });
 
         // Show error message
@@ -272,6 +271,16 @@
 
         // Check login status on page load
         function checkLoginStatus() {
+            // URL에 logout=1 파라미터가 있으면 확실하게 로그아웃 처리
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('logout') === '1') {
+                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+                updateNavigation(false);
+                // URL에서 파라미터 제거
+                history.replaceState(null, '', '/');
+                return;
+            }
+
             const cookies = document.cookie.split(';');
             const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
 
