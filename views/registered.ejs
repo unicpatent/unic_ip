@@ -508,38 +508,7 @@ if (typeof handleSearch === 'undefined') {
             });
         }
 
-        // 라디오 버튼 변경 이벤트
-        const radioButtons = document.querySelectorAll('input[name="searchType"]');
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', updateInputField);
-        });
     });
-
-    // 입력 필드 업데이트
-    function updateInputField() {
-        const selectedType = document.querySelector('input[name="searchType"]:checked').value;
-        const searchInput = document.getElementById('searchInput');
-        const searchInputLabel = document.getElementById('searchInputLabel');
-        const searchInputHint = document.getElementById('searchInputHint');
-        const findCustomerBtn = document.getElementById('findCustomerBtn');
-
-        if (selectedType === '1') {
-            searchInputLabel.textContent = '사업자번호';
-            searchInput.placeholder = '예: 1234567890';
-            searchInput.maxLength = 10;
-            searchInput.pattern = '[0-9]{10}';
-            searchInputHint.textContent = '10자리 숫자 입력하세요';
-            if (findCustomerBtn) findCustomerBtn.style.display = 'none';
-        } else {
-            searchInputLabel.textContent = '고객번호';
-            searchInput.placeholder = '예: 120190612244';
-            searchInput.maxLength = 12;
-            searchInput.pattern = '[0-9]{12}';
-            searchInputHint.textContent = '12자리 숫자 입력하세요';
-            if (findCustomerBtn) findCustomerBtn.style.display = 'inline-block';
-        }
-        searchInput.value = '';
-    }
 
     // 결과 표시 함수
     function displayResults(data) {
