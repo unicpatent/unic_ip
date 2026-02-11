@@ -99,6 +99,7 @@
                         >
                         <button type="submit" class="btn btn-primary" id="searchBtn">🔍 검색</button>
                     </div>
+                    <button type="button" id="findCustomerBtn" style="display: none; padding: 0.5rem 1rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap; margin-left: auto;" onclick="openLookupWindow()">고객번호 찾기</button>
                     <div id="actionButtons" style="display: none; align-items: center; gap: 0.5rem;">
                         <button type="button" class="btn btn-info" id="calculateAnnuityBtn">🧮 연차료 계산</button>
                         <button type="button" class="btn btn-primary" id="renewalRequestBtn">💰 납부의뢰</button>
@@ -520,6 +521,7 @@ if (typeof handleSearch === 'undefined') {
         const searchInput = document.getElementById('searchInput');
         const searchInputLabel = document.getElementById('searchInputLabel');
         const searchInputHint = document.getElementById('searchInputHint');
+        const findCustomerBtn = document.getElementById('findCustomerBtn');
 
         if (selectedType === '1') {
             searchInputLabel.textContent = '사업자번호';
@@ -527,12 +529,14 @@ if (typeof handleSearch === 'undefined') {
             searchInput.maxLength = 10;
             searchInput.pattern = '[0-9]{10}';
             searchInputHint.textContent = '10자리 숫자 입력하세요';
+            if (findCustomerBtn) findCustomerBtn.style.display = 'none';
         } else {
             searchInputLabel.textContent = '고객번호';
             searchInput.placeholder = '예: 120190612244';
             searchInput.maxLength = 12;
             searchInput.pattern = '[0-9]{12}';
             searchInputHint.textContent = '12자리 숫자 입력하세요';
+            if (findCustomerBtn) findCustomerBtn.style.display = 'inline-block';
         }
         searchInput.value = '';
     }
@@ -1528,40 +1532,77 @@ function calculateNewAnnuityFee(annualYear, claimCount, discountType, status, la
 
 // 연차료 납부의뢰 관련 함수들은 외부 스크립트 파일 (registered.js)에서 처리됩니다.
 
-// 고객번호 찾기 버튼 기능
-document.addEventListener('DOMContentLoaded', function() {
-    const findCustomerBtn = document.getElementById('findCustomerBtn');
+// 고객번호 찾기 팝업 창 열기
+function openLookupWindow() {
+    var w = 420, h = 400;
+    var left = (screen.width - w) / 2;
+    var top = (screen.height - h) / 2;
+    var popup = window.open('', 'lookupCustomer', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=no,resizable=no');
 
-    if (findCustomerBtn) {
-        findCustomerBtn.addEventListener('click', function() {
-            openCustomerSearchPopup();
-        });
-    }
-
-});
-
-function openCustomerSearchPopup() {
-    const url = 'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do';
-    const popupOptions = 'width=1000,height=800,scrollbars=yes,resizable=yes,status=yes,menubar=no,toolbar=no,location=no';
-    
-    // 팝업창 열기
-    const popup = window.open(url, 'customerSearch', popupOptions);
-    
-    // 팝업창이 블록되었는지 확인
-    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-        alert('팝업 창이 차단되었습니다.\n브라우저의 팝업 차단 설정을 확인해주세요.\n\n또는 다음 링크를 직접 열어주세요:\n' + url);
-        return;
-    }
-    
-    // 팝업창 중앙 정렬
-    if (popup.moveTo) {
-        const left = (screen.width - 1000) / 2;
-        const top = (screen.height - 800) / 2;
-        popup.moveTo(left, top);
-    }
-    
-    // 팝업창 포커스
-    popup.focus();
+    popup.document.write(
+        '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">' +
+        '<title>고객번호 찾기</title>' +
+        '<style>' +
+        'body{font-family:"Noto Sans KR",sans-serif;margin:0;padding:1.5rem;background:#f9fafb;}' +
+        'h3{margin:0 0 1rem;color:#1f2937;font-size:1.1rem;}' +
+        '.radio-row{display:flex;gap:1.5rem;margin-bottom:1rem;padding:0.6rem 0.75rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;}' +
+        '.radio-row label{font-weight:500;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;}' +
+        '.row{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}' +
+        'label{font-weight:500;font-size:0.9rem;white-space:nowrap;}' +
+        'input[type="text"]{padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.95rem;width:160px;}' +
+        '.btn{padding:0.5rem 1rem;border:none;border-radius:4px;cursor:pointer;font-size:0.9rem;font-weight:500;}' +
+        '.btn-search{background:#F59E0B;color:white;}' +
+        '.btn-patent{background:#3B82F6;color:white;width:100%;padding:0.6rem;}' +
+        '.btn-close{background:#6b7280;color:white;width:100%;margin-top:1rem;padding:0.6rem;}' +
+        '#result{margin-top:0.75rem;padding:0.75rem;border-radius:6px;display:none;}' +
+        '.hint{margin-top:0.75rem;font-size:0.82rem;color:#6b7280;}' +
+        '</style></head><body>' +
+        '<h3>고객번호 찾기</h3>' +
+        '<div class="radio-row">' +
+        '<label><input type="radio" name="lookupType" value="biz" checked onchange="switchType()"> 사업자번호로 찾기</label>' +
+        '<label><input type="radio" name="lookupType" value="patent" onchange="switchType()"> 특허로에서 찾기</label>' +
+        '</div>' +
+        '<div id="bizSection">' +
+        '<div class="row">' +
+        '<label>사업자번호</label>' +
+        '<input type="text" id="bizNum" placeholder="예: 1234567890" maxlength="10">' +
+        '<button class="btn btn-search" onclick="doLookup()">조회</button>' +
+        '</div>' +
+        '<div id="result"></div>' +
+        '<div class="hint">💡 \'나의 정보수정\'에서 사업자번호와 고객번호를 등록하세요</div>' +
+        '</div>' +
+        '<div id="patentSection" style="display:none;">' +
+        '<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">개인 출원인은 특허로에서 고객번호를 확인할 수 있습니다.</p>' +
+        '<button class="btn btn-patent" onclick="var pw=900,ph=700,pl=(screen.width-pw)/2,pt=(screen.height-ph)/2;window.open(\'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do\',\'patentro\',\'width=\'+pw+\',height=\'+ph+\',left=\'+pl+\',top=\'+pt+\',scrollbars=yes,resizable=yes\')">특허로 바로가기</button>' +
+        '</div>' +
+        '<button class="btn btn-close" onclick="window.close()">닫기</button>' +
+        '<script>' +
+        'function switchType(){' +
+        '  var v=document.querySelector("input[name=lookupType]:checked").value;' +
+        '  document.getElementById("bizSection").style.display=v==="biz"?"block":"none";' +
+        '  document.getElementById("patentSection").style.display=v==="patent"?"block":"none";' +
+        '}' +
+        'async function doLookup(){' +
+        '  var num=document.getElementById("bizNum").value.replace(/[^0-9]/g,"");' +
+        '  var rd=document.getElementById("result");' +
+        '  if(num.length!==10){rd.style.display="block";rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">사업자번호는 10자리 숫자여야 합니다.</span>";return;}' +
+        '  rd.style.display="block";rd.style.background="#f3f4f6";rd.innerHTML="<span style=\\"color:#6b7280\\">조회 중...</span>";' +
+        '  try{' +
+        '    var res=await fetch("/api/lookup-customer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({businessNumber:num})});' +
+        '    var data=await res.json();' +
+        '    if(data.success&&data.customerNumber){' +
+        '      rd.style.background="#ecfdf5";' +
+        '      rd.innerHTML="<span style=\\"color:#16a34a;font-weight:600\\">고객번호: "+data.customerNumber+"</span>"+(data.applicantName?" <span style=\\"color:#374151\\">(출원인: "+data.applicantName+")</span>":"");' +
+        '      if(window.opener&&!window.opener.closed){window.opener.document.getElementById("searchInput").value=data.customerNumber;}' +
+        '    }else{' +
+        '      rd.style.background="#fef2f2";' +
+        '      rd.innerHTML="<span style=\\"color:#ef4444\\">"+(data.message||"고객번호를 찾을 수 없습니다.")+"</span>";' +
+        '    }' +
+        '  }catch(e){rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">조회 중 오류가 발생했습니다.</span>";}' +
+        '}' +
+        '<\/script></body></html>'
+    );
+    popup.document.close();
 }
 
 </script>
