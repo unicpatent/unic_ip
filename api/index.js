@@ -397,7 +397,8 @@ module.exports = async (req, res) => {
         // Static files handling
         if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
             url === '/favicon.ico' || url === '/favicon.png' || url === '/logo.png' || url === '/unic_logo.png' || url === '/excel-icon.png' ||
-            url === '/manifest.json' || url === '/sw.js') {
+            url === '/manifest.json' || url === '/sw.js' ||
+            url === '/robots.txt' || url === '/sitemap.xml') {
             return handleStaticFile(req, res);
         }
         
@@ -681,7 +682,9 @@ function handleStaticFile(req, res) {
         '.svg': 'image/svg+xml',
         '.ico': 'image/x-icon',
         '.json': 'application/json',
-        '.webmanifest': 'application/manifest+json'
+        '.webmanifest': 'application/manifest+json',
+        '.xml': 'application/xml',
+        '.txt': 'text/plain'
     };
 
     const contentType = contentTypeMap[ext] || 'application/octet-stream';

@@ -88,7 +88,8 @@ async function handleRequest(req, res) {
         req.url === '/style.css' || req.url === '/script.js' ||
         req.url === '/logo.png' || req.url === '/excel-icon.png' ||
         req.url === '/hero-background-tech.jpg' ||
-        req.url === '/manifest.json' || req.url === '/sw.js') {
+        req.url === '/manifest.json' || req.url === '/sw.js' ||
+        req.url === '/robots.txt' || req.url === '/sitemap.xml') {
         const filePath = path.join(__dirname, 'public', req.url);
 
         if (fs.existsSync(filePath)) {
@@ -103,7 +104,9 @@ async function handleRequest(req, res) {
                 '.svg': 'image/svg+xml',
                 '.ico': 'image/x-icon',
                 '.json': 'application/json',
-                '.webmanifest': 'application/manifest+json'
+                '.webmanifest': 'application/manifest+json',
+                '.xml': 'application/xml',
+                '.txt': 'text/plain'
             };
 
             const contentType = contentTypeMap[ext] || 'application/octet-stream';

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /registered
+Disallow: /application
+Disallow: /application2
+Disallow: /admin
+Disallow: /logout
+Disallow: /login
+
+Sitemap: https://www.ipbot1.com/sitemap.xml
