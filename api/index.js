@@ -75,6 +75,17 @@ module.exports = async (req, res) => {
         const rawUrl = req.url || '';
         const url = rawUrl.split('?')[0];  // 쿼리스트링 제거
 
+        // 디버그 엔드포인트 (배포 확인용)
+        if (url === '/debug-health') {
+            return res.status(200).json({
+                ok: true,
+                url: rawUrl,
+                method: req.method,
+                timestamp: new Date().toISOString(),
+                nodeVersion: process.version
+            });
+        }
+
         // API 요청 처리
 
         if (url === '/export-excel' || url === '/api/export-excel') {
