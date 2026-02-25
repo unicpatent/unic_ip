@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="<%= lang === 'en' ? 'en' : 'ko' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <% if (lang === 'en') { %>
+    <title>Unic Patent Office - AI Patent Search System | Real-time Patent Status</title>
+    <meta name="description" content="Unic Patent Office's real-time AI patent search system. Search and manage registered patents, annual fee status, and pending applications using your business number or patent customer number.">
+    <meta name="keywords" content="patent search, registered patent, patent application, annual fee, patent management, Unic Patent Office, AI patent search">
+    <meta property="og:title" content="Unic Patent Office - AI Patent Search System">
+    <meta property="og:description" content="Search and manage registered patents, annual fee status, and pending applications in one place.">
+    <meta property="og:locale" content="en_US">
+    <% } else { %>
+    <title>유니크 특허사무소 - AI 특허 검색 시스템 | 실시간 등록특허 출원특허 조회</title>
+    <meta name="description" content="유니크 특허사무소의 실시간 AI 특허 검색 시스템입니다. 사업자번호와 특허고객번호로 등록특허, 연차료 납부상황, 출원특허를 한번에 통합 검색하고 관리하세요.">
+    <meta name="keywords" content="특허검색, 등록특허, 출원특허, 연차료, 특허관리, 유니크특허사무소, 특허사무소, AI특허검색, 실시간특허조회">
+    <meta property="og:title" content="유니크 특허사무소 - AI 특허 검색 시스템">
+    <meta property="og:description" content="사업자번호와 특허고객번호로 등록특허, 연차료 납부상황, 출원특허를 한번에 통합 검색하고 관리할 수 있는 실시간 특허 검색 플랫폼입니다.">
+    <meta property="og:locale" content="ko_KR">
+    <% } %>
+    <meta name="author" content="유니크 특허사무소">
+    <link rel="canonical" href="https://www.ipbot1.com/<%= lang === 'en' ? 'en' : '' %>">
+    <link rel="alternate" hreflang="ko" href="https://www.ipbot1.com/">
+    <link rel="alternate" hreflang="en" href="https://www.ipbot1.com/en">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ipbot1.com/<%= lang === 'en' ? 'en' : '' %>">
+    <meta property="og:site_name" content="유니크 특허사무소">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="PKZLgjFaj9UD2qw93XhI2wCPWORLW7oFHt0Ypne3h7Y" />
+    <meta name="naver-site-verification" content="3b649a15c022c58ce4938ec678bd5f61fb80b531" />
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="유니크특허">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+</head>
+<body>
+    <!-- Language Bar -->
+    <div class="lang-bar">
+        <a href="/" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
+        <span>|</span>
+        <a href="/en" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
+    </div>
+
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="/images/logo.png" alt="<%= lang === 'en' ? 'Logo' : '로고' %>" class="logo">
+                <span><%= lang === 'en' ? 'Unic Patent Office' : '유니크 특허사무소' %></span>
+            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="<%= lang === 'en' ? 'Open menu' : '메뉴 열기' %>">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li id="loginLi"><a href="#" id="loginBtn"><%= lang === 'en' ? 'Login' : '로그인' %></a></li>
+                <li id="serviceApplicationLi"><a href="#" id="serviceApplicationBtn"><%= lang === 'en' ? 'Sign Up' : '서비스 이용신청' %></a></li>
+                <li><a href="#" id="registeredBtn"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a></li>
+                <li><a href="#" id="applicationBtn"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a></li>
+                <li><a href="https://www.unicpat.com" target="_blank"><%= lang === 'en' ? 'Unic Website' : '유니크 홈페이지' %></a></li>
+                <li id="myInfoLi" style="display:none;"><a href="#" id="myInfoBtn"><%= lang === 'en' ? 'My Profile' : '나의 정보 수정' %></a></li>
+                <li id="logoutLi" style="display:none;"><a href="#" id="logoutBtn"><%= lang === 'en' ? 'Logout' : '로그아웃' %></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <% if (lang === 'en') { %>
+                <h1 style="color: #000; font-weight: 700;">Your Complete Patent Management</h1>
+                <h2 style="color: #000; font-weight: 800;">Find and manage with Unic in real time</h2>
+                <p style="color: #000; font-weight: 500; line-height: 1.8; opacity: 0.9;">An innovative patent search platform that lets you search and manage registered patents, real-time annual fee status, and pending applications — all in one place, using your business number or patent customer number.</p>
+                <button class="cta-button">Patent Search</button>
+                <% } else { %>
+                <h1 style="color: #000; font-weight: 700;">내 특허의 모든 것</h1>
+                <h2 style="color: #000; font-weight: 800;">유니크에서 실시간으로 찾고 관리하세요</h2>
+                <p style="color: #000; font-weight: 500; line-height: 1.8; opacity: 0.9;">사업자번호와 특허고객번호로 등록 특허, 실시간 연차료 납부상황, 출원 특허를 한번에 통합 검색하고 관리할 수 있는 혁신적인 특허 검색 플랫폼입니다.</p>
+                <button class="cta-button">특허검색</button>
+                <% } %>
+            </div>
+        </section>
+
+        <section class="mobile-features">
+            <div class="container">
+                <h3><%= lang === 'en' ? 'All patent information at a glance' : '모든 특허 정보를 한 눈에 볼 수 있어요' %></h3>
+
+                <div class="mobile-content">
+                    <div class="mobile-mockup">
+                        <div class="mobile-screen">
+                            <div class="mobile-header"><%= lang === 'en' ? 'Patent Search Results' : '특허검색 결과' %></div>
+                            <div class="mobile-list">
+                                <div class="mobile-item"></div>
+                                <div class="mobile-item"></div>
+                                <div class="mobile-item"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-text">
+                                <% if (lang === 'en') { %>
+                                <h4>Real-time patent information — get the latest updates anytime</h4>
+                                <p>Synchronized with the Korean Intellectual Property Office in real time</p>
+                                <% } else { %>
+                                <h4>실시간 특허정보 제공을 통해서 언제든 최신정보를 얻을 수 있어요</h4>
+                                <p>특허청과 실시간 연동하여 최신 정보를 제공합니다</p>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <div class="feature-icon">🔍</div>
+                            <div class="feature-text">
+                                <% if (lang === 'en') { %>
+                                <h4>Search registered patents, annual fee status, and applications easily with your business number</h4>
+                                <p>Accurate and detailed search to find the information you need quickly</p>
+                                <% } else { %>
+                                <h4>사업자 번호로 등록특허, 연차료 납부상황, 출원특허 정보를 쉽게 검색하세요</h4>
+                                <p>정확하고 세밀한 검색으로 원하는 정보를 빠르게 찾을 수 있어요</p>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="feature-item">
+                            <div class="feature-icon">📱</div>
+                            <div class="feature-text">
+                                <% if (lang === 'en') { %>
+                                <h4>Optimized for easy viewing on any device</h4>
+                                <p>Access your patent information conveniently from any device</p>
+                                <% } else { %>
+                                <h4>특허정보를 보다 간편하게 볼 수 있도록 최적화된 환경을 제공해요</h4>
+                                <p>어떤 기기에서든 편리하게 특허정보를 확인하실 수 있습니다</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <% if (lang === 'en') { %>
+                        <h3>Have questions about our service?<br>Contact us anytime</h3>
+                        <% } else { %>
+                        <h3>자세한 서비스 문의 및 <br>궁금한 점이 있으시면 연락주세요</h3>
+                        <% } %>
+
+                        <div class="contact-details">
+                            <div class="contact-logo">
+                                <img src="/images/logo.png" alt="<%= lang === 'en' ? 'Unic Logo' : '유니크 로고' %>">
+                                <span><%= lang === 'en' ? 'Unic Patent Office' : '유니크 특허사무소' %></span>
+                            </div>
+
+                            <div class="contact-text">
+                                <p>Real Time AI Patent Search System</p>
+                                <% if (lang === 'en') { %>
+                                <p>A real-time patent information search system linked with KIPO</p>
+                                <p>We are happy to assist you at any time.</p>
+                                <% } else { %>
+                                <p>특허청과 연계된 실시간 특허정보검색시스템입니다</p>
+                                <p>언제든지 연락주시면 친절하게 안내해드리겠습니다.</p>
+                                <% } %>
+
+                                <div class="contact-methods">
+                                    <div class="contact-method">📞 <%= lang === 'en' ? 'Phone' : '전화번호' %>: 010-3131-7960</div>
+                                    <div class="contact-method">📧 Email: ljunhyek@naver.com</div>
+                                    <div class="contact-method">🌐 Website: www.unicpat.com</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="contact-button"><%= lang === 'en' ? 'Contact Us' : '서비스문의' %></button>
+                    </div>
+
+                    <div class="contact-features">
+                        <div class="feature-badge">
+                            <div class="badge-icon">🏛️</div>
+                            <% if (lang === 'en') { %>
+                            <p>Accurate information through real-time integration<br>with the Korean Intellectual Property Office.</p>
+                            <% } else { %>
+                            <p>정부기관 특허청과의 실시간 연동으로 정확한 정보를<br>제공해드립니다.</p>
+                            <% } %>
+                        </div>
+
+                        <div class="feature-badge">
+                            <div class="badge-icon">🔍</div>
+                            <p><%= lang === 'en' ? 'Precision search engine for customized patent information' : '정밀한 검색엔진 맞춤 특허정보 검색' %></p>
+                        </div>
+
+                        <div class="feature-badge">
+                            <div class="badge-icon">🤖</div>
+                            <% if (lang === 'en') { %>
+                            <p>Our accurate and efficient patent search system delivers the information you need quickly and precisely</p>
+                            <% } else { %>
+                            <p>정확하고 효율적인 특허 검색 시스템으로 원하시는 정보를<br>빠르고 정확하게 제공합니다</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><%= lang === 'en' ? 'Login' : '로그인' %></h3>
+                <button type="button" class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" autocomplete="on" novalidate>
+                    <div class="form-group">
+                        <label for="email"><%= lang === 'en' ? 'Email' : '이메일' %></label>
+                        <input type="email" id="email" name="email" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password"><%= lang === 'en' ? 'Password' : '패스워드' %></label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                    </div>
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <div class="form-actions">
+                        <button type="submit" class="login-submit-btn"><%= lang === 'en' ? 'Login' : '로그인' %></button>
+                    </div>
+                </form>
+                <div style="text-align: center; margin-top: 0.75rem;">
+                    <a href="#" onclick="event.preventDefault(); closeLoginModal(); showResetPasswordModal();" style="color: #6b7280; font-size: 0.85rem; text-decoration: underline;"><%= lang === 'en' ? 'Forgot your password?' : '패스워드를 잊으셨나요?' %></a>
+                </div>
+                <div class="service-notice">
+                    <p><%= lang === 'en' ? 'Please sign up to use the service.' : '서비스를 이용하기 위해서는 서비스 이용신청을 진행해주세요.' %></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login JavaScript -->
+    <script>
+        // Language setting from server
+        const _lang = '<%= lang %>';
+
+        // Translations
+        const _t = {
+            login: _lang === 'en' ? 'Login' : '로그인',
+            loginFailed: _lang === 'en' ? 'Login failed.' : '로그인에 실패했습니다.',
+            loginError: _lang === 'en' ? 'An error occurred while processing your login.' : '로그인 처리 중 오류가 발생했습니다.',
+            loginRequired: _lang === 'en' ? 'Please log in to use this feature.' : '로그인하고 이용할 수 있습니다.',
+            signUp: _lang === 'en' ? 'Sign Up' : '서비스 이용신청',
+            signUpTitle: _lang === 'en' ? 'Service Sign Up' : '서비스 이용신청',
+            signUpDesc: _lang === 'en' ? 'Apply for real-time registered patent and application status service' : '실시간 등록특허 현황 및 출원특허 현황 서비스 이용을 신청합니다',
+            name: _lang === 'en' ? 'Name' : '이름',
+            email: _lang === 'en' ? 'Email' : '이메일',
+            password: _lang === 'en' ? 'Password' : '패스워드',
+            passwordConfirm: _lang === 'en' ? 'Confirm Password' : '패스워드 확인',
+            phone: _lang === 'en' ? 'Phone' : '연락처',
+            businessNumber: _lang === 'en' ? 'Business Number' : '사업자번호',
+            customerNumber: _lang === 'en' ? 'Customer Number (Patent Customer No.)' : '고객번호 (특허고객번호)',
+            findCustomer: _lang === 'en' ? 'Find Customer No.' : '고객번호 찾기',
+            namePlaceholder: _lang === 'en' ? 'Enter your name' : '이름을 입력하세요',
+            emailPlaceholder: _lang === 'en' ? 'example@email.com' : 'example@email.com',
+            passwordPlaceholder: _lang === 'en' ? 'At least 6 characters' : '6자 이상 입력하세요',
+            passwordConfirmPlaceholder: _lang === 'en' ? 'Re-enter password' : '패스워드를 다시 입력하세요',
+            phonePlaceholder: _lang === 'en' ? '010-0000-0000' : '010-0000-0000',
+            businessPlaceholder: _lang === 'en' ? '10-digit number (e.g. 1234567890)' : '10자리 숫자 (예: 1234567890)',
+            businessAutoLookup: _lang === 'en' ? 'Customer number will be auto-filled from your business number' : '사업자번호 입력 후 고객번호가 자동으로 조회됩니다',
+            customerPlaceholder: _lang === 'en' ? '12-digit number (e.g. 120190612244)' : '12자리 숫자 (예: 120190612244)',
+            customerHint: _lang === 'en' ? 'Auto-filled from business number or enter manually' : '사업자번호로 조회되거나 직접 입력 가능합니다',
+            privacyTitle: _lang === 'en' ? 'Privacy Policy Agreement' : '개인정보 수집 및 이용 동의',
+            privacyPurpose: _lang === 'en' ? 'Purpose: Registered patent and patent application status service' : '수집·이용 목적: 등록특허 현황 및 출원특허 현황 서비스',
+            privacyItems: _lang === 'en' ? 'Items: Name, phone, email, business number, patent customer number' : '수집 항목: 이름, 연락처, 이메일, 사업자번호, 특허 고객번호',
+            privacyPeriod: _lang === 'en' ? 'Retention period: Until service cancellation' : '보유 및 이용 기간: 서비스 이용 신청 해제시',
+            privacyAgree: _lang === 'en' ? 'I agree to the collection and use of my personal information.' : '개인정보 수집 및 이용에 동의합니다.',
+            cancel: _lang === 'en' ? 'Cancel' : '취소',
+            submit: _lang === 'en' ? 'Sign Up' : '서비스 이용신청',
+            processing: _lang === 'en' ? 'Processing...' : '처리 중...',
+            passwordMismatch: _lang === 'en' ? 'Passwords do not match.' : '패스워드가 일치하지 않습니다.',
+            passwordTooShort: _lang === 'en' ? 'Password must be at least 6 characters.' : '패스워드는 6자 이상이어야 합니다.',
+            signUpFailed: _lang === 'en' ? 'Sign up failed.' : '서비스 이용신청에 실패했습니다.',
+            signUpError: _lang === 'en' ? 'An error occurred during sign up.' : '서비스 이용신청 처리 중 오류가 발생했습니다.',
+            lookupLoading: _lang === 'en' ? 'Searching...' : '조회 중...',
+            lookupDone: _lang === 'en' ? 'Found' : '조회 완료',
+            lookupNone: _lang === 'en' ? 'No results' : '조회 결과 없음',
+            lookupFail: _lang === 'en' ? 'Search failed' : '조회 실패',
+            bizMustBe10: _lang === 'en' ? 'Please enter a 10-digit business number.' : '10자리 숫자를 입력하세요',
+            customerAutoFilled: _lang === 'en' ? 'Customer number has been auto-filled.' : '고객번호가 자동 입력되었습니다',
+            rightHolder: _lang === 'en' ? 'Holder: ' : '권리자: ',
+            applicantName: _lang === 'en' ? 'Applicant: ' : '출원인: ',
+            enterManually: _lang === 'en' ? 'Please enter the customer number manually.' : '고객번호를 직접 입력해주세요',
+            myInfoTitle: _lang === 'en' ? 'Edit My Profile' : '나의 정보 수정',
+            currentEmail: _lang === 'en' ? 'Current Email (Login ID)' : '현재 이메일 (로그인 ID)',
+            currentEmailPlaceholder: _lang === 'en' ? 'Enter your current email' : '현재 이메일을 입력하세요',
+            currentPassword: _lang === 'en' ? 'Current Password' : '현재 패스워드',
+            currentPasswordPlaceholder: _lang === 'en' ? 'Enter your current password for verification' : '본인 확인을 위해 현재 패스워드를 입력하세요',
+            changeableHint: _lang === 'en' ? 'Enter only the fields you want to change. Leave blank to keep the current value.' : '변경할 항목만 입력하세요. 비워두면 기존 정보가 유지됩니다.',
+            newEmail: _lang === 'en' ? 'New Email' : '새 이메일',
+            newEmailPlaceholder: _lang === 'en' ? 'New email (optional)' : '변경할 이메일 (선택)',
+            phonePlaceholder2: _lang === 'en' ? 'New phone (optional)' : '변경할 연락처 (선택)',
+            bizPlaceholder2: _lang === 'en' ? '10-digit number (optional)' : '10자리 숫자 (선택)',
+            customerPlaceholder2: _lang === 'en' ? '12-digit number (optional)' : '12자리 숫자 (선택)',
+            customerHint2: _lang === 'en' ? 'Auto-filled from business number or enter manually' : '사업자번호 입력 후 자동 조회되거나 직접 입력',
+            newPassword: _lang === 'en' ? 'New Password' : '새 패스워드',
+            newPasswordPlaceholder: _lang === 'en' ? 'New password (optional, min 6 chars)' : '변경할 패스워드 (선택, 6자 이상)',
+            newPasswordConfirm: _lang === 'en' ? 'Confirm New Password' : '새 패스워드 확인',
+            newPasswordConfirmPlaceholder: _lang === 'en' ? 'Re-enter new password' : '새 패스워드를 다시 입력하세요',
+            save: _lang === 'en' ? 'Save Changes' : '정보 수정',
+            emailAndPasswordRequired: _lang === 'en' ? 'Please enter your current email and password.' : '현재 이메일과 패스워드를 입력해주세요.',
+            newPasswordMismatch: _lang === 'en' ? 'New passwords do not match.' : '새 패스워드가 일치하지 않습니다.',
+            newPasswordTooShort: _lang === 'en' ? 'New password must be at least 6 characters.' : '새 패스워드는 6자 이상이어야 합니다.',
+            noChanges: _lang === 'en' ? 'Please enter at least one field to change.' : '변경할 항목을 하나 이상 입력해주세요.',
+            updateError: _lang === 'en' ? 'An error occurred while updating your profile.' : '정보 수정 처리 중 오류가 발생했습니다.',
+            updateFailed: _lang === 'en' ? 'Failed to update profile.' : '정보 수정에 실패했습니다.',
+            resetTitle: _lang === 'en' ? 'Reset Password' : '패스워드 재설정',
+            resetDesc: _lang === 'en' ? 'Enter the email and name you registered with. Your password will be reset to a temporary one.' : '가입 시 등록한 이메일과 이름을 입력하시면 임시 패스워드로 재설정됩니다.',
+            resetNamePlaceholder: _lang === 'en' ? 'Name used during registration' : '가입 시 등록한 이름',
+            resetEmailPlaceholder: _lang === 'en' ? 'Email used during registration' : '가입 시 등록한 이메일',
+            resetBtn: _lang === 'en' ? 'Reset Password' : '패스워드 재설정',
+            resetSuccessHint: _lang === 'en' ? 'Please change your password after logging in with this temporary password.' : '이 패스워드로 로그인 후 반드시 패스워드를 변경해주세요.',
+            tempPassword: _lang === 'en' ? 'Temporary password: ' : '임시 패스워드: ',
+            resetFailed: _lang === 'en' ? 'Failed to reset password.' : '패스워드 재설정에 실패했습니다.',
+            resetError: _lang === 'en' ? 'An error occurred while processing.' : '처리 중 오류가 발생했습니다.',
+            lookupTitle: _lang === 'en' ? 'Find Customer Number' : '고객번호 찾기',
+            lookupByBiz: _lang === 'en' ? 'Search by Business Number' : '사업자번호로 찾기',
+            lookupByPatent: _lang === 'en' ? 'Search via Patent.go.kr' : '특허로에서 찾기',
+            lookupBizLabel: _lang === 'en' ? 'Business No.' : '사업자번호',
+            lookupBizPlaceholder: _lang === 'en' ? 'e.g. 1234567890' : '예: 1234567890',
+            lookupSearch: _lang === 'en' ? 'Search' : '조회',
+            lookupHint: _lang === 'en' ? "💡 Register your business number and customer number in 'My Profile'" : "💡 '나의 정보수정'에서 사업자번호와 고객번호를 등록하세요",
+            patentDesc: _lang === 'en' ? 'Individual applicants can find their customer number on Patent.go.kr.' : '개인 출원인은 특허로에서 고객번호를 확인할 수 있습니다.',
+            patentLink: _lang === 'en' ? 'Go to Patent.go.kr' : '특허로 바로가기',
+            close: _lang === 'en' ? 'Close' : '닫기',
+            bizMust10: _lang === 'en' ? 'Business number must be 10 digits.' : '사업자번호는 10자리 숫자여야 합니다.',
+            lookupSearching: _lang === 'en' ? 'Searching...' : '조회 중...',
+            lookupNotFound: _lang === 'en' ? 'Customer number not found.' : '고객번호를 찾을 수 없습니다.',
+            lookupFailed: _lang === 'en' ? 'An error occurred during search.' : '조회 중 오류가 발생했습니다.',
+        };
+
+        // Registered/Application page paths based on language
+        const _registeredPath = _lang === 'en' ? '/en/registered' : '/registered';
+        const _applicationPath = _lang === 'en' ? '/en/application' : '/application2';
+        const _homePath = _lang === 'en' ? '/en' : '/';
+
+        // Modal elements
+        const loginModal = document.getElementById('loginModal');
+        const loginBtn = document.getElementById('loginBtn');
+        const closeModal = document.getElementById('closeModal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const registeredBtn = document.getElementById('registeredBtn');
+        const applicationBtn = document.getElementById('applicationBtn');
+
+        // Show modal
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close modal
+        function closeLoginModal() {
+            loginModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            errorMessage.style.display = 'none';
+            loginForm.reset();
+        }
+
+        closeModal.addEventListener('click', closeLoginModal);
+        modalOverlay.addEventListener('click', closeLoginModal);
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && loginModal.style.display === 'block') {
+                closeLoginModal();
+            }
+        });
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeLoginModal();
+                    updateNavigation(true);
+                    window.location.href = _registeredPath;
+                } else {
+                    showError(result.message || _t.loginFailed);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(_t.loginError);
+            }
+        });
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+            fetch('/api/logout').catch(function() {});
+            window.location.href = _homePath + '?logout=1';
+        });
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Update navigation based on login status
+        const myInfoBtn = document.getElementById('myInfoBtn');
+        function updateNavigation(isLoggedIn) {
+            var loginLi = document.getElementById('loginLi');
+            var serviceApplicationLi = document.getElementById('serviceApplicationLi');
+            var myInfoLi = document.getElementById('myInfoLi');
+            var logoutLi = document.getElementById('logoutLi');
+
+            if (isLoggedIn) {
+                loginLi.style.display = 'none';
+                serviceApplicationLi.style.display = 'none';
+                myInfoLi.style.display = '';
+                logoutLi.style.display = '';
+            } else {
+                loginLi.style.display = '';
+                serviceApplicationLi.style.display = '';
+                myInfoLi.style.display = 'none';
+                logoutLi.style.display = 'none';
+            }
+        }
+
+        // Check login status on page load
+        function checkLoginStatus() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('logout') === '1') {
+                document.cookie = 'loginStatus=; Path=/; Max-Age=0';
+                updateNavigation(false);
+                history.replaceState(null, '', _homePath);
+                return;
+            }
+
+            const cookies = document.cookie.split(';');
+            const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
+
+            if (loginCookie && loginCookie.includes('true')) {
+                updateNavigation(true);
+            } else {
+                updateNavigation(false);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+        // 서비스 이용신청 버튼 기능
+        const serviceApplicationBtn = document.getElementById('serviceApplicationBtn');
+        if (serviceApplicationBtn) {
+            serviceApplicationBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showServiceApplicationModal();
+            });
+        }
+
+        // 서비스 이용신청 모달 표시
+        function showServiceApplicationModal() {
+            window.closeServiceApplicationModal = function() {
+                const modal = document.getElementById('serviceApplicationModal');
+                if (modal) {
+                    modal.remove();
+                }
+            };
+
+            const modalHTML = `
+                <div id="serviceApplicationModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div class="modal-content" style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div class="modal-header" style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                            <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">${_t.signUpTitle}</h2>
+                        </div>
+
+                        <div class="guidance-text" style="background: #fef3c7; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #F59E0B;">
+                            <h3 style="color: #0F172A; font-size: 1.2rem; font-weight: 600; margin: 0 0 1rem 0;">${_t.signUpTitle}</h3>
+                            <div style="line-height: 1.6; color: #374151; margin-bottom: 1.5rem;">
+                                <p style="margin: 0 0 0.5rem 0; font-weight: 600;">${_t.signUpDesc}</p>
+                            </div>
+                        </div>
+
+                        <form id="serviceApplicationForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.name} <span style="color: #ef4444;">*</span></label>
+                                <input type="text" name="name" id="name_service" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.namePlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.email} <span style="color: #ef4444;">*</span></label>
+                                <input type="email" name="email" id="email_service" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.emailPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.password} <span style="color: #ef4444;">*</span></label>
+                                <input type="password" name="password" id="password_service" required minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.passwordPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.passwordConfirm} <span style="color: #ef4444;">*</span></label>
+                                <input type="password" name="password_confirm" id="password_confirm_service" required minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.passwordConfirmPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.phone} <span style="color: #ef4444;">*</span></label>
+                                <input type="tel" name="phone" id="phone_service" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.phonePlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.businessNumber}</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" name="business_number" id="business_number_service"
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                           placeholder="${_t.businessPlaceholder}"
+                                           maxlength="10"
+                                           pattern="[0-9]{10}">
+                                    <span id="businessNumberStatus" style="font-size: 0.85rem; color: #6b7280; white-space: nowrap;"></span>
+                                </div>
+                                <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">${_t.businessAutoLookup}</p>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.customerNumber} <span style="color: #ef4444;">*</span></label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" name="customer_number" id="customer_number_service" required
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                           placeholder="${_t.customerPlaceholder}"
+                                           maxlength="12"
+                                           pattern="[0-9]{12}">
+                                    <button type="button" id="findCustomerBtnService" onclick="openLookupWindowService()" style="padding: 0.5rem 1rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap;">${_t.findCustomer}</button>
+                                </div>
+                                <p id="customerNumberHint" style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">${_t.customerHint}</p>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">
+                                <p style="margin: 0 0 0.5rem 0;"><strong>${_t.privacyTitle}</strong></p>
+                                <p style="margin: 0 0 0.5rem 0;">${_t.privacyPurpose}</p>
+                                <p style="margin: 0 0 0.5rem 0;">${_t.privacyItems}</p>
+                                <p style="margin: 0 0 0.75rem 0;">${_t.privacyPeriod}</p>
+                                <label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">
+                                    <input type="checkbox" name="privacy_consent" id="privacy_consent_service" required style="margin-right: 0.5rem; width: 16px; height: 16px;">
+                                    ${_t.privacyAgree}
+                                </label>
+                            </div>
+
+                            <div id="registerErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeServiceApplicationModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.cancel}</button>
+                                <button type="submit" id="registerSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.submit}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            const businessNumberInput = document.getElementById('business_number_service');
+            const customerNumberInput = document.getElementById('customer_number_service');
+            const businessNumberStatus = document.getElementById('businessNumberStatus');
+            const customerNumberHint = document.getElementById('customerNumberHint');
+
+            const findCustomerBtnService = document.getElementById('findCustomerBtnService');
+            businessNumberInput.addEventListener('input', function() {
+                const val = this.value.replace(/[^0-9]/g, '');
+                if (findCustomerBtnService) {
+                    findCustomerBtnService.style.display = val.length > 0 ? 'none' : 'inline-block';
+                }
+            });
+
+            businessNumberInput.addEventListener('blur', async function() {
+                const businessNumber = this.value.replace(/[^0-9]/g, '');
+
+                if (businessNumber.length !== 10) {
+                    if (businessNumber.length > 0) {
+                        businessNumberStatus.textContent = _t.bizMustBe10;
+                        businessNumberStatus.style.color = '#ef4444';
+                    } else {
+                        businessNumberStatus.textContent = '';
+                    }
+                    return;
+                }
+
+                businessNumberStatus.textContent = _t.lookupLoading;
+                businessNumberStatus.style.color = '#6b7280';
+
+                try {
+                    const response = await fetch('/api/lookup-customer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessNumber: businessNumber })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success && result.customerNumber) {
+                        customerNumberInput.value = result.customerNumber;
+                        businessNumberStatus.textContent = _t.lookupDone;
+                        businessNumberStatus.style.color = '#059669';
+                        customerNumberHint.textContent = result.applicantName ?
+                            _t.rightHolder + result.applicantName : _t.customerAutoFilled;
+                        customerNumberHint.style.color = '#059669';
+                    } else {
+                        businessNumberStatus.textContent = _t.lookupNone;
+                        businessNumberStatus.style.color = '#f59e0b';
+                        customerNumberHint.textContent = result.message || _t.enterManually;
+                        customerNumberHint.style.color = '#f59e0b';
+                    }
+                } catch (error) {
+                    console.error('Customer lookup error:', error);
+                    businessNumberStatus.textContent = _t.lookupFail;
+                    businessNumberStatus.style.color = '#ef4444';
+                    customerNumberHint.textContent = _t.enterManually;
+                    customerNumberHint.style.color = '#ef4444';
+                }
+            });
+
+            const serviceForm = document.getElementById('serviceApplicationForm');
+            serviceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const password = document.getElementById('password_service').value;
+                const passwordConfirm = document.getElementById('password_confirm_service').value;
+                const errorDiv = document.getElementById('registerErrorMessage');
+
+                if (password !== passwordConfirm) {
+                    errorDiv.textContent = _t.passwordMismatch;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (password.length < 6) {
+                    errorDiv.textContent = _t.passwordTooShort;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                errorDiv.style.display = 'none';
+                const submitBtn = document.getElementById('registerSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = _t.processing;
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: document.getElementById('name_service').value,
+                            email: document.getElementById('email_service').value,
+                            password: password,
+                            phone: document.getElementById('phone_service').value,
+                            privacy_consent: document.getElementById('privacy_consent_service').checked,
+                            business_number: document.getElementById('business_number_service').value,
+                            customer_number: document.getElementById('customer_number_service').value
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        closeServiceApplicationModal();
+                        window.location.href = '/s_thanks';
+                    } else {
+                        errorDiv.textContent = result.message || _t.signUpFailed;
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = _t.submit;
+                    }
+                } catch (error) {
+                    console.error('Register error:', error);
+                    errorDiv.textContent = _t.signUpError;
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = _t.submit;
+                }
+            });
+        }
+
+        // 나의 정보 수정 버튼 클릭 핸들러
+        myInfoBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showMyInfoModal();
+        });
+
+        // 나의 정보 수정 모달 표시
+        function showMyInfoModal() {
+            window.closeMyInfoModal = function() {
+                const modal = document.getElementById('myInfoModal');
+                if (modal) modal.remove();
+            };
+
+            const modalHTML = `
+                <div id="myInfoModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0;">${_t.myInfoTitle}</h2>
+                            <button type="button" onclick="closeMyInfoModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+                        </div>
+
+                        <form id="myInfoForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.currentEmail}</label>
+                                <input type="email" id="myinfo_current_email" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;"
+                                       placeholder="${_t.currentEmailPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.currentPassword} <span style="color: #ef4444;">*</span></label>
+                                <input type="password" id="myinfo_current_password" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.currentPasswordPlaceholder}">
+                            </div>
+
+                            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0;">
+                            <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">${_t.changeableHint}</p>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.newEmail}</label>
+                                <input type="email" id="myinfo_new_email"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.newEmailPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.phone}</label>
+                                <input type="tel" id="myinfo_phone"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.phonePlaceholder2}">
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.businessNumber}</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" id="myinfo_business_number"
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                           placeholder="${_t.bizPlaceholder2}"
+                                           maxlength="10">
+                                    <span id="myinfo_business_status" style="font-size: 0.85rem; color: #6b7280; white-space: nowrap;"></span>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.customerNumber}</label>
+                                <input type="text" id="myinfo_customer_number"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.customerPlaceholder2}"
+                                       maxlength="12">
+                                <p id="myinfo_customer_hint" style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">${_t.customerHint2}</p>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.newPassword}</label>
+                                <input type="password" id="myinfo_new_password" minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.newPasswordPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.newPasswordConfirm}</label>
+                                <input type="password" id="myinfo_new_password_confirm" minlength="6"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.newPasswordConfirmPlaceholder}">
+                            </div>
+
+                            <div id="myInfoErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+                            <div id="myInfoSuccessMessage" style="display: none; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeMyInfoModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.cancel}</button>
+                                <button type="submit" id="myInfoSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.save}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            const myinfoBusinessInput = document.getElementById('myinfo_business_number');
+            const myinfoCustomerInput = document.getElementById('myinfo_customer_number');
+            const myinfoBusinessStatus = document.getElementById('myinfo_business_status');
+            const myinfoCustomerHint = document.getElementById('myinfo_customer_hint');
+
+            myinfoBusinessInput.addEventListener('blur', async function() {
+                const businessNumber = this.value.replace(/[^0-9]/g, '');
+
+                if (businessNumber.length !== 10) {
+                    if (businessNumber.length > 0) {
+                        myinfoBusinessStatus.textContent = _t.bizMustBe10;
+                        myinfoBusinessStatus.style.color = '#ef4444';
+                    } else {
+                        myinfoBusinessStatus.textContent = '';
+                    }
+                    return;
+                }
+
+                myinfoBusinessStatus.textContent = _t.lookupLoading;
+                myinfoBusinessStatus.style.color = '#6b7280';
+
+                try {
+                    const response = await fetch('/api/lookup-customer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessNumber: businessNumber })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success && result.customerNumber) {
+                        myinfoCustomerInput.value = result.customerNumber;
+                        myinfoBusinessStatus.textContent = _t.lookupDone;
+                        myinfoBusinessStatus.style.color = '#059669';
+                        myinfoCustomerHint.textContent = result.applicantName ?
+                            _t.rightHolder + result.applicantName : _t.customerAutoFilled;
+                        myinfoCustomerHint.style.color = '#059669';
+                    } else {
+                        myinfoBusinessStatus.textContent = _t.lookupNone;
+                        myinfoBusinessStatus.style.color = '#f59e0b';
+                        myinfoCustomerHint.textContent = result.message || _t.enterManually;
+                        myinfoCustomerHint.style.color = '#f59e0b';
+                    }
+                } catch (error) {
+                    console.error('Customer lookup error:', error);
+                    myinfoBusinessStatus.textContent = _t.lookupFail;
+                    myinfoBusinessStatus.style.color = '#ef4444';
+                    myinfoCustomerHint.textContent = _t.enterManually;
+                    myinfoCustomerHint.style.color = '#ef4444';
+                }
+            });
+
+            document.getElementById('myInfoForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const errorDiv = document.getElementById('myInfoErrorMessage');
+                const successDiv = document.getElementById('myInfoSuccessMessage');
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                const currentEmail = document.getElementById('myinfo_current_email').value;
+                const currentPassword = document.getElementById('myinfo_current_password').value;
+                const newEmail = document.getElementById('myinfo_new_email').value;
+                const phone = document.getElementById('myinfo_phone').value;
+                const businessNumber = document.getElementById('myinfo_business_number').value;
+                const customerNumber = document.getElementById('myinfo_customer_number').value;
+                const newPassword = document.getElementById('myinfo_new_password').value;
+                const newPasswordConfirm = document.getElementById('myinfo_new_password_confirm').value;
+
+                if (!currentEmail || !currentPassword) {
+                    errorDiv.textContent = _t.emailAndPasswordRequired;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (newPassword && newPassword !== newPasswordConfirm) {
+                    errorDiv.textContent = _t.newPasswordMismatch;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (newPassword && newPassword.length < 6) {
+                    errorDiv.textContent = _t.newPasswordTooShort;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                if (!newEmail && !phone && !newPassword && !businessNumber && !customerNumber) {
+                    errorDiv.textContent = _t.noChanges;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                const submitBtn = document.getElementById('myInfoSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = _t.processing;
+
+                try {
+                    const response = await fetch('/api/update-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            current_email: currentEmail,
+                            current_password: currentPassword,
+                            new_email: newEmail || undefined,
+                            phone: phone || undefined,
+                            business_number: businessNumber || undefined,
+                            customer_number: customerNumber || undefined,
+                            new_password: newPassword || undefined
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successDiv.textContent = result.message || (_lang === 'en' ? 'Profile updated successfully.' : '정보가 수정되었습니다.');
+                        successDiv.style.display = 'block';
+                        submitBtn.textContent = _t.save;
+                        submitBtn.disabled = false;
+                    } else {
+                        errorDiv.textContent = result.message || _t.updateFailed;
+                        errorDiv.style.display = 'block';
+                        submitBtn.textContent = _t.save;
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Update profile error:', error);
+                    errorDiv.textContent = _t.updateError;
+                    errorDiv.style.display = 'block';
+                    submitBtn.textContent = _t.save;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        // 패스워드 찾기 모달 표시
+        function showResetPasswordModal() {
+            window.closeResetPasswordModal = function() {
+                const modal = document.getElementById('resetPasswordModal');
+                if (modal) modal.remove();
+            };
+
+            const modalHTML = `
+                <div id="resetPasswordModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1100;">
+                    <div style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="color: #0F172A; font-size: 1.3rem; font-weight: 700; margin: 0;">${_t.resetTitle}</h2>
+                            <button type="button" onclick="closeResetPasswordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+                        </div>
+
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">${_t.resetDesc}</p>
+
+                        <form id="resetPasswordForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.email} <span style="color: #ef4444;">*</span></label>
+                                <input type="email" id="reset_email" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.resetEmailPlaceholder}">
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.name} <span style="color: #ef4444;">*</span></label>
+                                <input type="text" id="reset_name" required
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
+                                       placeholder="${_t.resetNamePlaceholder}">
+                            </div>
+
+                            <div id="resetErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+                            <div id="resetSuccessMessage" style="display: none; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" onclick="closeResetPasswordModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.cancel}</button>
+                                <button type="submit" id="resetSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">${_t.resetBtn}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const errorDiv = document.getElementById('resetErrorMessage');
+                const successDiv = document.getElementById('resetSuccessMessage');
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+
+                const submitBtn = document.getElementById('resetSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = _t.processing;
+
+                try {
+                    const response = await fetch('/api/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: document.getElementById('reset_email').value,
+                            name: document.getElementById('reset_name').value
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successDiv.innerHTML = _t.tempPassword + '<strong>' + result.temp_password + '</strong><br>' + _t.resetSuccessHint;
+                        successDiv.style.display = 'block';
+                        submitBtn.style.display = 'none';
+                    } else {
+                        errorDiv.textContent = result.message || _t.resetFailed;
+                        errorDiv.style.display = 'block';
+                        submitBtn.textContent = _t.resetBtn;
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    errorDiv.textContent = _t.resetError;
+                    errorDiv.style.display = 'block';
+                    submitBtn.textContent = _t.resetBtn;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        // 로그인 상태 확인 함수
+        function isLoggedIn() {
+            const cookies = document.cookie.split(';');
+            const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
+            return loginCookie && loginCookie.includes('true');
+        }
+
+        // 등록특허 현황 클릭 핸들러
+        registeredBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                window.location.href = _registeredPath;
+            } else {
+                alert(_t.loginRequired);
+            }
+        });
+
+        // 출원특허 현황 클릭 핸들러
+        applicationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                window.location.href = _applicationPath;
+            } else {
+                alert(_t.loginRequired);
+            }
+        });
+
+        // 특허검색 버튼 클릭 핸들러
+        const ctaButton = document.querySelector('.cta-button');
+        if (ctaButton) {
+            ctaButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+    // 서비스 이용신청 - 고객번호 찾기 팝업
+    function openLookupWindowService() {
+        var w = 420, h = 400;
+        var left = (screen.width - w) / 2;
+        var top = (screen.height - h) / 2;
+        var popup = window.open('', 'lookupCustomer', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=no,resizable=no');
+
+        popup.document.write(
+            '<!DOCTYPE html><html lang="' + (_lang === 'en' ? 'en' : 'ko') + '"><head><meta charset="UTF-8">' +
+            '<title>' + _t.lookupTitle + '</title>' +
+            '<style>' +
+            'body{font-family:"Noto Sans KR",sans-serif;margin:0;padding:1.5rem;background:#f9fafb;}' +
+            'h3{margin:0 0 1rem;color:#1f2937;font-size:1.1rem;}' +
+            '.radio-row{display:flex;gap:1.5rem;margin-bottom:1rem;padding:0.6rem 0.75rem;background:#fff;border:1px solid #e5e7eb;border-radius:6px;}' +
+            '.radio-row label{font-weight:500;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;}' +
+            '.row{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}' +
+            'label{font-weight:500;font-size:0.9rem;white-space:nowrap;}' +
+            'input[type="text"]{padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:4px;font-size:0.95rem;width:160px;}' +
+            '.btn{padding:0.5rem 1rem;border:none;border-radius:4px;cursor:pointer;font-size:0.9rem;font-weight:500;}' +
+            '.btn-search{background:#F59E0B;color:white;}' +
+            '.btn-patent{background:#3B82F6;color:white;width:100%;padding:0.6rem;}' +
+            '.btn-close{background:#6b7280;color:white;width:100%;margin-top:1rem;padding:0.6rem;}' +
+            '#result{margin-top:0.75rem;padding:0.75rem;border-radius:6px;display:none;}' +
+            '.hint{margin-top:0.75rem;font-size:0.82rem;color:#6b7280;}' +
+            '</style></head><body>' +
+            '<h3>' + _t.lookupTitle + '</h3>' +
+            '<div class="radio-row">' +
+            '<label><input type="radio" name="lookupType" value="biz" checked onchange="switchType()"> ' + _t.lookupByBiz + '</label>' +
+            '<label><input type="radio" name="lookupType" value="patent" onchange="switchType()"> ' + _t.lookupByPatent + '</label>' +
+            '</div>' +
+            '<div id="bizSection">' +
+            '<div class="row">' +
+            '<label>' + _t.lookupBizLabel + '</label>' +
+            '<input type="text" id="bizNum" placeholder="' + _t.lookupBizPlaceholder + '" maxlength="10">' +
+            '<button class="btn btn-search" onclick="doLookup()">' + _t.lookupSearch + '</button>' +
+            '</div>' +
+            '<div id="result"></div>' +
+            '<div class="hint">' + _t.lookupHint + '</div>' +
+            '</div>' +
+            '<div id="patentSection" style="display:none;">' +
+            '<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">' + _t.patentDesc + '</p>' +
+            '<button class="btn btn-patent" onclick="var pw=900,ph=700,pl=(screen.width-pw)/2,pt=(screen.height-ph)/2;window.open(\'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do\',\'patentro\',\'width=\'+pw+\',height=\'+ph+\',left=\'+pl+\',top=\'+pt+\',scrollbars=yes,resizable=yes\')">' + _t.patentLink + '</button>' +
+            '</div>' +
+            '<button class="btn btn-close" onclick="window.close()">' + _t.close + '</button>' +
+            '<script>' +
+            'function switchType(){' +
+            '  var v=document.querySelector("input[name=lookupType]:checked").value;' +
+            '  document.getElementById("bizSection").style.display=v==="biz"?"block":"none";' +
+            '  document.getElementById("patentSection").style.display=v==="patent"?"block":"none";' +
+            '}' +
+            'async function doLookup(){' +
+            '  var num=document.getElementById("bizNum").value.replace(/[^0-9]/g,"");' +
+            '  var rd=document.getElementById("result");' +
+            '  if(num.length!==10){rd.style.display="block";rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">' + _t.bizMust10 + '</span>";return;}' +
+            '  rd.style.display="block";rd.style.background="#f3f4f6";rd.innerHTML="<span style=\\"color:#6b7280\\">' + _t.lookupSearching + '</span>";' +
+            '  try{' +
+            '    var res=await fetch("/api/lookup-customer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({businessNumber:num})});' +
+            '    var data=await res.json();' +
+            '    if(data.success&&data.customerNumber){' +
+            '      rd.style.background="#ecfdf5";' +
+            '      rd.innerHTML="<span style=\\"color:#16a34a;font-weight:600\\">' + (_lang === 'en' ? 'Customer No: ' : '고객번호: ') + '"+data.customerNumber+"</span>"+(data.applicantName?" <span style=\\"color:#374151\\">(' + _t.applicantName + '"+data.applicantName+")</span>":"");' +
+            '      if(window.opener&&!window.opener.closed){var el=window.opener.document.getElementById("customer_number_service");if(el)el.value=data.customerNumber;}' +
+            '    }else{' +
+            '      rd.style.background="#fef2f2";' +
+            '      rd.innerHTML="<span style=\\"color:#ef4444\\">"+(data.message||"' + _t.lookupNotFound + '")+"</span>";' +
+            '    }' +
+            '  }catch(e){rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">' + _t.lookupFailed + '</span>";}' +
+            '}' +
+            '<\/script></body></html>'
+        );
+        popup.document.close();
+    }
+    </script>
+
+    <!-- Modal Styles -->
+    <style>
+        /* Hero Section Overlay */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.03);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+        }
+
+        .login-submit-btn {
+            width: 100%;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .login-submit-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .login-submit-btn:active {
+            background-color: #1d4ed8;
+        }
+
+        .service-notice {
+            margin-top: 16px;
+            padding: 12px;
+            background-color: #f3f4f6;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .service-notice p {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+    </style>
+
+    <script src="/js/script.js"></script>
+
+    <!-- Service Worker 등록 -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        });
+    }
+    </script>
+</body>
+</html>

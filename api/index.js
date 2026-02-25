@@ -42,18 +42,18 @@ function refreshSession(req, res) {
     }
 }
 
-function serveIndexFile(res) {
+async function serveIndexEjs(res, lang) {
     try {
-        const indexPath = path.join(__dirname, '..', 'views', 'index.html');
+        const indexPath = path.join(__dirname, '..', 'views', 'index.ejs');
         if (fs.existsSync(indexPath)) {
-            const html = fs.readFileSync(indexPath, 'utf8');
+            const html = await ejs.renderFile(indexPath, { lang: lang || 'ko' }, { cache: false });
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.send(html);
             return true;
         }
         return false;
     } catch (error) {
-        console.error('Error serving index.html:', error);
+        console.error('Error serving index.ejs:', error);
         return false;
     }
 }
@@ -405,13 +405,24 @@ module.exports = async (req, res) => {
         // Route handling
         console.log('📍 라우팅 처리 중:', url);
 
-        // Main page - serve index.html
+        // Main page - Korean
         if (url === '/') {
-            console.log('🏠 메인 페이지 요청: index.html 서빙');
-            if (serveIndexFile(res)) {
+            console.log('🏠 메인 페이지 요청: index.ejs (ko)');
+            if (await serveIndexEjs(res, 'ko')) {
                 return;
             } else {
-                res.status(404).send('index.html not found');
+                res.status(404).send('index.ejs not found');
+                return;
+            }
+        }
+
+        // Main page - English
+        if (url === '/en' || url === '/en/') {
+            console.log('🌐 English main page: index.ejs (en)');
+            if (await serveIndexEjs(res, 'en')) {
+                return;
+            } else {
+                res.status(404).send('index.ejs not found');
                 return;
             }
         }
@@ -419,6 +430,7 @@ module.exports = async (req, res) => {
         // Initialize variables
         let viewName = '404';
         let title = '페이지를 찾을 수 없습니다';
+        let lang = 'ko';
 
         // 사용자 사업자번호/고객번호 조회 함수
         async function getUserNumbers(req) {
@@ -462,6 +474,21 @@ module.exports = async (req, res) => {
             const userNumbers = await getUserNumbers(req);
             userBusinessNumber = userNumbers.businessNumber;
             userCustomerNumber = userNumbers.customerNumber;
+        } else if (url === '/en/registered' || url === '/en/registered/') {
+            if (!isAuthenticated(req)) {
+                console.log('🔒 Auth required: redirecting to login');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                res.setHeader('Location', '/en?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+            viewName = 'registered';
+            title = 'Registered Patents';
+            lang = 'en';
+            const userNumbers = await getUserNumbers(req);
+            userBusinessNumber = userNumbers.businessNumber;
+            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/application' || url === '/application/' || url === '/application2' || url === '/application2/') {
             if (!isAuthenticated(req)) {
                 console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
@@ -473,6 +500,21 @@ module.exports = async (req, res) => {
             res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'application2';
             title = '출원특허 현황';
+            const userNumbers = await getUserNumbers(req);
+            userBusinessNumber = userNumbers.businessNumber;
+            userCustomerNumber = userNumbers.customerNumber;
+        } else if (url === '/en/application' || url === '/en/application/') {
+            if (!isAuthenticated(req)) {
+                console.log('🔒 Auth required: redirecting to login');
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                res.setHeader('Location', '/en?loginRequired=true');
+                res.status(302).end();
+                return;
+            }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+            viewName = 'application2';
+            title = 'Patent Applications';
+            lang = 'en';
             const userNumbers = await getUserNumbers(req);
             userBusinessNumber = userNumbers.businessNumber;
             userCustomerNumber = userNumbers.customerNumber;
@@ -586,6 +628,7 @@ module.exports = async (req, res) => {
 
         const html = await ejs.renderFile(viewPath, {
             title: title,
+            lang: lang,
             userBusinessNumber: userBusinessNumber || '',
             userCustomerNumber: userCustomerNumber || '',
         }, ejsOptions);

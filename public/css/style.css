@@ -4,6 +4,25 @@
     box-sizing: border-box;
 }
 
+/* Language Bar */
+.lang-bar {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    text-align: right;
+    padding: 4px 2rem;
+    font-size: 0.78rem;
+}
+.lang-bar a {
+    color: #555;
+    text-decoration: none;
+    margin-left: 10px;
+    font-weight: 400;
+    transition: color 0.2s;
+}
+.lang-bar a:hover { color: #111; }
+.lang-bar a.active { color: #111; font-weight: 600; }
+.lang-bar span { color: #ccc; margin-left: 10px; }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;

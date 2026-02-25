@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="<%= lang === 'en' ? 'en' : 'ko' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
+    <% if (lang === 'en') { %>
+    <title>Registered Patents - Unic Patent Office</title>
+    <meta name="description" content="Unic Patent Office patent status inquiry system">
+    <meta name="keywords" content="patent, patent office, patent status, registered patent, patent application, Unic">
+    <meta name="author" content="Unic Patent Office">
+    <meta property="og:title" content="Registered Patents - Unic Patent Office">
+    <meta property="og:description" content="Unic Patent Office patent status inquiry system">
+    <% } else { %>
     <title><%= title %> - 유니크 특허사무소</title>
-
-    <!-- SEO Meta Tags -->
     <meta name="description" content="유니크 특허사무소 특허 현황 조회 시스템">
     <meta name="keywords" content="특허, 특허사무소, 특허 현황, 등록특허, 출원특허, 유니크">
     <meta name="author" content="유니크 특허사무소">
-
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="<%= title %> - 유니크 특허사무소">
     <meta property="og:description" content="유니크 특허사무소 특허 현황 조회 시스템">
+    <% } %>
+    <link rel="alternate" hreflang="ko" href="https://www.ipbot1.com/registered">
+    <link rel="alternate" hreflang="en" href="https://www.ipbot1.com/en/registered">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://unicpat.com">
 
@@ -41,21 +48,28 @@
     <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 </head>
 <body>
+    <!-- Language Bar -->
+    <div class="lang-bar">
+        <a href="/registered" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
+        <span>|</span>
+        <a href="/en/registered" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
+    </div>
+
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">
-                    유니크<span>특허</span>
+                <a href="<%= lang === 'en' ? '/en' : '/' %>" class="logo">
+                    Unic<span><%= lang === 'en' ? 'Patent' : '특허' %></span>
                 </a>
-                <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                <button class="hamburger" id="hamburgerBtn" aria-label="<%= lang === 'en' ? 'Open menu' : '메뉴 열기' %>">
                     <span></span><span></span><span></span>
                 </button>
                 <nav class="nav-tabs" id="navTabs">
-                    <a href="/registered" class="nav-link">등록특허 현황</a>
-                    <a href="/application2" class="nav-link">출원특허 현황</a>
-                    <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 홈페이지</a>
-                    <a href="javascript:void(0)" class="nav-link" id="myInfoBtn">나의 정보 수정</a>
-                    <a href="javascript:void(0)" class="nav-link" id="logoutBtn">로그아웃</a>
+                    <a href="<%= lang === 'en' ? '/en/registered' : '/registered' %>" class="nav-link"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a>
+                    <a href="<%= lang === 'en' ? '/en/application' : '/application2' %>" class="nav-link"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a>
+                    <a href="https://www.unicpat.com" class="nav-link" target="_blank"><%= lang === 'en' ? 'Unic Website' : '유니크 홈페이지' %></a>
+                    <a href="javascript:void(0)" class="nav-link" id="myInfoBtn"><%= lang === 'en' ? 'My Profile' : '나의 정보 수정' %></a>
+                    <a href="javascript:void(0)" class="nav-link" id="logoutBtn"><%= lang === 'en' ? 'Logout' : '로그아웃' %></a>
                 </nav>
             </div>
         </div>
@@ -64,8 +78,8 @@
 <main class="main-content">
     <div class="container">
         <div class="page-title">
-            <h1>등록특허 현황</h1>
-            <p>고객번호로 등록된 특허 목록을 조회합니다</p>
+            <h1><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></h1>
+            <p><%= lang === 'en' ? 'View the list of registered patents by customer number' : '고객번호로 등록된 특허 목록을 조회합니다' %></p>
         </div>
 
         <!-- 검색 섹션 (압축 레이아웃) -->
