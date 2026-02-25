@@ -272,55 +272,56 @@
             if (modal) modal.remove();
         };
 
+        var _isEnM = window._lang === 'en';
         var modalHTML = '<div id="myInfoModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">' +
             '<div style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">' +
                 '<div style="border-bottom: 2px solid #F59E0B; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">' +
-                    '<h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0;">나의 정보 수정</h2>' +
+                    '<h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0;">' + (_isEnM ? 'My Profile' : '나의 정보 수정') + '</h2>' +
                     '<button type="button" onclick="closeMyInfoModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>' +
                 '</div>' +
                 '<form id="myInfoForm">' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">현재 이메일 (로그인 ID)</label>' +
-                        '<input type="email" id="myinfo_current_email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;" placeholder="현재 이메일을 입력하세요">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Current Email (Login ID)' : '현재 이메일 (로그인 ID)') + '</label>' +
+                        '<input type="email" id="myinfo_current_email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;" placeholder="' + (_isEnM ? 'Enter your current email' : '현재 이메일을 입력하세요') + '">' +
                     '</div>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">현재 패스워드 <span style="color: #ef4444;">*</span></label>' +
-                        '<input type="password" id="myinfo_current_password" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="본인 확인을 위해 현재 패스워드를 입력하세요">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Current Password' : '현재 패스워드') + ' <span style="color: #ef4444;">*</span></label>' +
+                        '<input type="password" id="myinfo_current_password" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? 'Enter current password for verification' : '본인 확인을 위해 현재 패스워드를 입력하세요') + '">' +
                     '</div>' +
                     '<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0;">' +
-                    '<p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">변경할 항목만 입력하세요. 비워두면 기존 정보가 유지됩니다.</p>' +
+                    '<p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">' + (_isEnM ? 'Fill in only the fields you wish to update. Leave blank to keep existing info.' : '변경할 항목만 입력하세요. 비워두면 기존 정보가 유지됩니다.') + '</p>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 이메일</label>' +
-                        '<input type="email" id="myinfo_new_email" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="변경할 이메일 (선택)">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'New Email' : '새 이메일') + '</label>' +
+                        '<input type="email" id="myinfo_new_email" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? 'New email (optional)' : '변경할 이메일 (선택)') + '">' +
                     '</div>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처</label>' +
-                        '<input type="tel" id="myinfo_phone" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="변경할 연락처 (선택)">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Phone' : '연락처') + '</label>' +
+                        '<input type="tel" id="myinfo_phone" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? 'New phone (optional)' : '변경할 연락처 (선택)') + '">' +
                     '</div>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">사업자번호</label>' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Business No.' : '사업자번호') + '</label>' +
                         '<div style="display: flex; gap: 0.5rem;">' +
-                            '<input type="text" id="myinfo_business_number" maxlength="10" style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="10자리 숫자 (선택)">' +
-                            '<button type="button" id="myinfo_lookup_btn" style="padding: 0.75rem 1rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">고객번호 조회</button>' +
+                            '<input type="text" id="myinfo_business_number" maxlength="10" style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? '10-digit number (optional)' : '10자리 숫자 (선택)') + '">' +
+                            '<button type="button" id="myinfo_lookup_btn" style="padding: 0.75rem 1rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">' + (_isEnM ? 'Find Customer No.' : '고객번호 조회') + '</button>' +
                         '</div>' +
                     '</div>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호</label>' +
-                        '<input type="text" id="myinfo_customer_number" maxlength="12" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;" placeholder="12자리 숫자 (자동 조회됨)" readonly>' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Customer No.' : '고객번호') + '</label>' +
+                        '<input type="text" id="myinfo_customer_number" maxlength="12" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; background: #f9fafb;" placeholder="' + (_isEnM ? '12-digit number (auto-filled)' : '12자리 숫자 (자동 조회됨)') + '" readonly>' +
                     '</div>' +
                     '<div style="margin-bottom: 1rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 패스워드</label>' +
-                        '<input type="password" id="myinfo_new_password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="변경할 패스워드 (선택, 6자 이상)">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'New Password' : '새 패스워드') + '</label>' +
+                        '<input type="password" id="myinfo_new_password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? 'New password (optional, min. 6 chars)' : '변경할 패스워드 (선택, 6자 이상)') + '">' +
                     '</div>' +
                     '<div style="margin-bottom: 1.5rem;">' +
-                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">새 패스워드 확인</label>' +
-                        '<input type="password" id="myinfo_new_password_confirm" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="새 패스워드를 다시 입력하세요">' +
+                        '<label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEnM ? 'Confirm New Password' : '새 패스워드 확인') + '</label>' +
+                        '<input type="password" id="myinfo_new_password_confirm" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;" placeholder="' + (_isEnM ? 'Re-enter new password' : '새 패스워드를 다시 입력하세요') + '">' +
                     '</div>' +
                     '<div id="myInfoErrorMessage" style="display: none; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>' +
                     '<div id="myInfoSuccessMessage" style="display: none; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;"></div>' +
                     '<div style="display: flex; gap: 1rem; justify-content: flex-end;">' +
-                        '<button type="button" onclick="closeMyInfoModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>' +
-                        '<button type="submit" id="myInfoSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">정보 수정</button>' +
+                        '<button type="button" onclick="closeMyInfoModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">' + (_isEnM ? 'Cancel' : '취소') + '</button>' +
+                        '<button type="submit" id="myInfoSubmitBtn" style="padding: 0.75rem 1.5rem; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">' + (_isEnM ? 'Save Changes' : '정보 수정') + '</button>' +
                     '</div>' +
                 '</form>' +
             '</div>' +
@@ -342,18 +343,19 @@
             var newPassword = document.getElementById('myinfo_new_password').value;
             var newPasswordConfirm = document.getElementById('myinfo_new_password_confirm').value;
 
+            var _isEnForm = window._lang === 'en';
             if (!currentEmail || !currentPassword) {
-                errorDiv.textContent = '현재 이메일과 패스워드를 입력해주세요.';
+                errorDiv.textContent = _isEnForm ? 'Please enter your current email and password.' : '현재 이메일과 패스워드를 입력해주세요.';
                 errorDiv.style.display = 'block';
                 return;
             }
             if (newPassword && newPassword !== newPasswordConfirm) {
-                errorDiv.textContent = '새 패스워드가 일치하지 않습니다.';
+                errorDiv.textContent = _isEnForm ? 'New passwords do not match.' : '새 패스워드가 일치하지 않습니다.';
                 errorDiv.style.display = 'block';
                 return;
             }
             if (newPassword && newPassword.length < 6) {
-                errorDiv.textContent = '새 패스워드는 6자 이상이어야 합니다.';
+                errorDiv.textContent = _isEnForm ? 'New password must be at least 6 characters.' : '새 패스워드는 6자 이상이어야 합니다.';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -361,14 +363,14 @@
             var customerNumber = document.getElementById('myinfo_customer_number').value.trim();
 
             if (!newEmail && !phone && !newPassword && !businessNumber && !customerNumber) {
-                errorDiv.textContent = '변경할 항목을 하나 이상 입력해주세요.';
+                errorDiv.textContent = _isEnForm ? 'Please fill in at least one field to update.' : '변경할 항목을 하나 이상 입력해주세요.';
                 errorDiv.style.display = 'block';
                 return;
             }
 
             var submitBtn = document.getElementById('myInfoSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = '처리 중...';
+            submitBtn.textContent = _isEnForm ? 'Saving...' : '처리 중...';
 
             try {
                 var response = await fetch('/api/update-profile', {
@@ -386,17 +388,17 @@
                 });
                 var result = await response.json();
                 if (result.success) {
-                    successDiv.textContent = result.message || '정보가 수정되었습니다.';
+                    successDiv.textContent = result.message || (_isEnForm ? 'Profile updated successfully.' : '정보가 수정되었습니다.');
                     successDiv.style.display = 'block';
                 } else {
-                    errorDiv.textContent = result.message || '정보 수정에 실패했습니다.';
+                    errorDiv.textContent = result.message || (_isEnForm ? 'Failed to update profile.' : '정보 수정에 실패했습니다.');
                     errorDiv.style.display = 'block';
                 }
             } catch (error) {
-                errorDiv.textContent = '정보 수정 처리 중 오류가 발생했습니다.';
+                errorDiv.textContent = _isEnForm ? 'An error occurred while updating profile.' : '정보 수정 처리 중 오류가 발생했습니다.';
                 errorDiv.style.display = 'block';
             }
-            submitBtn.textContent = '정보 수정';
+            submitBtn.textContent = _isEnForm ? 'Save Changes' : '정보 수정';
             submitBtn.disabled = false;
         });
 
@@ -408,21 +410,22 @@
 
             errorDiv.style.display = 'none';
 
+            var _isEnLookup = window._lang === 'en';
             if (!businessNumber) {
-                errorDiv.textContent = '사업자번호를 입력해주세요.';
+                errorDiv.textContent = _isEnLookup ? 'Please enter your Business No.' : '사업자번호를 입력해주세요.';
                 errorDiv.style.display = 'block';
                 return;
             }
 
             if (!/^\d{10}$/.test(businessNumber)) {
-                errorDiv.textContent = '사업자번호는 10자리 숫자여야 합니다.';
+                errorDiv.textContent = _isEnLookup ? 'Business No. must be a 10-digit number.' : '사업자번호는 10자리 숫자여야 합니다.';
                 errorDiv.style.display = 'block';
                 return;
             }
 
             var lookupBtn = this;
             lookupBtn.disabled = true;
-            lookupBtn.textContent = '조회 중...';
+            lookupBtn.textContent = _isEnLookup ? 'Searching...' : '조회 중...';
 
             try {
                 var response = await fetch('/api/lookup-customer', {
@@ -436,16 +439,16 @@
                     customerNumberInput.value = result.customer_number;
                     customerNumberInput.style.backgroundColor = '#ecfdf5';
                 } else {
-                    errorDiv.textContent = result.message || '고객번호를 찾을 수 없습니다.';
+                    errorDiv.textContent = result.message || (_isEnLookup ? 'Customer No. not found.' : '고객번호를 찾을 수 없습니다.');
                     errorDiv.style.display = 'block';
                 }
             } catch (error) {
-                errorDiv.textContent = '고객번호 조회 중 오류가 발생했습니다.';
+                errorDiv.textContent = _isEnLookup ? 'An error occurred during lookup.' : '고객번호 조회 중 오류가 발생했습니다.';
                 errorDiv.style.display = 'block';
             }
 
             lookupBtn.disabled = false;
-            lookupBtn.textContent = '고객번호 조회';
+            lookupBtn.textContent = _isEnLookup ? 'Find Customer No.' : '고객번호 조회';
         });
     }
     </script>
@@ -966,63 +969,64 @@ function showDiscountSelectionModal() {
         existingModal.remove();
     }
 
+    const _isEn = window._lang === 'en';
     const modalHTML = `
         <div id="discountModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
             <div class="modal-content" style="background: white; border-radius: 12px; padding: 2rem; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px rgba(0,0,0,0.15);">
                 <div class="modal-header" style="border-bottom: 2px solid #54B435; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                    <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">🧮 연차료 계산</h2>
-                    <p style="color: #64748B; font-size: 0.95rem; margin: 0.5rem 0 0 0; text-align: center;">감면유형을 선택해주세요</p>
+                    <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">🧮 ${_isEn ? 'Patent Annuity Calculation' : '연차료 계산'}</h2>
+                    <p style="color: #64748B; font-size: 0.95rem; margin: 0.5rem 0 0 0; text-align: center;">${_isEn ? 'Select reduction type' : '감면유형을 선택해주세요'}</p>
                 </div>
-                
+
                 <div class="discount-selection" style="margin-bottom: 2rem;">
-                    <h3 style="color: #374151; font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0;">아래 해당할 경우 체크표시하세요</h3>
-                    
+                    <h3 style="color: #374151; font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0;">${_isEn ? 'Check all that apply' : '아래 해당할 경우 체크표시하세요'}</h3>
+
                     <div class="discount-options" style="space-y: 0.75rem;">
                         <label class="discount-option" style="display: flex; align-items: flex-start; padding: 1rem; border: 2px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                             <input type="radio" name="discountType" value="type1" style="margin: 0.25rem 1rem 0 0; width: 18px; height: 18px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">개인/중소기업/공공연구기관/전담조직/지방자치단체</div>
-                                <div style="font-size: 0.9rem; color: #6B7280;">4년차부터 존속기간까지 50% 감면</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${_isEn ? 'Individual / SME / Public Research Institute / Local Government' : '개인/중소기업/공공연구기관/전담조직/지방자치단체'}</div>
+                                <div style="font-size: 0.9rem; color: #6B7280;">${_isEn ? '50% reduction from Year 4 to patent term end' : '4년차부터 존속기간까지 50% 감면'}</div>
                             </div>
                         </label>
-                        
+
                         <label class="discount-option" style="display: flex; align-items: flex-start; padding: 1rem; border: 2px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                             <input type="radio" name="discountType" value="type1_1" style="margin: 0.25rem 1rem 0 0; width: 18px; height: 18px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">중소기업 + 직무발명보상우수기업/지식재산경영인증기업</div>
-                                <div style="font-size: 0.9rem; color: #6B7280;">4~9년차 70% 감면, 10년차부터 존속기간까지 50% 감면</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${_isEn ? 'SME + Excellent Employee Invention / IP-Certified Company' : '중소기업 + 직무발명보상우수기업/지식재산경영인증기업'}</div>
+                                <div style="font-size: 0.9rem; color: #6B7280;">${_isEn ? '70% reduction Year 4–9, 50% from Year 10 onward' : '4~9년차 70% 감면, 10년차부터 존속기간까지 50% 감면'}</div>
                             </div>
                         </label>
-                        
+
                         <label class="discount-option" style="display: flex; align-items: flex-start; padding: 1rem; border: 2px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                             <input type="radio" name="discountType" value="type2" style="margin: 0.25rem 1rem 0 0; width: 18px; height: 18px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">중견기업</div>
-                                <div style="font-size: 0.9rem; color: #6B7280;">4~9년차 30% 감면</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${_isEn ? 'Mid-sized Enterprise' : '중견기업'}</div>
+                                <div style="font-size: 0.9rem; color: #6B7280;">${_isEn ? '30% reduction Year 4–9' : '4~9년차 30% 감면'}</div>
                             </div>
                         </label>
-                        
+
                         <label class="discount-option" style="display: flex; align-items: flex-start; padding: 1rem; border: 2px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                             <input type="radio" name="discountType" value="type2_1" style="margin: 0.25rem 1rem 0 0; width: 18px; height: 18px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">중견기업 + 직무발명보상우수기업/지식재산경영인증기업</div>
-                                <div style="font-size: 0.9rem; color: #6B7280;">4~9년차 50% 감면</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${_isEn ? 'Mid-sized Enterprise + Excellent Employee Invention / IP-Certified' : '중견기업 + 직무발명보상우수기업/지식재산경영인증기업'}</div>
+                                <div style="font-size: 0.9rem; color: #6B7280;">${_isEn ? '50% reduction Year 4–9' : '4~9년차 50% 감면'}</div>
                             </div>
                         </label>
-                        
+
                         <label class="discount-option" style="display: flex; align-items: flex-start; padding: 1rem; border: 2px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
                             <input type="radio" name="discountType" value="none" style="margin: 0.25rem 1rem 0 0; width: 18px; height: 18px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">해당사항 없음</div>
-                                <div style="font-size: 0.9rem; color: #6B7280;">감면 대상이 아닙니다</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${_isEn ? 'None of the above' : '해당사항 없음'}</div>
+                                <div style="font-size: 0.9rem; color: #6B7280;">${_isEn ? 'No reduction applies' : '감면 대상이 아닙니다'}</div>
                             </div>
                         </label>
                     </div>
                 </div>
-                
+
                 <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button type="button" id="discountCancelBtn" style="padding: 0.75rem 1.5rem; border: 1px solid #D1D5DB; background: white; color: #374151; border-radius: 6px; cursor: pointer; font-weight: 500;">취소</button>
-                    <button type="button" id="discountCalculateBtn" style="padding: 0.75rem 1.5rem; background: #54B435; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">계산하기</button>
+                    <button type="button" id="discountCancelBtn" style="padding: 0.75rem 1.5rem; border: 1px solid #D1D5DB; background: white; color: #374151; border-radius: 6px; cursor: pointer; font-weight: 500;">${_isEn ? 'Cancel' : '취소'}</button>
+                    <button type="button" id="discountCalculateBtn" style="padding: 0.75rem 1.5rem; background: #54B435; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">${_isEn ? 'Calculate' : '계산하기'}</button>
                 </div>
             </div>
         </div>
@@ -1551,9 +1555,10 @@ function openLookupWindow() {
     var top = (screen.height - h) / 2;
     var popup = window.open('', 'lookupCustomer', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=no,resizable=no');
 
+    const _isEnPopup = window._lang === 'en';
     popup.document.write(
-        '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">' +
-        '<title>고객번호 찾기</title>' +
+        '<!DOCTYPE html><html lang="' + (_isEnPopup ? 'en' : 'ko') + '"><head><meta charset="UTF-8">' +
+        '<title>' + (_isEnPopup ? 'Find Customer No.' : '고객번호 찾기') + '</title>' +
         '<style>' +
         'body{font-family:"Noto Sans KR",sans-serif;margin:0;padding:1.5rem;background:#f9fafb;}' +
         'h3{margin:0 0 1rem;color:#1f2937;font-size:1.1rem;}' +
@@ -1569,26 +1574,27 @@ function openLookupWindow() {
         '#result{margin-top:0.75rem;padding:0.75rem;border-radius:6px;display:none;}' +
         '.hint{margin-top:0.75rem;font-size:0.82rem;color:#6b7280;}' +
         '</style></head><body>' +
-        '<h3>고객번호 찾기</h3>' +
+        '<h3>' + (_isEnPopup ? 'Find Customer No.' : '고객번호 찾기') + '</h3>' +
         '<div class="radio-row">' +
-        '<label><input type="radio" name="lookupType" value="biz" checked onchange="switchType()"> 사업자번호로 찾기</label>' +
-        '<label><input type="radio" name="lookupType" value="patent" onchange="switchType()"> 특허로에서 찾기</label>' +
+        '<label><input type="radio" name="lookupType" value="biz" checked onchange="switchType()"> ' + (_isEnPopup ? 'Search by Business No.' : '사업자번호로 찾기') + '</label>' +
+        '<label><input type="radio" name="lookupType" value="patent" onchange="switchType()"> ' + (_isEnPopup ? 'Find via Patent-ro' : '특허로에서 찾기') + '</label>' +
         '</div>' +
         '<div id="bizSection">' +
         '<div class="row">' +
-        '<label>사업자번호</label>' +
-        '<input type="text" id="bizNum" placeholder="예: 1234567890" maxlength="10">' +
-        '<button class="btn btn-search" onclick="doLookup()">조회</button>' +
+        '<label>' + (_isEnPopup ? 'Business No.' : '사업자번호') + '</label>' +
+        '<input type="text" id="bizNum" placeholder="' + (_isEnPopup ? 'e.g. 1234567890' : '예: 1234567890') + '" maxlength="10">' +
+        '<button class="btn btn-search" onclick="doLookup()">' + (_isEnPopup ? 'Search' : '조회') + '</button>' +
         '</div>' +
         '<div id="result"></div>' +
-        '<div class="hint">💡 \'나의 정보수정\'에서 사업자번호와 고객번호를 등록하세요</div>' +
+        '<div class="hint">💡 ' + (_isEnPopup ? "Register Business No. and Customer No. in 'My Profile'." : "'나의 정보수정'에서 사업자번호와 고객번호를 등록하세요") + '</div>' +
         '</div>' +
         '<div id="patentSection" style="display:none;">' +
-        '<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">개인 출원인은 특허로에서 고객번호를 확인할 수 있습니다.</p>' +
-        '<button class="btn btn-patent" onclick="var pw=900,ph=700,pl=(screen.width-pw)/2,pt=(screen.height-ph)/2;window.open(\'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do\',\'patentro\',\'width=\'+pw+\',height=\'+ph+\',left=\'+pl+\',top=\'+pt+\',scrollbars=yes,resizable=yes\')">특허로 바로가기</button>' +
+        '<p style="font-size:0.9rem;color:#374151;margin:0 0 0.75rem;">' + (_isEnPopup ? 'Individual applicants can find their Customer No. on the Patent-ro website.' : '개인 출원인은 특허로에서 고객번호를 확인할 수 있습니다.') + '</p>' +
+        '<button class="btn btn-patent" onclick="var pw=900,ph=700,pl=(screen.width-pw)/2,pt=(screen.height-ph)/2;window.open(\'https://www.patent.go.kr/smart/jsp/kiponet/mp/mpopenpatinfo/apagtinfo/ReadApAgtInfoInput.do\',\'patentro\',\'width=\'+pw+\',height=\'+ph+\',left=\'+pl+\',top=\'+pt+\',scrollbars=yes,resizable=yes\')">' + (_isEnPopup ? 'Go to Patent-ro' : '특허로 바로가기') + '</button>' +
         '</div>' +
-        '<button class="btn btn-close" onclick="window.close()">닫기</button>' +
+        '<button class="btn btn-close" onclick="window.close()">' + (_isEnPopup ? 'Close' : '닫기') + '</button>' +
         '<script>' +
+        'var _isEn=' + (_isEnPopup ? 'true' : 'false') + ';' +
         'function switchType(){' +
         '  var v=document.querySelector("input[name=lookupType]:checked").value;' +
         '  document.getElementById("bizSection").style.display=v==="biz"?"block":"none";' +
@@ -1597,20 +1603,20 @@ function openLookupWindow() {
         'async function doLookup(){' +
         '  var num=document.getElementById("bizNum").value.replace(/[^0-9]/g,"");' +
         '  var rd=document.getElementById("result");' +
-        '  if(num.length!==10){rd.style.display="block";rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">사업자번호는 10자리 숫자여야 합니다.</span>";return;}' +
-        '  rd.style.display="block";rd.style.background="#f3f4f6";rd.innerHTML="<span style=\\"color:#6b7280\\">조회 중...</span>";' +
+        '  if(num.length!==10){rd.style.display="block";rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">" + (_isEnPopup ? "Business No. must be a 10-digit number." : "사업자번호는 10자리 숫자여야 합니다.") + "</span>";return;}' +
+        '  rd.style.display="block";rd.style.background="#f3f4f6";rd.innerHTML="<span style=\\"color:#6b7280\\">" + (_isEnPopup ? "Searching..." : "조회 중...") + "</span>";' +
         '  try{' +
         '    var res=await fetch("/api/lookup-customer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({businessNumber:num})});' +
         '    var data=await res.json();' +
         '    if(data.success&&data.customerNumber){' +
         '      rd.style.background="#ecfdf5";' +
-        '      rd.innerHTML="<span style=\\"color:#16a34a;font-weight:600\\">고객번호: "+data.customerNumber+"</span>"+(data.applicantName?" <span style=\\"color:#374151\\">(출원인: "+data.applicantName+")</span>":"");' +
+        '      rd.innerHTML="<span style=\\"color:#16a34a;font-weight:600\\">" + (_isEnPopup ? "Customer No.: " : "고객번호: ") + "+data.customerNumber+"</span>"+(data.applicantName?" <span style=\\"color:#374151\\">(" + (_isEnPopup ? "Applicant: " : "출원인: ") + "+data.applicantName+")</span>":"");' +
         '      if(window.opener&&!window.opener.closed){window.opener.document.getElementById("searchInput").value=data.customerNumber;}' +
         '    }else{' +
         '      rd.style.background="#fef2f2";' +
-        '      rd.innerHTML="<span style=\\"color:#ef4444\\">"+(data.message||"고객번호를 찾을 수 없습니다.")+"</span>";' +
+        '      rd.innerHTML="<span style=\\"color:#ef4444\\">"+(data.message||"' + (_isEnPopup ? 'Customer No. not found.' : '고객번호를 찾을 수 없습니다.') + '")+"</span>";' +
         '    }' +
-        '  }catch(e){rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">조회 중 오류가 발생했습니다.</span>";}' +
+        '  }catch(e){rd.style.background="#fef2f2";rd.innerHTML="<span style=\\"color:#ef4444\\">' + (_isEnPopup ? 'An error occurred during search.' : '조회 중 오류가 발생했습니다.') + '</span>";}' +
         '}' +
         '<\/script></body></html>'
     );
