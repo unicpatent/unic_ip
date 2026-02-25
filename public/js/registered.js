@@ -109,7 +109,8 @@ async function handleSearch(e) {
         console.log('🌐 API 호출 시작');
         const requestData = {
             searchType: searchType,
-            searchValue: searchValue
+            searchValue: searchValue,
+            fetchEngTitle: window._lang === 'en'
         };
         console.log('📤 전송할 데이터:', requestData);
         console.log('📤 JSON 문자열:', JSON.stringify(requestData));

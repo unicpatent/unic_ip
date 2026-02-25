@@ -56,6 +56,37 @@ class PatentService {
         }
     }
 
+    // 영문 페이지 전용: KIPRIS 스크래핑 방식으로 등록특허 검색 (engTitle 포함)
+    async searchRegisteredWithKipris(searchValue, searchType = '2') {
+        try {
+            console.log('🌐 [EN] KIPRIS 방식 등록특허 검색:', { searchValue, searchType });
+
+            let customerNumber = searchValue;
+
+            if (searchType === '1') {
+                // 사업자번호 → 특허청 API로 고객번호 먼저 조회
+                console.log('🔍 [EN] 사업자번호로 고객번호 조회 중...');
+                const bizResult = await this.searchByBusinessNumber(searchValue);
+                if (!bizResult.patents || bizResult.patents.length === 0) {
+                    return { customerNumber: searchValue, applicantName: '정보 없음', totalCount: 0, patents: [] };
+                }
+                customerNumber = bizResult.patents[0].applicantCd;
+                if (!customerNumber || customerNumber === '-') {
+                    console.warn('⚠️ [EN] 고객번호를 찾을 수 없어 특허청 결과 반환');
+                    return bizResult;
+                }
+                console.log('✅ [EN] 고객번호 획득:', customerNumber);
+            }
+
+            // 고객번호로 KIPRIS 스크래핑 (개인 고객번호 로직 재사용)
+            return await this.searchByIndividualCustomerNumber(customerNumber);
+
+        } catch (error) {
+            console.error('KIPRIS 등록특허 검색 오류:', error.message);
+            throw error;
+        }
+    }
+
     // 사업자번호로 등록특허 검색
     async searchByBusinessNumber(businessNumber) {
         try {
