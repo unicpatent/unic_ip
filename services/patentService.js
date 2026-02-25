@@ -130,6 +130,7 @@ class PatentService {
                     applicantName: getFirstApplicant(item.applicantInfo) || getFirstApplicant(item.rightHolderInfo) || '-',
                     applicationDate: this.formatDateFromAPI(item.applDate),
                     inventionTitle: item.title || '-',
+                    inventionTitleEng: item.engTitle || '-',
                     registrationDate: this.formatDateFromAPI(item.rgstDate),
                     claimCount: item.claimCount || '-',
                     publicationNumber: item.pubNo || '-',
@@ -252,6 +253,7 @@ class PatentService {
                     applicantName: getFirstApplicant(item.applicantInfo) || getFirstApplicant(item.rightHolderInfo) || '-',
                     applicationDate: this.formatDateFromAPI(item.applDate),
                     inventionTitle: item.title || '-',
+                    inventionTitleEng: item.engTitle || '-',
 
                     // 등록 정보 (발명자 필드 제거)
                     registrationDate: this.formatDateFromAPI(item.rgstDate),
