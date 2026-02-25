@@ -1,5 +1,5 @@
 // registered.js - 등록특허 현황 검색 기능
-console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2026.02.05.v15');
+console.log('🔄 등록특허 검색 스크립트 로드됨 - 버전: 2026.02.25.v1');
 
 let currentPatents = [];
 let originalPatents = []; // 필터링 전 원본 데이터 보관용
@@ -49,22 +49,23 @@ function setupSearchTypeListeners() {
     function updateInputField() {
         const selectedType = document.querySelector('input[name="searchType"]:checked').value;
         const findCustomerBtn = document.getElementById('findCustomerBtn');
+        const isEn = window._lang === 'en';
 
         if (selectedType === '1') { // 사업자번호
-            searchInputLabel.textContent = '사업자번호';
-            searchInput.placeholder = '예: 1234567890';
+            searchInputLabel.textContent = isEn ? 'Business No.' : '사업자번호';
+            searchInput.placeholder = isEn ? 'e.g. 1234567890' : '예: 1234567890';
             searchInput.maxLength = 10;
             searchInput.pattern = '[0-9]{10}';
-            searchInputHint.textContent = '10자리 숫자 입력하세요';
+            searchInputHint.textContent = isEn ? 'Enter 10-digit number' : '10자리 숫자 입력하세요';
             // 사용자의 사업자번호 자동 입력
             searchInput.value = userBusinessNumber;
             if (findCustomerBtn) findCustomerBtn.style.display = 'none';
         } else { // 고객번호
-            searchInputLabel.textContent = '고객번호';
-            searchInput.placeholder = '예: 120190612244';
+            searchInputLabel.textContent = isEn ? 'Customer No.' : '고객번호';
+            searchInput.placeholder = isEn ? 'e.g. 120190612244' : '예: 120190612244';
             searchInput.maxLength = 12;
             searchInput.pattern = '[0-9]{12}';
-            searchInputHint.textContent = '12자리 숫자 입력하세요';
+            searchInputHint.textContent = isEn ? 'Enter 12-digit number' : '12자리 숫자 입력하세요';
             // 사용자의 고객번호 자동 입력
             searchInput.value = userCustomerNumber;
             if (findCustomerBtn) findCustomerBtn.style.display = 'inline-block';
@@ -86,14 +87,15 @@ async function handleSearch(e) {
     const originalText = searchBtn.innerHTML;
 
     // 입력 검증
+    const isEn = window._lang === 'en';
     if (searchType === '1') { // 사업자번호
         if (!/^\d{10}$/.test(searchValue)) {
-            showError('사업자번호는 10자리 숫자여야 합니다.');
+            showError(isEn ? 'Business No. must be a 10-digit number.' : '사업자번호는 10자리 숫자여야 합니다.');
             return;
         }
     } else { // 고객번호
         if (!/^\d{12}$/.test(searchValue)) {
-            showError('고객번호는 12자리 숫자여야 합니다.');
+            showError(isEn ? 'Customer No. must be a 12-digit number.' : '고객번호는 12자리 숫자여야 합니다.');
             return;
         }
     }
@@ -124,7 +126,7 @@ async function handleSearch(e) {
         console.log('📊 API 응답:', data);
         
         if (!data.success) {
-            throw new Error(data.error || '검색 중 오류가 발생했습니다.');
+            throw new Error(data.error || (window._lang === 'en' ? 'Search failed. Please try again.' : '검색 중 오류가 발생했습니다.'));
         }
         
         // 결과 표시
@@ -194,19 +196,20 @@ function displayResults(data) {
 
     // 검색 유형에 따라 권리자명 표시 방식 결정
     const searchType = document.querySelector('input[name="searchType"]:checked').value;
-    const rightHolderToDisplay = data.rightHolderName || data.applicantName || '정보 없음';
+    const _isEn = window._lang === 'en';
+    const rightHolderToDisplay = data.rightHolderName || data.applicantName || (_isEn ? 'N/A' : '정보 없음');
 
     let displayText = rightHolderToDisplay;
 
     if (searchType === '1') {
         // 사업자번호로 검색한 경우: 권리자명 (고객번호: xxx)
         if (data.patents && data.patents.length > 0 && data.patents[0].applicantCd) {
-            displayText = `${rightHolderToDisplay} (고객번호: ${data.patents[0].applicantCd})`;
+            displayText = `${rightHolderToDisplay} (${_isEn ? 'Customer No.' : '고객번호'}: ${data.patents[0].applicantCd})`;
         }
     } else {
         // 고객번호로 검색한 경우: 권리자명 (사업자번호: xxx)
         if (data.patents && data.patents.length > 0 && data.patents[0].businessNo) {
-            displayText = `${rightHolderToDisplay} (사업자번호: ${data.patents[0].businessNo})`;
+            displayText = `${rightHolderToDisplay} (${_isEn ? 'Business No.' : '사업자번호'}: ${data.patents[0].businessNo})`;
         }
     }
 
@@ -299,6 +302,8 @@ function displayPaginatedResults() {
 
         const applicantName = safeValue(patent.applicantName);
         const inventionTitle = safeValue(patent.inventionTitle);
+        const inventionTitleEng = safeValue(patent.inventionTitleEng);
+        const _isEn = window._lang === 'en';
 
         // 디버깅: 등록상태 확인
         console.log('🔍 특허 데이터 확인:', {
@@ -344,17 +349,20 @@ function displayPaginatedResults() {
             '<td>' + formatDate(patent.applicationDate) + '</td>',
             '<td>' + formatDate(patent.registrationDate) + '</td>',
             '<td>' + formatDate(patent.expirationDate) + '</td>',
-            '<td class="invention-title-natural invention-title">' + inventionTitle + '</td>',
+            _isEn && inventionTitleEng !== '-'
+                ? '<td class="invention-title-natural invention-title">' + inventionTitle + '<br><span style="color:#555;font-size:0.85em;">' + inventionTitleEng + '</span></td>'
+                : '<td class="invention-title-natural invention-title">' + inventionTitle + '</td>',
             '<td>' + safeValue(patent.claimCount) + '</td>',
-            '<td>' + formatRegistrationStatus(patent.registrationStatus) + '</td>'
+            '<td>' + formatRegistrationStatusDisplay(patent.registrationStatus) + '</td>'
         ];
 
         // calculatedData가 있는 경우 특별한 스타일 적용
         if (calculatedData) {
             // 미납여부 컬럼 처리
             let validityCell;
+            const _isEnCalc = window._lang === 'en';
             if (calculatedData.validityStatus === '미납') {
-                validityCell = '<td style="color: red; font-weight: bold;">미납</td>';
+                validityCell = '<td style="color: red; font-weight: bold;">' + (_isEnCalc ? 'Unpaid' : '미납') + '</td>';
             } else if (calculatedData.validityStatus === '정상납부') {
                 validityCell = '<td>-</td>';
             } else {
@@ -420,22 +428,25 @@ function createPaginationControls(totalPages) {
     }
     
     paginationContainer.style.display = 'flex';
-    
-    let paginationHTML = '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
+
+    const _isEnPag = window._lang === 'en';
+    let paginationHTML = _isEnPag
+        ? '<div class="pagination-info">' + currentPatents.length + ' item(s) (Page ' + currentPage + '/' + totalPages + ')</div>'
+        : '<div class="pagination-info">총 ' + currentPatents.length + '건 (페이지 ' + currentPage + '/' + totalPages + ')</div>';
     paginationHTML += '<div class="pagination-controls">';
 
     // 맨 처음 버튼
     if (currentPage > 1) {
-        paginationHTML += '<button class="pagination-btn" data-page="1">« 처음</button>';
+        paginationHTML += '<button class="pagination-btn" data-page="1">« ' + (_isEnPag ? 'First' : '처음') + '</button>';
     } else {
-        paginationHTML += '<button class="pagination-btn disabled">« 처음</button>';
+        paginationHTML += '<button class="pagination-btn disabled">« ' + (_isEnPag ? 'First' : '처음') + '</button>';
     }
 
     // 이전 버튼
     if (currentPage > 1) {
-        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ 이전</button>';
+        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ ' + (_isEnPag ? 'Prev' : '이전') + '</button>';
     } else {
-        paginationHTML += '<button class="pagination-btn disabled">‹ 이전</button>';
+        paginationHTML += '<button class="pagination-btn disabled">‹ ' + (_isEnPag ? 'Prev' : '이전') + '</button>';
     }
 
     // 페이지 번호 (최대 5개 표시, 항상 1부터 시작하도록 조정)
@@ -453,16 +464,16 @@ function createPaginationControls(totalPages) {
 
     // 다음 버튼
     if (currentPage < totalPages) {
-        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">다음 ›</button>';
+        paginationHTML += '<button class="pagination-btn" data-page="' + (currentPage + 1) + '">' + (_isEnPag ? 'Next' : '다음') + ' ›</button>';
     } else {
-        paginationHTML += '<button class="pagination-btn disabled">다음 ›</button>';
+        paginationHTML += '<button class="pagination-btn disabled">' + (_isEnPag ? 'Next' : '다음') + ' ›</button>';
     }
 
     // 맨 마지막 버튼
     if (currentPage < totalPages) {
-        paginationHTML += '<button class="pagination-btn" data-page="' + totalPages + '">마지막 »</button>';
+        paginationHTML += '<button class="pagination-btn" data-page="' + totalPages + '">' + (_isEnPag ? 'Last' : '마지막') + ' »</button>';
     } else {
-        paginationHTML += '<button class="pagination-btn disabled">마지막 »</button>';
+        paginationHTML += '<button class="pagination-btn disabled">' + (_isEnPag ? 'Last' : '마지막') + ' »</button>';
     }
     
     paginationHTML += '</div>';
@@ -641,7 +652,7 @@ function formatPaymentAmount(amount) {
     return Number(amount).toLocaleString('ko-KR') + '원';
 }
 
-// 등록상태 형식 변환 (간소화)
+// 등록상태 형식 변환 (간소화) - 내부 필터링용 (한국어 기준값 유지)
 function formatRegistrationStatus(status) {
     if (!status || status === '-') {
         return '-';
@@ -657,10 +668,23 @@ function formatRegistrationStatus(status) {
     return status;
 }
 
+// 등록상태 표시용 변환 (영문 모드에서 영어로 반환)
+function formatRegistrationStatusDisplay(status) {
+    const normalized = formatRegistrationStatus(status);
+    if (window._lang !== 'en') return normalized;
+    if (normalized === '등록유지') return 'Active';
+    if (normalized === '존속기간 만료') return 'Expired';
+    if (normalized === '등록료 불납') return 'Fee Unpaid';
+    if (normalized === '소멸') return 'Lapsed';
+    if (normalized === '-') return '-';
+    return normalized;
+}
+
 // window 객체에 함수 등록 (registered.ejs에서 사용하기 위함)
 window.formatPaymentDate = formatPaymentDate;
 window.formatPaymentAmount = formatPaymentAmount;
 window.formatRegistrationStatus = formatRegistrationStatus;
+window.formatRegistrationStatusDisplay = formatRegistrationStatusDisplay;
 
 // 납부정보를 화면에 업데이트
 function updatePaymentHistoryDisplay() {
@@ -682,7 +706,15 @@ function updatePaymentHistoryDisplay() {
         if (patent.paymentHistory && patent.paymentHistory.payDate && patent.paymentHistory.payDate !== '-') {
             const formattedDate = formatPaymentDate(patent.paymentHistory.payDate);
             const formattedAmount = formatPaymentAmount(patent.paymentHistory.payAmount);
-            const paymentInfo = `${formattedDate} (${patent.paymentHistory.lastAnnl}년차 / ${formattedAmount})`;
+            const lastAnnl = patent.paymentHistory.lastAnnl;
+            let paymentInfo;
+            if (window._lang === 'en') {
+                const rawAmount = patent.paymentHistory.payAmount;
+                const amountNum = rawAmount && rawAmount !== '-' ? Number(rawAmount).toLocaleString('ko-KR') : '-';
+                paymentInfo = `${formattedDate}(Reg. Y${lastAnnl}/₩${amountNum})`;
+            } else {
+                paymentInfo = `${formattedDate} (${lastAnnl}년차 / ${formattedAmount})`;
+            }
             cells[9].textContent = paymentInfo;
             console.log('💰 납부정보 표시:', patent.registrationNumber, paymentInfo);
         } else {
@@ -715,7 +747,7 @@ function requestRenewalFee() {
     console.log('📄 납부의뢰 버튼 클릭');
     
     if (currentPatents.length === 0) {
-        showError('납부의뢰할 특허가 없습니다.');
+        showError(window._lang === 'en' ? 'No patents available to request payment.' : '납부의뢰할 특허가 없습니다.');
         return;
     }
     
@@ -753,39 +785,46 @@ function showRenewalRequestModal(customerNumber, applicantName) {
     };
     
     // 모달 HTML 생성 (내부 API 사용)
+    const _isEn = window._lang === 'en';
     const modalHTML = '<div id="renewalModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">' +
         '<div class="modal-content" style="background: white; border-radius: 8px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">' +
         '<div class="modal-header" style="border-bottom: 2px solid #54B435; padding-bottom: 1rem; margin-bottom: 1.5rem;">' +
-        '<h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">연차료 납부의뢰</h2></div>' +
+        '<h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 700; margin: 0; text-align: center;">' + (_isEn ? 'Request Annuity Payment' : '연차료 납부의뢰') + '</h2></div>' +
         '<div class="guidance-text" style="background: #f0fdf4; padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #54B435;">' +
         '<div style="color: #047857; line-height: 1.6;">' +
-        '<p style="margin: 0 0 0.5rem 0;">1. 연차료 납부를 대행해 드립니다</p>' +
-        '<p style="margin: 0 0 1rem 0;">2. 대리인 수수료는 건당 20,000원입니다 (부가세 별도)</p>' +
-        '<p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; color: #059669;">- 개인, 중소기업 70% 감면 금액 확인하여 연차료 비용 청구서 발송</p>' +
-        '<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #059669;">- 세금 계산서와 영수증 송부</p>' +
-        '<p style="margin: 0; font-size: 0.9rem; color: #059669;">3. 특허청 특허로에 접속하시거나 특허청으로부터 받으신 지로용지로 직접 납부하실 수 있습니다</p>' +
+        (_isEn
+            ? '<p style="margin: 0 0 0.5rem 0;">1. We handle annuity payment on your behalf.</p>' +
+              '<p style="margin: 0 0 1rem 0;">2. Agent fee: ₩20,000 per case (VAT excluded)</p>' +
+              '<p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; color: #059669;">- We verify individual/SME 70% reduction and send a fee invoice.</p>' +
+              '<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #059669;">- Tax invoice and receipt will be provided.</p>' +
+              '<p style="margin: 0; font-size: 0.9rem; color: #059669;">3. You may also pay directly via the KIPO Patent-ro website or a giro slip.</p>'
+            : '<p style="margin: 0 0 0.5rem 0;">1. 연차료 납부를 대행해 드립니다</p>' +
+              '<p style="margin: 0 0 1rem 0;">2. 대리인 수수료는 건당 20,000원입니다 (부가세 별도)</p>' +
+              '<p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; color: #059669;">- 개인, 중소기업 70% 감면 금액 확인하여 연차료 비용 청구서 발송</p>' +
+              '<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #059669;">- 세금 계산서와 영수증 송부</p>' +
+              '<p style="margin: 0; font-size: 0.9rem; color: #059669;">3. 특허청 특허로에 접속하시거나 특허청으로부터 받으신 지로용지로 직접 납부하실 수 있습니다</p>') +
         '</div></div>' +
         '<form action="https://api.web3forms.com/submit" method="POST" id="renewalRequestForm">' +
         '<input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">' +
         '<input type="hidden" name="redirect" value="' + window.location.origin + '/r_thanks">' +
-        '<input type="hidden" name="subject" value="연차료 납부의뢰">' +
-        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">고객번호</label><input type="text" name="customer_number" id="customer_number" value="' + customerNumber + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
-        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이름</label><input type="text" name="name" id="applicant_name" value="' + applicantName + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
-        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">이메일 <span style="color: #ef4444;">*</span></label><input type="email" name="email" id="email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="example@email.com"></div>' +
-        '<div style="margin-bottom: 1.5rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">연락처 <span style="color: #ef4444;">*</span></label><input type="tel" name="phone" id="phone" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="010-0000-0000"></div>' +
-        '<textarea name="message" style="display: none;">연차료 납부의뢰 - 고객번호: ' + customerNumber + ', 고객명: ' + applicantName + '</textarea>' +
+        '<input type="hidden" name="subject" value="' + (_isEn ? 'Annuity Payment Request' : '연차료 납부의뢰') + '">' +
+        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEn ? 'Customer No.' : '고객번호') + '</label><input type="text" name="customer_number" id="customer_number" value="' + customerNumber + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
+        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEn ? 'Name' : '이름') + '</label><input type="text" name="name" id="applicant_name" value="' + applicantName + '" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; color: #6b7280;"></div>' +
+        '<div style="margin-bottom: 1rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEn ? 'Email' : '이메일') + ' <span style="color: #ef4444;">*</span></label><input type="email" name="email" id="email" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="example@email.com"></div>' +
+        '<div style="margin-bottom: 1.5rem;"><label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">' + (_isEn ? 'Phone' : '연락처') + ' <span style="color: #ef4444;">*</span></label><input type="tel" name="phone" id="phone" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="010-0000-0000"></div>' +
+        '<textarea name="message" style="display: none;">' + (_isEn ? 'Annuity Payment Request' : '연차료 납부의뢰') + ' - Customer No.: ' + customerNumber + ', Name: ' + applicantName + '</textarea>' +
         '<div style="margin-bottom: 1.5rem; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; padding: 1rem; font-size: 0.9rem; color: #6b7280; line-height: 1.5;">' +
-        '<p style="margin: 0 0 0.5rem 0;"><strong>개인정보 수집 및 이용 동의</strong></p>' +
-        '<p style="margin: 0 0 0.5rem 0;">수집·이용 목적: 연차료 납부 대행 처리</p>' +
-        '<p style="margin: 0 0 0.5rem 0;">수집 항목: 특허 고객번호, 이름, 연락처, 이메일</p>' +
-        '<p style="margin: 0 0 0.75rem 0;">보유 및 이용 기간: 납부료 대행처리 완료 시</p>' +
+        '<p style="margin: 0 0 0.5rem 0;"><strong>' + (_isEn ? 'Privacy Policy Consent' : '개인정보 수집 및 이용 동의') + '</strong></p>' +
+        '<p style="margin: 0 0 0.5rem 0;">' + (_isEn ? 'Purpose: Processing annuity payment services' : '수집·이용 목적: 연차료 납부 대행 처리') + '</p>' +
+        '<p style="margin: 0 0 0.5rem 0;">' + (_isEn ? 'Items: Customer No., Name, Phone, Email' : '수집 항목: 특허 고객번호, 이름, 연락처, 이메일') + '</p>' +
+        '<p style="margin: 0 0 0.75rem 0;">' + (_isEn ? 'Retention: Until payment processing is complete' : '보유 및 이용 기간: 납부료 대행처리 완료 시') + '</p>' +
         '<label style="display: flex; align-items: center; color: #374151; font-size: 0.9rem;">' +
         '<input type="checkbox" name="privacy_consent" id="privacy_consent" required style="margin-right: 0.5rem; width: 16px; height: 16px;">' +
-        '개인정보 수집 및 이용에 동의합니다.</label>' +
+        (_isEn ? 'I agree to the collection and use of personal information.' : '개인정보 수집 및 이용에 동의합니다.') + '</label>' +
         '</div>' +
         '<div style="display: flex; gap: 1rem; justify-content: flex-end;">' +
-        '<button type="button" id="renewalCancelBtn" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">취소</button>' +
-        '<button type="submit" style="padding: 0.75rem 1.5rem; background: #54B435; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">납부의뢰</button>' +
+        '<button type="button" id="renewalCancelBtn" style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; cursor: pointer; font-weight: 500;">' + (_isEn ? 'Cancel' : '취소') + '</button>' +
+        '<button type="submit" style="padding: 0.75rem 1.5rem; background: #54B435; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">' + (_isEn ? 'Submit Request' : '납부의뢰') + '</button>' +
         '</div></form></div></div>';
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
@@ -872,7 +911,7 @@ function setupButtonListeners() {
         exportBtn.addEventListener('click', function() {
             console.log('📊 엑셀 다운로드 버튼 클릭');
             if (currentPatents.length === 0) {
-                showError('다운로드할 데이터가 없습니다.');
+                showError(window._lang === 'en' ? 'No data available to download.' : '다운로드할 데이터가 없습니다.');
                 return;
             }
 
@@ -1166,10 +1205,11 @@ function isWithinOneMonth(dateStr) {
 function updateFilterResultCount(filteredCount, totalCount) {
     const filterResultCount = document.getElementById('filterResultCount');
     if (filterResultCount) {
+        const _isEnFlt = window._lang === 'en';
         if (filteredCount === totalCount) {
-            filterResultCount.textContent = `전체 ${totalCount}건`;
+            filterResultCount.textContent = _isEnFlt ? `Total: ${totalCount} item(s)` : `전체 ${totalCount}건`;
         } else {
-            filterResultCount.textContent = `필터 결과: ${filteredCount}건 / 전체 ${totalCount}건`;
+            filterResultCount.textContent = _isEnFlt ? `Results: ${filteredCount} / Total: ${totalCount}` : `필터 결과: ${filteredCount}건 / 전체 ${totalCount}건`;
         }
     }
 }
