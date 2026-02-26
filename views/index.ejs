@@ -39,14 +39,13 @@
     <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 </head>
 <body>
-    <!-- Language Bar -->
-    <div class="lang-bar">
-        <a href="/" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
-        <span>|</span>
-        <a href="/en" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
-    </div>
-
     <header>
+        <!-- Language Bar -->
+        <div class="lang-bar">
+            <a href="/" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
+            <span>|</span>
+            <a href="/en" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
+        </div>
         <nav class="navbar">
             <div class="nav-brand">
                 <img src="/images/logo.png" alt="<%= lang === 'en' ? 'Logo' : '로고' %>" class="logo">

@@ -48,14 +48,13 @@
     <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 </head>
 <body>
+    <header class="header">
     <!-- Language Bar -->
     <div class="lang-bar">
         <a href="/registered" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
         <span>|</span>
         <a href="/en/registered" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
     </div>
-
-    <header class="header">
         <div class="container">
             <div class="header-content">
                 <a href="<%= lang === 'en' ? '/en' : '/' %>" class="logo">

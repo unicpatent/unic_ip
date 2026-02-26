@@ -8,7 +8,9 @@
 .lang-bar {
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     padding: 4px 2rem;
     font-size: 0.78rem;
 }
@@ -93,7 +95,7 @@ header {
     background-image: url('/images/hero-background-tech.jpg');
     background-size: cover;
     background-position: center;
-    margin-top: 80px;
+    margin-top: 110px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -545,6 +547,7 @@ header {
         height: auto;
         min-height: 400px;
         padding: 40px 20px;
+        margin-top: 110px;
     }
 
     .feature-visual {
