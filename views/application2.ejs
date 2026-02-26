@@ -63,14 +63,13 @@
     </style>
 </head>
 <body>
+    <header class="header">
     <!-- Language Bar -->
     <div class="lang-bar">
         <a href="/application2" class="<%= lang !== 'en' ? 'active' : '' %>">한국어</a>
         <span>|</span>
         <a href="/en/application" class="<%= lang === 'en' ? 'active' : '' %>">English</a>
     </div>
-
-    <header class="header">
         <div class="container">
             <div class="header-content">
                 <a href="<%= lang === 'en' ? '/en' : '/' %>" class="logo">
@@ -520,7 +519,7 @@
             const response = await fetch('/api/search-application2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customerNumber })
+                body: JSON.stringify({ customerNumber, fetchEngTitle: window._lang === 'en' })
             });
 
             const data = await response.json();
