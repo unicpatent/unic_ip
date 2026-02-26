@@ -519,7 +519,7 @@
             const response = await fetch('/api/search-application2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customerNumber, fetchEngTitle: window._lang === 'en' })
+                body: JSON.stringify({ customerNumber })
             });
 
             const data = await response.json();
