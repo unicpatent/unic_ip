@@ -4,13 +4,16 @@
 .lang-bar {
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    display: block;
+    text-align: right;
     padding: 4px 2rem;
     font-size: 0.78rem;
+    line-height: 1.6;
 }
 .lang-bar a {
+    display: inline;
     color: #555;
     text-decoration: none;
     margin-left: 10px;
@@ -19,7 +22,7 @@
 }
 .lang-bar a:hover { color: #111; }
 .lang-bar a.active { color: #111; font-weight: 600; }
-.lang-bar span { color: #ccc; margin-left: 10px; }
+.lang-bar span { display: inline; color: #ccc; margin-left: 10px; }
 
 :root {
     --primary-color: #54B435;
@@ -54,6 +57,8 @@ body {
 
 /* 헤더 */
 .header {
+    width: 100%;
+    box-sizing: border-box;
     background: var(--bg-white);
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: sticky;
