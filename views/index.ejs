@@ -536,8 +536,8 @@
                             </div>
 
                             <div style="margin-bottom: 1rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.phone} <span style="color: #ef4444;">*</span></label>
-                                <input type="tel" name="phone" id="phone_service" required
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.phone} <span style="color: #6b7280; font-size: 0.85em;">(${_lang === 'en' ? 'Optional' : '선택'})</span></label>
+                                <input type="tel" name="phone" id="phone_service"
                                        style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                        placeholder="${_t.phonePlaceholder}">
                             </div>
@@ -556,9 +556,9 @@
                             </div>
 
                             <div style="margin-bottom: 1.5rem;">
-                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.customerNumber} <span style="color: #ef4444;">*</span></label>
+                                <label style="display: block; color: #374151; font-weight: 500; margin-bottom: 0.5rem;">${_t.customerNumber} <span style="color: #6b7280; font-size: 0.85em;">(${_lang === 'en' ? 'Optional' : '선택'})</span></label>
                                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <input type="text" name="customer_number" id="customer_number_service" required
+                                    <input type="text" name="customer_number" id="customer_number_service"
                                            style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box;"
                                            placeholder="${_t.customerPlaceholder}"
                                            maxlength="12"
