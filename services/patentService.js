@@ -15,7 +15,7 @@ class PatentService {
         this.httpsAgent = new https.Agent({
             rejectUnauthorized: process.env.NODE_ENV === 'production' ? true : false,
             // 개발환경에서는 self-signed certificate 허용, 운영환경에서는 엄격하게 검증
-            keepAlive: true,
+            keepAlive: false,
             timeout: 10000
         });
 
@@ -686,6 +686,7 @@ class PatentService {
                     numOfRows: 500, // 더 많은 결과를 위해 500으로 증가
                     pageNo: 1
                 },
+                httpsAgent: this.httpsAgent,
                 timeout: 15000
             });
 
@@ -1029,6 +1030,7 @@ class PatentService {
                     applicationNumber: applicationNumber,
                     ServiceKey: this.apiKey
                 },
+                httpsAgent: this.httpsAgent,
                 timeout: 10000
             });
 
@@ -1165,6 +1167,7 @@ class PatentService {
                     applicationNumber: applicationNumber,
                     ServiceKey: this.apiKey
                 },
+                httpsAgent: this.httpsAgent,
                 timeout: 10000
             });
 
@@ -1207,6 +1210,7 @@ class PatentService {
                     applicationNumber: applicationNumber,
                     ServiceKey: this.apiKey
                 },
+                httpsAgent: this.httpsAgent,
                 timeout: 10000
             });
 
