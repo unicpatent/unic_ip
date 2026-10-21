@@ -318,30 +318,13 @@ function displayPaginatedResults() {
         
         // 연차료 계산 데이터가 있는 경우 표시
         const calculatedData = patent.calculatedData;
-        let annualFeeColumns;
-        
-        if (calculatedData) {
-            annualFeeColumns = [
-                '<td>' + (calculatedData.previousPaymentMonth || '') + '</td>',
-                '<td>' + (calculatedData.dueDate || '-') + '</td>',
-                '<td>' + (calculatedData.annualYear || '-') + '</td>',
-                '<td>' + (calculatedData.annualFee || '-') + '</td>',
-                '<td>' + (calculatedData.validityStatus || '-') + '</td>',
-                '<td>' + (calculatedData.latePaymentPeriod || '-') + '</td>',
-                '<td>' + (calculatedData.recoveryPeriod || '-') + '</td>'
-            ];
-            console.log('🔄 페이지네이션 - 계산된 데이터 표시 (페이지 ' + currentPage + '):', patent.applicationNumber, {
-                annualYear: calculatedData.annualYear,
-                annualFee: calculatedData.annualFee,
-                validityStatus: calculatedData.validityStatus
-            });
-        } else {
-            annualFeeColumns = [
-                '<td>-</td>', '<td>-</td>', '<td>-</td>', '<td>-</td>',
-                '<td>-</td>', '<td>-</td>', '<td>-</td>'
-            ];
-            console.log('⚠️ 페이지네이션 - 계산된 데이터 없음 (페이지 ' + currentPage + '):', patent.applicationNumber);
-        }
+        // 직전년도 납부연월은 연차료 계산 여부와 관계없이 조회된 납부정보로 표시
+        const previousPaymentCell = '<td>' + formatPreviousPayment(patent.paymentHistory) + '</td>';
+        let annualFeeColumns = [
+            previousPaymentCell,
+            '<td>-</td>', '<td>-</td>', '<td>-</td>',
+            '<td>-</td>', '<td>-</td>', '<td>-</td>'
+        ];
         
         // 테이블 행 생성 - 기본 컬럼들
         const baseCells = [
@@ -388,7 +371,7 @@ function displayPaginatedResults() {
             }
 
             annualFeeColumns = [
-                '<td>' + (calculatedData.previousPaymentMonth || '') + '</td>',
+                previousPaymentCell,
                 '<td>' + (calculatedData.dueDate || '-') + '</td>',
                 '<td>' + (calculatedData.annualYear || '-') + '</td>',
                 '<td>' + (calculatedData.annualFee || '-') + '</td>',
@@ -534,8 +517,12 @@ function changePage(page) {
     });
 }
 
+// 직전년도 납부정보 조회 요청 번호 (새 검색 시 이전 조회 결과 무시)
+let paymentHistoryRequestId = 0;
+
 // 직전년도 납부정보 조회
 async function fetchPaymentHistory(patents) {
+    const requestId = ++paymentHistoryRequestId;
     if (!patents || patents.length === 0) return;
 
     try {
@@ -571,6 +558,7 @@ async function fetchPaymentHistory(patents) {
                 });
 
                 const paymentData = await response.json();
+                if (requestId !== paymentHistoryRequestId) return;
                 console.log('📊 납부정보 API 응답 상세:', patent.registrationNumber, {
                     status: response.status,
                     success: paymentData.success,
@@ -587,16 +575,8 @@ async function fetchPaymentHistory(patents) {
                      paymentData.paymentInfo.payAmount !== '-');
 
                 if (hasValidPaymentInfo) {
-                    // 직전년도 납부정보 저장
+                    // 직전년도 납부정보 저장 (currentPatents와 같은 객체이므로 바로 반영됨)
                     patent.paymentHistory = paymentData.paymentInfo;
-
-                    // 전역 변수 동기화
-                    const patentIndex = currentPatents.findIndex(p => p.registrationNumber === patent.registrationNumber);
-                    if (patentIndex !== -1) {
-                        currentPatents[patentIndex].paymentHistory = paymentData.paymentInfo;
-                        window.currentPatents[patentIndex].paymentHistory = paymentData.paymentInfo;
-                    }
-
                     console.log('✅ 납부정보 조회 성공:', patent.registrationNumber, paymentData.paymentInfo);
                 } else {
                     console.warn('⚠️ 납부정보 없음:', patent.registrationNumber, paymentData.error || '납부 정보가 없습니다.');
@@ -607,13 +587,10 @@ async function fetchPaymentHistory(patents) {
                         payDate: '-',
                         payAmount: '-'
                     };
-
-                    const patentIndex = currentPatents.findIndex(p => p.registrationNumber === patent.registrationNumber);
-                    if (patentIndex !== -1) {
-                        currentPatents[patentIndex].paymentHistory = patent.paymentHistory;
-                        window.currentPatents[patentIndex].paymentHistory = patent.paymentHistory;
-                    }
                 }
+
+                // 조회되는 즉시 화면에 반영
+                applyPaymentHistory(patent);
 
             } catch (error) {
                 console.error('❌ 개별 납부정보 조회 오류:', patent.registrationNumber, {
@@ -629,8 +606,10 @@ async function fetchPaymentHistory(patents) {
             }
         }
 
-        // 화면 업데이트
-        updatePaymentHistoryDisplay();
+        // 납부정보 조회 전에 연차료 계산을 했다면, 납부정보(미납 여부 판단에 사용)를 반영해 다시 계산
+        if (isAnnuityCalculated && window._lastDiscountType && typeof window.performNewAnnuityCalculation === 'function') {
+            window.performNewAnnuityCalculation(window._lastDiscountType, { silent: true });
+        }
 
     } catch (error) {
         console.error('❌ 납부정보 조회 전체 오류:', error);
@@ -682,49 +661,48 @@ function formatRegistrationStatusDisplay(status) {
     return normalized;
 }
 
+// 직전년도 납부연월 표시 형식 (예: 2024.12.08 (7년차 / 124,000원))
+function formatPreviousPayment(paymentHistory) {
+    if (!paymentHistory || !paymentHistory.payDate || paymentHistory.payDate === '-') {
+        return '-';
+    }
+    const formattedDate = formatPaymentDate(paymentHistory.payDate);
+    const lastAnnl = paymentHistory.lastAnnl;
+    if (window._lang === 'en') {
+        const rawAmount = paymentHistory.payAmount;
+        const amountNum = rawAmount && rawAmount !== '-' ? Number(rawAmount).toLocaleString('ko-KR') : '-';
+        return `${formattedDate}(Reg. Y${lastAnnl}/₩${amountNum})`;
+    }
+    return `${formattedDate} (${lastAnnl}년차 / ${formatPaymentAmount(paymentHistory.payAmount)})`;
+}
+
 // window 객체에 함수 등록 (registered.ejs에서 사용하기 위함)
 window.formatPaymentDate = formatPaymentDate;
 window.formatPaymentAmount = formatPaymentAmount;
+window.formatPreviousPayment = formatPreviousPayment;
 window.formatRegistrationStatus = formatRegistrationStatus;
 window.formatRegistrationStatusDisplay = formatRegistrationStatusDisplay;
 
-// 납부정보를 화면에 업데이트
-function updatePaymentHistoryDisplay() {
-    const tableBody = document.getElementById('patentTableBody');
-    const rows = tableBody.getElementsByTagName('tr');
+// 조회된 납부정보를 계산 데이터와 화면(현재 페이지에 있는 경우)에 반영
+function applyPaymentHistory(patent) {
+    const paymentInfo = formatPreviousPayment(patent.paymentHistory);
 
-    // 현재 페이지에 표시된 특허들에 대해서만 업데이트
+    // 연차료 계산 후라면 엑셀 다운로드 등에 쓰이는 계산 데이터도 갱신
+    if (patent.calculatedData) {
+        patent.calculatedData.previousPaymentMonth = paymentInfo;
+    }
+
+    const index = currentPatents.indexOf(patent);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, currentPatents.length);
-    const paginatedPatents = currentPatents.slice(startIndex, endIndex);
+    if (index < startIndex || index >= startIndex + itemsPerPage) return;
 
-    paginatedPatents.forEach((patent, index) => {
-        if (index >= rows.length) return;
+    const rows = document.getElementById('patentTableBody').getElementsByTagName('tr');
+    const row = rows[index - startIndex];
+    if (!row) return;
 
-        const row = rows[index];
-        const cells = row.getElementsByTagName('td');
-
-        // 직전년도 납부연월 컬럼 (9번째 컬럼)
-        if (patent.paymentHistory && patent.paymentHistory.payDate && patent.paymentHistory.payDate !== '-') {
-            const formattedDate = formatPaymentDate(patent.paymentHistory.payDate);
-            const formattedAmount = formatPaymentAmount(patent.paymentHistory.payAmount);
-            const lastAnnl = patent.paymentHistory.lastAnnl;
-            let paymentInfo;
-            if (window._lang === 'en') {
-                const rawAmount = patent.paymentHistory.payAmount;
-                const amountNum = rawAmount && rawAmount !== '-' ? Number(rawAmount).toLocaleString('ko-KR') : '-';
-                paymentInfo = `${formattedDate}(Reg. Y${lastAnnl}/₩${amountNum})`;
-            } else {
-                paymentInfo = `${formattedDate} (${lastAnnl}년차 / ${formattedAmount})`;
-            }
-            cells[9].textContent = paymentInfo;
-            console.log('💰 납부정보 표시:', patent.registrationNumber, paymentInfo);
-        } else {
-            cells[9].textContent = '-';
-        }
-    });
-
-    console.log('✅ 납부정보 화면 업데이트 완료');
+    // 직전년도 납부연월 컬럼 (9번째 컬럼)
+    const cells = row.getElementsByTagName('td');
+    if (cells[9]) cells[9].textContent = paymentInfo;
 }
 
 // 결과 숨기기

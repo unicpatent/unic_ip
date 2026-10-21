@@ -467,7 +467,7 @@ console.log('🔄 등록특허 스크립트 로드됨 - 버전: 2025.09.24.v1');
 <script>window._lang = '<%= lang %>';</script>
 
 <!-- 등록특허 검색 기능 및 연차료 계산 기능 -->
-<script src="/js/registered.js?v=2026.10.21.v2"></script>
+<script src="/js/registered.js?v=2026.10.21.v3"></script>
 
 <!-- 인라인 검색 기능 (백업용) -->
 <script>
@@ -1097,8 +1097,10 @@ function calculateAnnuityFees() {
 }
 
 // 새로운 연차료 계산 로직
-function performNewAnnuityCalculation(discountType) {
+// options.silent: 납부정보 조회 완료 후 재계산 시 완료 메시지를 표시하지 않음
+function performNewAnnuityCalculation(discountType, options) {
     console.log('🧮 performNewAnnuityCalculation() 시작, discountType:', discountType);
+    window._lastDiscountType = discountType;
     console.log('📊 window.currentPatents:', window.currentPatents);
 
     if (!window.currentPatents || window.currentPatents.length === 0) {
@@ -1115,16 +1117,8 @@ function performNewAnnuityCalculation(discountType) {
     const _UNPAID = _isEn ? 'Unpaid' : '미납';
     const _PAID = '정상납부'; // internal value, not displayed directly
 
-    // Helper: format previousPaymentMonth per language
-    const _fmtPrevPay = (ph) => {
-        if (!ph || !ph.payDate || ph.payDate === '-') return '-';
-        const d = window.formatPaymentDate(ph.payDate);
-        if (_isEn) {
-            const amt = ph.payAmount && ph.payAmount !== '-' ? Number(ph.payAmount).toLocaleString('ko-KR') : '-';
-            return d + '(Reg. Y' + ph.lastAnnl + '/₩' + amt + ')';
-        }
-        return d + ' (' + ph.lastAnnl + '년차 / ' + window.formatPaymentAmount(ph.payAmount) + ')';
-    };
+    // Helper: format previousPaymentMonth per language (화면 표시와 동일한 형식)
+    const _fmtPrevPay = window.formatPreviousPayment;
 
     // Helper: format annualYear
     const _fmtYear = (y) => _isEn ? 'Year ' + y : y + '년차';
@@ -1458,6 +1452,8 @@ function performNewAnnuityCalculation(discountType) {
     if (typeof window.enableDeadlineFilters === 'function') {
         window.enableDeadlineFilters();
     }
+
+    if (options && options.silent) return;
 
     // 계산 완료 메시지 (감면 유형 포함)
     const discountInfo = NEW_DISCOUNT_TYPES[discountType];
