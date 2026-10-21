@@ -177,8 +177,8 @@
     <!-- 언어 설정 전달 -->
     <script>window._lang = '<%= lang %>';</script>
 
-    <!-- 비회원 연락처 수집 (납부기한 알림 신청 / 납부의뢰) -->
-    <script src="/js/tracking.js?v=2026.10.21"></script>
+    <!-- 비회원 연락처 수집 (납부의뢰) -->
+    <script src="/js/tracking.js?v=2026.10.21.v2"></script>
 
     <!-- 나의 정보 수정 모달 -->
     <script>
@@ -548,8 +548,6 @@
         } else {
             buildFilterButtons();
             displayPaginatedResults();
-            // 납부기한 알림 신청 배너 표시
-            if (window.UnicTrack) window.UnicTrack.showAlertCta({ customerNumber: data.customerNumber });
         }
     }
 
