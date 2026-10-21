@@ -8,7 +8,7 @@ let members = [];
 let discountTypes = [];
 let scanValidDays = 7;
 const selected = new Set();
-const expanded = new Set();
+const collapsed = new Set();   // 대상 특허 세부내역은 기본으로 펼쳐 보여주고, 접은 회원만 기록
 let scanning = false;
 let stopRequested = false;
 
@@ -106,10 +106,7 @@ function renderMemberRows(m) {
         '</select>';
 
     let targetCell, deadlineCell;
-    if (!m.searchValue) {
-        targetCell = '<span class="muted">번호 없음</span>';
-        deadlineCell = '-';
-    } else if (!m.scan) {
+    if (!m.scan) {
         targetCell = '<span class="muted">미조회</span>';
         deadlineCell = '-';
     } else if (m.scan.error) {
@@ -120,7 +117,8 @@ function renderMemberRows(m) {
         deadlineCell = '-';
     } else {
         const first = m.scan.items[0];
-        targetCell = '<button type="button" class="rm-count" data-expand="' + esc(m.id) + '">' + m.scan.items.length + '건</button>' +
+        targetCell = '<button type="button" class="rm-count" data-expand="' + esc(m.id) + '" title="세부내역 접기/펼치기">' +
+            m.scan.items.length + '건 ' + (collapsed.has(m.id) ? '▸' : '▾') + '</button>' +
             (m.scan.historyErrors ? ' <span class="text-err" title="납부이력을 조회하지 못한 특허는 미납 여부를 판단할 수 없습니다.">이력 실패 ' + m.scan.historyErrors + '</span>' : '');
         deadlineCell = esc(first.deadline) + ' <span class="tag tag-' + first.type + '">' + TYPE_LABELS[first.type] + '</span>';
     }
@@ -152,7 +150,7 @@ function renderMemberRows(m) {
         </td>
     </tr>`;
 
-    if (expanded.has(m.id) && hasItems(m)) {
+    if (!collapsed.has(m.id) && hasItems(m)) {
         html += `<tr class="rm-detail"><td></td><td colspan="9">
             <table>
                 <thead><tr><th>등록번호</th><th>발명의 명칭</th><th>연차</th><th>구분</th><th>기한</th><th>납부마감일</th><th>추납 마감</th><th>회복 마감</th><th>예상 연차료</th></tr></thead>
@@ -343,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     body.addEventListener('click', e => {
         const t = e.target;
         if (t.dataset.expand) {
-            expanded.has(t.dataset.expand) ? expanded.delete(t.dataset.expand) : expanded.add(t.dataset.expand);
+            collapsed.has(t.dataset.expand) ? collapsed.delete(t.dataset.expand) : collapsed.add(t.dataset.expand);
             render();
         } else if (t.dataset.scan) {
             scanOne(t.dataset.scan, t);
