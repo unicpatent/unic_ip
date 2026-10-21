@@ -268,6 +268,12 @@ module.exports = async (req, res) => {
             return await adminStatsHandler(req, res);
         }
 
+        // 관리자 계정 복구 (로그인 전 사용, 메일은 정해진 복구용 주소로만 발송)
+        if (url.startsWith('/api/admin/recovery/')) {
+            const adminRecoveryHandler = require('../lib/admin-recovery.js');
+            return await adminRecoveryHandler(req, res);
+        }
+
         if (url.startsWith('/api/admin/reminders')) {
             const adminRemindersHandler = require('../lib/admin-reminders.js');
             return await adminRemindersHandler(req, res);
@@ -336,6 +342,10 @@ module.exports = async (req, res) => {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
             title = '서비스 이용신청 완료';
+        } else if (url === '/admin/reset-password') {
+            // 복구 메일의 비밀번호 재설정 링크 (토큰 검증은 저장 시 API에서)
+            viewName = 'admin-reset';
+            title = '관리자 비밀번호 재설정';
         } else if (url === '/admin' || url === '/admin/' || url === '/admin/stats' || url === '/admin/stats/' || url === '/admin/reminders' || url === '/admin/reminders/') {
             // 관리자 페이지 - 서명된 세션 토큰으로 인증 및 권한 검증
             const session = getSession(req);

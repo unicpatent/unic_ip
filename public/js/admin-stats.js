@@ -5,7 +5,8 @@ const ACTION_LABELS = {
     search_application: '출원특허 검색',
     export_excel: '엑셀 다운로드',
     alert_signup: '알림 신청',
-    renewal_request: '납부의뢰'
+    renewal_request: '납부의뢰',
+    admin_recovery: '관리자 계정 복구 메일'
 };
 const SOURCE_LABELS = { alert_signup: '알림 신청', renewal_request: '납부의뢰' };
 

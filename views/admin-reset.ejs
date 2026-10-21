@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <title><%= title %> - 유니크 특허사무소</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <style>
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-family: 'Noto Sans KR', sans-serif; color: #2F3B40; padding: 16px; box-sizing: border-box; }
+        .card { width: 100%; max-width: 420px; background: #fff; border-radius: 10px; border-top: 4px solid #54B435; box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 2rem 1.75rem; box-sizing: border-box; }
+        h1 { font-size: 1.3rem; color: #0F172A; margin: 0 0 0.5rem; }
+        .desc { font-size: 0.9rem; color: #64748b; margin: 0 0 1.5rem; line-height: 1.6; }
+        label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.4rem; }
+        input { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 1rem; }
+        input:focus { outline: none; border-color: #54B435; }
+        button, .btn { display: block; width: 100%; padding: 0.8rem; background: #54B435; color: #fff; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; box-sizing: border-box; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .msg { display: none; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+        .msg-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+        .msg-ok { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>관리자 비밀번호 재설정</h1>
+        <p class="desc">새로 사용할 비밀번호를 입력해주세요. 이 링크는 30분 동안 한 번만 사용할 수 있습니다.</p>
+
+        <div class="msg msg-error" id="errorMsg"></div>
+        <div class="msg msg-ok" id="okMsg"></div>
+
+        <form id="resetForm">
+            <label for="password">새 비밀번호</label>
+            <input type="password" id="password" minlength="8" required autocomplete="new-password" placeholder="8자 이상">
+            <label for="passwordConfirm">새 비밀번호 확인</label>
+            <input type="password" id="passwordConfirm" required autocomplete="new-password" placeholder="한 번 더 입력">
+            <button type="submit" id="submitBtn">비밀번호 변경</button>
+        </form>
+        <a href="/?adminLogin=1" class="btn" id="loginLink" style="display:none;">로그인하러 가기</a>
+    </div>
+
+    <script>
+    (function () {
+        var token = new URLSearchParams(window.location.search).get('token');
+        // 주소창·방문 기록에 토큰이 남지 않도록 쿼리 제거
+        history.replaceState(null, '', window.location.pathname);
+
+        var form = document.getElementById('resetForm');
+        var errorMsg = document.getElementById('errorMsg');
+        var okMsg = document.getElementById('okMsg');
+        var showError = function (m) { errorMsg.textContent = m; errorMsg.style.display = 'block'; };
+
+        if (!token) {
+            form.style.display = 'none';
+            showError('재설정 링크가 올바르지 않습니다. 로그인 화면에서 복구 메일을 다시 요청해주세요.');
+            document.getElementById('loginLink').style.display = 'block';
+            return;
+        }
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            var password = document.getElementById('password').value;
+            if (password.length < 8) return showError('새 비밀번호는 8자 이상이어야 합니다.');
+            if (password !== document.getElementById('passwordConfirm').value) return showError('새 비밀번호와 확인 값이 일치하지 않습니다.');
+
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '변경 중...';
+            try {
+                var res = await fetch('/api/admin/recovery/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, password: password })
+                });
+                var data = await res.json();
+                if (!data.success) throw new Error(data.message);
+                form.style.display = 'none';
+                okMsg.textContent = data.message + ' (로그인 이메일: ' + data.email + ')';
+                okMsg.style.display = 'block';
+                document.getElementById('loginLink').style.display = 'block';
+            } catch (err) {
+                showError(err.message || '비밀번호를 변경하지 못했습니다.');
+                btn.disabled = false;
+                btn.textContent = '비밀번호 변경';
+            }
+        });
+    })();
+    </script>
+</body>
+</html>
