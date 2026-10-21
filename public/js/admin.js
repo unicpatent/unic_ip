@@ -37,6 +37,25 @@ document.addEventListener('DOMContentLoaded', function() {
         editForm.addEventListener('submit', handleEditSubmit);
     }
 
+    // 신규 회원 등록
+    const createBtn = document.getElementById('createBtn');
+    if (createBtn) {
+        createBtn.addEventListener('click', openCreateModal);
+    }
+    const createForm = document.getElementById('createForm');
+    if (createForm) {
+        createForm.addEventListener('submit', handleCreateSubmit);
+    }
+    const createRole = document.getElementById('createRole');
+    if (createRole) {
+        // 관리자로 등록할 때만 로그인용 비밀번호 입력
+        createRole.addEventListener('change', function() {
+            var isAdmin = createRole.value === 'admin';
+            document.getElementById('createPasswordGroup').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('createPassword').required = isAdmin;
+        });
+    }
+
     // 테이블 버튼 이벤트 위임
     const tableBody = document.getElementById('userTableBody');
     if (tableBody) {
@@ -365,6 +384,96 @@ async function handleEditSubmit(e) {
     submitBtn.textContent = '저장';
 }
 
+// 신규 회원 등록 모달 열기
+function openCreateModal() {
+    document.getElementById('createForm').reset();
+    document.getElementById('createPasswordGroup').style.display = 'none';
+    document.getElementById('createPassword').required = false;
+    document.getElementById('createErrorMessage').style.display = 'none';
+    document.getElementById('createSuccessMessage').style.display = 'none';
+    document.getElementById('createModal').style.display = 'flex';
+    document.getElementById('createName').focus();
+}
+
+// 신규 회원 등록 모달 닫기
+function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+}
+
+// 신규 회원 등록 처리
+async function handleCreateSubmit(e) {
+    e.preventDefault();
+
+    var digits = function(id) { return document.getElementById(id).value.replace(/[^0-9]/g, ''); };
+    var name = document.getElementById('createName').value.trim();
+    var email = document.getElementById('createEmail').value.trim();
+    var phone = document.getElementById('createPhone').value.trim();
+    var businessNumber = digits('createBusinessNumber');
+    var customerNumber = digits('createCustomerNumber');
+    var discountType = document.getElementById('createDiscountType').value;
+    var role = document.getElementById('createRole').value;
+    var password = document.getElementById('createPassword').value;
+
+    var errorDiv = document.getElementById('createErrorMessage');
+    var successDiv = document.getElementById('createSuccessMessage');
+    var submitBtn = document.getElementById('createSubmitBtn');
+
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    var showError = function(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    };
+
+    if (!name || !email) return showError('이름과 이메일은 필수 항목입니다.');
+    if (businessNumber && businessNumber.length !== 10) return showError('사업자번호는 10자리 숫자여야 합니다.');
+    if (customerNumber && customerNumber.length !== 12) return showError('고객번호는 12자리 숫자여야 합니다.');
+    if (role === 'admin' && password.length < 8) return showError('관리자는 8자 이상의 비밀번호가 필요합니다.');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '등록 중...';
+
+    try {
+        var response = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                phone: phone,
+                business_number: businessNumber,
+                customer_number: customerNumber,
+                discount_type: discountType,
+                role: role,
+                password: role === 'admin' ? password : undefined
+            })
+        });
+
+        var result = await response.json();
+
+        if (result.success) {
+            successDiv.textContent = result.message || '회원이 등록되었습니다.';
+            successDiv.style.display = 'block';
+            setTimeout(function() {
+                closeCreateModal();
+                // 새 회원을 찾기 쉽도록 검색 조건을 초기화하고 첫 페이지부터 다시 로드
+                document.getElementById('searchInput').value = '';
+                currentSearch = '';
+                currentPage = 1;
+                loadUsers();
+            }, 800);
+        } else {
+            showError(result.message || '등록에 실패했습니다.');
+        }
+    } catch (error) {
+        showError('서버 오류가 발생했습니다.');
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = '등록';
+}
+
 // 회원 상태 토글
 async function toggleUserStatus(userId, currentStatus) {
     var newStatus = currentStatus === 'active' ? 'suspended' : 'active';
@@ -440,9 +549,10 @@ function escapeHtml(text) {
 
 // 모달 외부 클릭 시 닫기
 document.addEventListener('click', function(e) {
-    var modal = document.getElementById('editModal');
-    if (e.target === modal) {
+    if (e.target === document.getElementById('editModal')) {
         closeEditModal();
+    } else if (e.target === document.getElementById('createModal')) {
+        closeCreateModal();
     }
 });
 
@@ -450,5 +560,6 @@ document.addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeEditModal();
+        closeCreateModal();
     }
 });
