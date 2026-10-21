@@ -467,6 +467,7 @@ console.log('🔄 등록특허 스크립트 로드됨 - 버전: 2025.09.24.v1');
 <script>window._lang = '<%= lang %>';</script>
 
 <!-- 등록특허 검색 기능 및 연차료 계산 기능 -->
+<script src="/js/annuity.js?v=2026.10.21"></script>
 <script src="/js/registered.js?v=2026.10.21.v3"></script>
 
 <!-- 인라인 검색 기능 (백업용) -->
@@ -825,80 +826,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // 기존 연차료 계산 관련 상수들과 함수들은 외부 파일로 이동
 // 이 섹션은 추가 기능을 위한 공간으로 사용
 
-// 연차료 계산 정책 (annuity.txt에서 가져온 정책)
-const ANNUITY_POLICY = {
-    "name": "KIPO-default",
-    "currency": "KRW",
-    "grace_months": 6,
-    "recovery_months": 3,
-    "late_fee_table": {
-        "1": 0.03,
-        "2": 0.06,
-        "3": 0.09,
-        "4": 0.12,
-        "5": 0.15,
-        "6": 0.18
-    },
-    "recovery_policy": { "type": "multiplier", "value": 2.0 },
-    "rounding": "nearest_10",
-    "reminder_rules": [
-        { "months_before_due": 6, "label": "사전예고-6개월" },
-        { "months_before_due": 3, "label": "사전예고-3개월" },
-        { "months_before_due": 1, "label": "사전예고-1개월" }
-    ]
-};
-
-// 특허 연차료 기본료 테이블 (등록번호 '10'으로 시작)
-const NEW_BASE_FEES = {
-    1: 13000,   2: 13000,   3: 13000,        // 1~3년차: 13,000원
-    4: 36000,   5: 36000,   6: 36000,        // 4~6년차: 36,000원
-    7: 90000,   8: 90000,   9: 90000,        // 7~9년차: 90,000원
-    10: 216000, 11: 216000, 12: 216000,      // 10~12년차: 216,000원
-    13: 324000, 14: 324000, 15: 324000,      // 13~25년차: 324,000원
-    16: 324000, 17: 324000, 18: 324000,
-    19: 324000, 20: 324000, 21: 324000, 22: 324000, 23: 324000, 24: 324000, 25: 324000
-};
-
-// 특허 청구항 가산료 테이블 (등록번호 '10'으로 시작)
-const NEW_CLAIM_FEES = {
-    1: 12000,   2: 12000,   3: 12000,        // 1~3년차: 12,000원
-    4: 20000,   5: 20000,   6: 20000,        // 4~6년차: 20,000원
-    7: 34000,   8: 34000,   9: 34000,        // 7~9년차: 34,000원
-    10: 49000,  11: 49000,  12: 49000,       // 10~12년차: 49,000원
-    13: 49000,  14: 49000,  15: 49000,       // 13~25년차: 49,000원
-    16: 49000,  17: 49000,  18: 49000,
-    19: 49000,  20: 49000,  21: 49000, 22: 49000, 23: 49000, 24: 49000, 25: 49000
-};
-
-// 실용신안 연차료 기본료 테이블 (등록번호 '20'으로 시작)
-const UM_BASE_FEES = {
-    1: 12000,   2: 12000,   3: 12000,        // 1~3년차: 12,000원
-    4: 25000,   5: 25000,   6: 25000,        // 4~6년차: 25,000원
-    7: 60000,   8: 60000,   9: 60000,        // 7~9년차: 60,000원
-    10: 160000, 11: 160000, 12: 160000,      // 10~12년차: 160,000원
-    13: 240000, 14: 240000, 15: 240000       // 13~15년차: 240,000원
-};
-
-// 실용신안 청구항 가산료 테이블 (등록번호 '20'으로 시작)
-const UM_CLAIM_FEES = {
-    1: 4000,    2: 4000,    3: 4000,         // 1~3년차: 4,000원
-    4: 9000,    5: 9000,    6: 9000,         // 4~6년차: 9,000원
-    7: 14000,   8: 14000,   9: 14000,        // 7~9년차: 14,000원
-    10: 20000,  11: 20000,  12: 20000,       // 10~12년차: 20,000원
-    13: 20000,  14: 20000,  15: 20000        // 13~15년차: 20,000원
-};
-
-// 등록번호로 실용신안 여부 판별 (앞 2자리가 '20'이면 실용신안)
-function isUtilityModel(registrationNumber) {
-    if (!registrationNumber) return false;
-    const cleanedNo = registrationNumber.replace(/-/g, '');
-    return cleanedNo.substring(0, 2) === '20';
-}
-
-// 등록번호에 따른 최대 존속기간 반환 (특허: 25년, 실용신안: 15년)
-function getMaxYear(registrationNumber) {
-    return isUtilityModel(registrationNumber) ? 15 : 25;
-}
+// 연차료 요율 테이블·실용신안 판별·연차 계산은 /js/annuity.js (UnicAnnuity)에 공용으로 정의
 
 // 연차료 계산 헬퍼 함수들 (간소화)
 
@@ -916,42 +844,8 @@ function formatDate(dateStr) {
     return dateStr;
 }
 
-// 새로운 연차료 계산에 따른 감면 유형 정의
-const NEW_DISCOUNT_TYPES = {
-    'type1': { 
-        name: '개인/중소기업/공공연구기관/전담조직/지방자치단체', 
-        rate: 0.5,  // 50% 감면 (4년차부터 존속기간까지)
-        description: '개인, 중소기업, 공공연구기관, 전담조직, 지방자치단체 등이 해당됩니다.',
-        applicableFromYear: 4
-    },
-    'type1_1': { 
-        name: '중소기업 + 직무발명보상우수기업/지식재산경영인증기업', 
-        rate: 0.7,  // 4~9년차 70% 감면, 10년차부터 50% 감면
-        rate10Plus: 0.5,  // 10년차부터는 50% 감면
-        description: '중소기업이면서 직무발명보상우수기업 또는 지식재산경영인증기업입니다.',
-        applicableFromYear: 4
-    },
-    'type2': { 
-        name: '중견기업', 
-        rate: 0.3,  // 30% 감면 (4~9년차)
-        description: '중견기업입니다.',
-        applicableFromYear: 4,
-        applicableToYear: 9
-    },
-    'type2_1': { 
-        name: '중견기업 + 직무발명보상우수기업/지식재산경영인증기업', 
-        rate: 0.5,  // 50% 감면 (4~9년차)
-        description: '중견기업이면서 직무발명보상우수기업 또는 지식재산경영인증기업입니다.',
-        applicableFromYear: 4,
-        applicableToYear: 9
-    },
-    'none': {
-        name: '해당사항 없음',
-        rate: 0,
-        description: '감면 대상이 아닙니다.',
-        applicableFromYear: 1
-    }
-};
+// 감면 유형 정의 (공용: /js/annuity.js)
+const NEW_DISCOUNT_TYPES = UnicAnnuity.DISCOUNT_TYPES;
 
 // 감면 선택 모달 표시 함수
 function showDiscountSelectionModal() {
@@ -1128,6 +1022,20 @@ function performNewAnnuityCalculation(discountType, options) {
 
     const today = new Date();
 
+    // 계산 결과를 표의 연차료 컬럼(10~15번째)에 반영
+    const renderCalcCells = (cells, cd) => {
+        cells[10].textContent = cd.dueDate;     // 해당 연차료 납부마감일
+        cells[11].textContent = cd.annualYear;  // 해당연차수
+        cells[12].textContent = cd.annualFee;   // 해당연차료
+        // 미납여부 상태 표시 (미납일 경우 빨간색)
+        cells[13].textContent = cd.validityStatus === _PAID ? '-' : cd.validityStatus;
+        cells[13].className = cd.validityStatus === _UNPAID ? 'text-danger' : '';
+        cells[14].textContent = cd.latePaymentPeriod;  // 추납기간 마감일
+        cells[14].className = '';
+        cells[15].textContent = cd.recoveryPeriod;     // 회복기간 마감일
+        cells[15].className = '';
+    };
+
     // 모든 특허 데이터 처리 (페이지네이션과 관계없이)
     for (let actualIndex = 0; actualIndex < window.currentPatents.length; actualIndex++) {
         const patent = window.currentPatents[actualIndex];
@@ -1147,13 +1055,14 @@ function performNewAnnuityCalculation(discountType, options) {
             }
         }
 
-        // 등록상태가 '등록유지'인 경우에만 연차료 계산
-        if (patent.registrationStatus !== '등록유지') {
-            console.log('⚠️ 특허 ' + actualIndex + ' 등록상태가 등록유지가 아님:', patent.registrationStatus);
+        // 연차 계산은 공용 로직 사용 (/js/annuity.js)
+        const result = UnicAnnuity.calculatePatent(patent, discountType, today);
+        const previousPaymentMonth = _fmtPrevPay(patent.paymentHistory);
 
+        if (result.status === 'inactive') {
             // 등록유지가 아닌 경우 N/A 표시
             patent.calculatedData = {
-                previousPaymentMonth: _fmtPrevPay(patent.paymentHistory),
+                previousPaymentMonth: previousPaymentMonth,
                 dueDate: _NA,
                 annualYear: _NA,
                 annualFee: _NA,
@@ -1161,256 +1070,32 @@ function performNewAnnuityCalculation(discountType, options) {
                 latePaymentPeriod: _NA,
                 recoveryPeriod: _NA
             };
-
-            // 현재 페이지에 표시되는 경우만 UI 업데이트
-            if (cells) {
-                // 직전년도 납부정보는 건드리지 않음 (cells[9]를 유지)
-                // cells[9].textContent는 이미 fetchPaymentHistory에서 설정되었으므로 수정하지 않음
-                cells[10].textContent = _NA; // 해당 연차료 납부마감일
-                cells[11].textContent = _NA; // 해당연차수
-                cells[12].textContent = _NA; // 해당연차료
-                cells[13].textContent = _NA; // 유효/불납
-                cells[14].textContent = _NA; // 추납기간
-                cells[15].textContent = _NA; // 회복기간
-            }
-            continue;
-        }
-
-        // 등록일이 있는 경우에만 계산
-        if (patent.registrationDate && patent.registrationDate !== '-') {
-            const registrationDate = new Date(patent.registrationDate);
-            
-            // 3년 업프론트 납부 규칙 적용: 등록일 기준 3년 후부터 연차료 납부 시작
-            const threeYearsAfterRegistration = new Date(registrationDate);
-            threeYearsAfterRegistration.setFullYear(threeYearsAfterRegistration.getFullYear() + 3);
-            
-            // 현재 날짜가 등록일 + 3년이 아직 안 된 경우 처리
-            let isBeforeFirstPaymentDue = today < threeYearsAfterRegistration;
-            
-            if (isBeforeFirstPaymentDue) {
-                // 현재 날짜 < 등록일 + 3년인 경우:
-                // - 해당 연차료 납부마감일: 등록일 + 3년
-                // - 해당연차수: 4년차
-                // - 직전년도 납부연월: 빈칸
-                // - 추납기간, 회복기간: 해당 연차료 납부마감일 기준 계산
-                
-                // 4년차 연차료 계산
-                const fourthYearCalculation = calculateNewAnnuityFee(4, patent.claimCount || 1, discountType, "정상납부", null, null, patent.registrationNumber);
-
-                // 납부 마감일 계산
-                const dueDateStr = (parseInt(patent.registrationDate.substring(0, 4)) + 3) + patent.registrationDate.substring(4);
-                const dueDate = new Date(dueDateStr.substring(0, 4) + '-' + dueDateStr.substring(5, 7) + '-' + dueDateStr.substring(8, 10));
-
-                // 추납기간과 회복기간 계산
-                let latePaymentPeriod = '-';
-                let recoveryPeriod = '-';
-
-                // 현재 날짜가 납부 마감일을 지난 경우에만 계산
-                if (today > dueDate) {
-                    // 추납기간: 납부 마감일 + 6개월
-                    const latePaymentEnd = new Date(dueDate);
-                    latePaymentEnd.setMonth(latePaymentEnd.getMonth() + 6);
-
-                    // 회복기간: 납부 마감일 + 9개월 (추납기간 + 3개월)
-                    const recoveryEnd = new Date(dueDate);
-                    recoveryEnd.setMonth(recoveryEnd.getMonth() + 9);
-
-                    // 추납기간과 회복기간 마감일 모두 표시
-                    latePaymentPeriod = latePaymentEnd.getFullYear() + '.' +
-                                       String(latePaymentEnd.getMonth() + 1).padStart(2, '0') + '.' +
-                                       String(latePaymentEnd.getDate()).padStart(2, '0');
-
-                    recoveryPeriod = recoveryEnd.getFullYear() + '.' +
-                                   String(recoveryEnd.getMonth() + 1).padStart(2, '0') + '.' +
-                                   String(recoveryEnd.getDate()).padStart(2, '0');
-                }
-
-                // 계산된 데이터를 특허 객체에 저장
-                patent.calculatedData = {
-                    previousPaymentMonth: _fmtPrevPay(patent.paymentHistory),
-                    dueDate: dueDateStr, // 해당 연차료 납부마감일
-                    annualYear: _fmtYear(4),
-                    annualFee: _fmtFee(fourthYearCalculation.totalFee),
-                    validityStatus: _PAID,
-                    latePaymentPeriod: latePaymentPeriod,
-                    recoveryPeriod: recoveryPeriod
-                };
-
-                console.log('💾 특허 ' + actualIndex + ' 계산 데이터 저장 완료 (등록일+3년 이전):', {
-                    applicationNumber: patent.applicationNumber,
-                    registrationDate: patent.registrationDate,
-                    annualYear: patent.calculatedData.annualYear,
-                    annualFee: patent.calculatedData.annualFee,
-                    isInCurrentPage: isInCurrentPage
-                });
-
-                // 현재 페이지에 표시되는 경우 UI 업데이트
-                if (cells) {
-                    // 직전년도 납부정보는 건드리지 않음 (cells[9]를 유지)
-                    // cells[9].textContent는 이미 fetchPaymentHistory에서 설정되었으므로 수정하지 않음
-                    cells[10].textContent = patent.calculatedData.dueDate; // 해당 연차료 납부마감일
-                    cells[11].textContent = patent.calculatedData.annualYear; // 해당연차수
-                    cells[12].textContent = patent.calculatedData.annualFee; // 해당연차료
-
-                    // 미납여부 상태 표시
-                    if (patent.calculatedData.validityStatus === _PAID) {
-                        cells[13].textContent = '-';
-                        cells[13].className = '';
-                    } else {
-                        cells[13].textContent = patent.calculatedData.validityStatus;
-                        cells[13].className = '';
-                    }
-
-                    // 추납기간 마감일
-                    cells[14].textContent = patent.calculatedData.latePaymentPeriod;
-                    cells[14].className = '';
-
-                    // 회복기간 마감일
-                    cells[15].textContent = patent.calculatedData.recoveryPeriod;
-                    cells[15].className = '';
-                }
-                continue;
-            }
-
-            // 현재 연차수 계산 (4년차부터 시작)
-            const annualYear = Math.floor((today.getTime() - threeYearsAfterRegistration.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) + 4;
-            
-            // 다음 연차수 계산 (1년 앞서서 납부하는 개념)
-            let nextYear = annualYear + 1;
-
-            // 미납 상태 확인 로직 추가
-            let isUnpaid = false;
-            let adjustedNextYear = nextYear;
-
-            // 납부 이력이 있는 경우 미납 여부 확인
-            if (patent.paymentHistory && patent.paymentHistory.lastAnnl && patent.paymentHistory.lastAnnl !== '-') {
-                const lastPaidYear = parseInt(patent.paymentHistory.lastAnnl);
-
-                // 해당연차수 - 직전년도 연차수 = 2 이면 미납 상태
-                if (nextYear - lastPaidYear === 2) {
-                    isUnpaid = true;
-                    adjustedNextYear = nextYear - 1; // 해당연차수 조정
-                    console.log('⚠️ 미납 감지:', {
-                        applicationNumber: patent.applicationNumber,
-                        원래해당연차수: nextYear,
-                        직전년도연차수: lastPaidYear,
-                        조정된해당연차수: adjustedNextYear
-                    });
-                }
-            }
-
-            // 조정된 연차수로 업데이트
-            nextYear = adjustedNextYear;
-
+        } else if (result.status === 'expired') {
             // 연차수가 최대연차를 초과하면 특허 만료
-            const maxYear = getMaxYear(patent.registrationNumber);
-            if (nextYear > maxYear) {
-                patent.calculatedData = {
-                    previousPaymentMonth: _fmtPrevPay(patent.paymentHistory),
-                    dueDate: '-',
-                    annualYear: _EXPIRED,
-                    annualFee: '-',
-                    validityStatus: _EXPIRED,
-                    latePaymentPeriod: '-',
-                    recoveryPeriod: '-'
-                };
-
-                if (cells) {
-                    // 직전년도 납부정보는 건드리지 않음 (cells[9]를 유지)
-                    cells[10].textContent = '-'; // 해당 연차료 납부마감일
-                    cells[11].textContent = _EXPIRED; // 해당연차수
-                    cells[12].textContent = '-'; // 해당연차료
-                    cells[13].textContent = _EXPIRED; // 유효/불납
-                    cells[14].textContent = '-'; // 추납기간
-                    cells[15].textContent = '-'; // 회복기간
-                }
-                continue;
-            }
-            
-            // 다음 연차 정보 계산 (해당연차수/해당연차료에 표시할 정보)
-            const nextCalculation = calculateNewAnnuityFee(nextYear, patent.claimCount || 1, discountType, "정상납부", null, null, patent.registrationNumber);
-
-            // 임시값 설정
-            const nextStatus = "정상납부";
-
-            // 납부 마감일 계산
-            const dueDateStr = (parseInt(patent.registrationDate.substring(0, 4)) + nextYear - 1) + patent.registrationDate.substring(4);
-            const dueDate = new Date(dueDateStr.substring(0, 4) + '-' + dueDateStr.substring(5, 7) + '-' + dueDateStr.substring(8, 10));
-
-            // 추납기간과 회복기간 계산 - 항상 마감일 표시
-            let latePaymentPeriod = '-';
-            let recoveryPeriod = '-';
-
-            // 추납기간: 납부 마감일 + 6개월
-            const latePaymentEnd = new Date(dueDate);
-            latePaymentEnd.setMonth(latePaymentEnd.getMonth() + 6);
-
-            // 회복기간: 납부 마감일 + 9개월 (추납기간 + 3개월)
-            const recoveryEnd = new Date(dueDate);
-            recoveryEnd.setMonth(recoveryEnd.getMonth() + 9);
-
-            // 추납기간 마감일 표시 (납부 마감일이 지난 경우 항상 표시)
-            if (today > dueDate) {
-                latePaymentPeriod = latePaymentEnd.getFullYear() + '.' +
-                                   String(latePaymentEnd.getMonth() + 1).padStart(2, '0') + '.' +
-                                   String(latePaymentEnd.getDate()).padStart(2, '0');
-
-                recoveryPeriod = recoveryEnd.getFullYear() + '.' +
-                               String(recoveryEnd.getMonth() + 1).padStart(2, '0') + '.' +
-                               String(recoveryEnd.getDate()).padStart(2, '0');
-            }
-
-            // 정상납부/미납 상태 결정
-            let paymentStatus = isUnpaid ? _UNPAID : _PAID;
-
-            // 계산된 데이터를 특허 객체에 저장
             patent.calculatedData = {
-                previousPaymentMonth: _fmtPrevPay(patent.paymentHistory),
-                dueDate: dueDateStr,  // 해당 연차료 납부마감일
-                annualYear: _fmtYear(nextYear),
-                annualFee: _fmtFee(nextCalculation.totalFee),
-                validityStatus: paymentStatus,  // 미납 또는 유효 상태
-                latePaymentPeriod: latePaymentPeriod,
-                recoveryPeriod: recoveryPeriod
+                previousPaymentMonth: previousPaymentMonth,
+                dueDate: '-',
+                annualYear: _EXPIRED,
+                annualFee: '-',
+                validityStatus: _EXPIRED,
+                latePaymentPeriod: '-',
+                recoveryPeriod: '-'
             };
-            
-            console.log('💾 특허 ' + actualIndex + ' 계산 데이터 저장 완료:', {
-                applicationNumber: patent.applicationNumber,
-                annualYear: patent.calculatedData.annualYear,
-                annualFee: patent.calculatedData.annualFee,
-                validityStatus: patent.calculatedData.validityStatus,
-                isInCurrentPage: isInCurrentPage
-            });
-            
-            // 현재 페이지에 표시되는 경우만 UI 업데이트
-            if (cells) {
-                // 직전년도 납부정보는 건드리지 않음 (cells[9]를 유지)
-                // cells[9].textContent는 이미 fetchPaymentHistory에서 설정되었으므로 수정하지 않음
-                cells[10].textContent = patent.calculatedData.dueDate; // 해당 연차료 납부마감일
-                cells[11].textContent = patent.calculatedData.annualYear; // 해당연차수
-                cells[12].textContent = patent.calculatedData.annualFee; // 해당연차료
-
-                // 미납여부 상태 표시 (미납일 경우 빨간색)
-                if (patent.calculatedData.validityStatus === _PAID) {
-                    cells[13].textContent = '-';
-                    cells[13].className = '';
-                } else {
-                    cells[13].textContent = patent.calculatedData.validityStatus;
-                    cells[13].className = patent.calculatedData.validityStatus === _UNPAID ? 'text-danger' : '';
-                }
-
-                // 추납기간 마감일
-                cells[14].textContent = patent.calculatedData.latePaymentPeriod;
-                cells[14].className = '';
-
-                // 회복기간 마감일
-                cells[15].textContent = patent.calculatedData.recoveryPeriod;
-                cells[15].className = '';
-            }
+        } else if (result.status === 'due') {
+            // 추납기간·회복기간 마감일은 납부 마감일이 지난 경우에만 표시
+            patent.calculatedData = {
+                previousPaymentMonth: previousPaymentMonth,
+                dueDate: UnicAnnuity.formatDate(result.dueDate),  // 해당 연차료 납부마감일
+                annualYear: _fmtYear(result.annualYear),
+                annualFee: _fmtFee(result.fee.totalFee),
+                validityStatus: result.isUnpaid ? _UNPAID : _PAID,
+                latePaymentPeriod: result.isOverdue ? UnicAnnuity.formatDate(result.latePaymentEnd) : '-',
+                recoveryPeriod: result.isOverdue ? UnicAnnuity.formatDate(result.recoveryEnd) : '-'
+            };
         } else {
             // 등록일이 없는 경우
             patent.calculatedData = {
-                previousPaymentMonth: _fmtPrevPay(patent.paymentHistory),
+                previousPaymentMonth: previousPaymentMonth,
                 dueDate: '-',
                 annualYear: '-',
                 annualFee: '-',
@@ -1418,17 +1103,10 @@ function performNewAnnuityCalculation(discountType, options) {
                 latePaymentPeriod: '-',
                 recoveryPeriod: '-'
             };
-
-            if (cells) {
-                // 직전년도 납부정보는 건드리지 않음 (cells[9]를 유지)
-                cells[10].textContent = '-'; // 해당 연차료 납부마감일
-                cells[11].textContent = '-'; // 해당연차수
-                cells[12].textContent = '-'; // 해당연차료
-                cells[13].textContent = '-'; // 유효/불납
-                cells[14].textContent = '-'; // 추납기간
-                cells[15].textContent = '-'; // 회복기간
-            }
         }
+
+        // 현재 페이지에 표시되는 경우만 UI 업데이트 (직전년도 납부정보 cells[9]는 registered.js에서 갱신)
+        if (cells) renderCalcCells(cells, patent.calculatedData);
     }
     
     // 디버그: 계산 완료 후 전체 데이터 검증
@@ -1478,60 +1156,6 @@ function performNewAnnuityCalculation(discountType, options) {
             successDiv.remove();
         }
     }, 5000);
-}
-
-// 새로운 연차료 계산 함수 (간소화)
-function calculateNewAnnuityFee(annualYear, claimCount, discountType, status, latePaymentMonths, recoveryMonths, registrationNumber) {
-    // 1. 기본료 계산 (실용신안/특허 구분)
-    const isUM = isUtilityModel(registrationNumber);
-    const maxYear = isUM ? 15 : 25;
-    const baseFeeTable = isUM ? UM_BASE_FEES : NEW_BASE_FEES;
-    const claimFeeTable = isUM ? UM_CLAIM_FEES : NEW_CLAIM_FEES;
-    const baseFee = baseFeeTable[annualYear] || baseFeeTable[maxYear];
-
-    // 2. 청구항 가산료 계산
-    const claimFeePerItem = claimFeeTable[annualYear] || claimFeeTable[maxYear];
-    const claims = Math.max(1, parseInt(claimCount) || 1);
-    const claimSurchargeFee = claimFeePerItem * claims;
-    
-    // 3. 정상 연차료 = 기본료 + 청구항 가산료
-    const normalFee = baseFee + claimSurchargeFee;
-    
-    // 4. 감면율 적용
-    let discountRate = 0;
-    const discount = NEW_DISCOUNT_TYPES[discountType];
-    
-    if (discount && annualYear >= discount.applicableFromYear) {
-        // 감면 적용 가능한 연차인지 확인
-        const isApplicable = !discount.applicableToYear || annualYear <= discount.applicableToYear;
-        
-        if (isApplicable) {
-            // 유형1-1의 경우 10년차 이후 감면율 변경
-            if (discountType === 'type1_1' && annualYear >= 10) {
-                discountRate = discount.rate10Plus;
-            } else {
-                discountRate = discount.rate;
-            }
-        }
-    }
-    
-    // 5. 감면 연차료 계산
-    const discountedFee = Math.round(normalFee * (1 - discountRate));
-    
-    // 6. 추가 비용은 일단 0으로 설정
-    let additionalFee = 0;
-    let finalFee = discountedFee;
-    
-    return {
-        baseFee: baseFee,
-        claimSurchargeFee: claimSurchargeFee,
-        normalFee: normalFee,
-        discountRate: discountRate,
-        discountedFee: discountedFee,
-        additionalFee: additionalFee,
-        totalFee: finalFee,
-        status: status
-    };
 }
 
 // 연차료 납부의뢰 관련 함수들은 외부 스크립트 파일 (registered.js)에서 처리됩니다.

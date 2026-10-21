@@ -268,6 +268,11 @@ module.exports = async (req, res) => {
             return await adminStatsHandler(req, res);
         }
 
+        if (url.startsWith('/api/admin/reminders')) {
+            const adminRemindersHandler = require('../lib/admin-reminders.js');
+            return await adminRemindersHandler(req, res);
+        }
+
         // Static files handling
         if (url.startsWith('/css/') || url.startsWith('/js/') || url.startsWith('/images/') ||
             url === '/favicon.ico' || url === '/favicon.png' || url === '/logo.png' || url === '/unic_logo.png' || url === '/excel-icon.png' ||
@@ -334,7 +339,7 @@ module.exports = async (req, res) => {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
             title = '서비스 이용신청 완료';
-        } else if (url === '/admin' || url === '/admin/' || url === '/admin/stats' || url === '/admin/stats/') {
+        } else if (url === '/admin' || url === '/admin/' || url === '/admin/stats' || url === '/admin/stats/' || url === '/admin/reminders' || url === '/admin/reminders/') {
             // 관리자 페이지 - 서명된 세션 토큰으로 인증 및 권한 검증
             const session = getSession(req);
             if (!session) {
@@ -345,9 +350,16 @@ module.exports = async (req, res) => {
                 console.log('🔒 관리자 페이지: 권한 없음');
                 return redirect(res, '/?accessDenied=true');
             }
-            const isStats = url.startsWith('/admin/stats');
-            viewName = isStats ? 'admin-stats' : 'admin';
-            title = isStats ? '이용 통계' : '회원 관리';
+            if (url.startsWith('/admin/stats')) {
+                viewName = 'admin-stats';
+                title = '이용 통계';
+            } else if (url.startsWith('/admin/reminders')) {
+                viewName = 'admin-reminders';
+                title = '납부기한 알림';
+            } else {
+                viewName = 'admin';
+                title = '회원 관리';
+            }
         } else {
             console.log('❌ 알 수 없는 라우트:', url);
             viewName = '404';

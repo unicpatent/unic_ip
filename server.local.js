@@ -90,7 +90,7 @@ async function handleRequest(req, res) {
         req.url === '/hero-background-tech.jpg' ||
         req.url === '/manifest.json' || req.url === '/sw.js' ||
         req.url === '/robots.txt' || req.url === '/sitemap.xml') {
-        const filePath = path.join(__dirname, 'public', req.url);
+        const filePath = path.join(__dirname, 'public', req.url.split('?')[0]); // ?v= 캐시 버전 쿼리 제거
 
         if (fs.existsSync(filePath)) {
             const ext = path.extname(filePath).toLowerCase();
