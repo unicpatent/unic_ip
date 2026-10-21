@@ -308,6 +308,8 @@ function openEditModal(user) {
     document.getElementById('editBusinessNumber').value = user.business_number || '';
     document.getElementById('editCustomerNumber').value = user.customer_number || '';
     document.getElementById('editRole').value = user.role || 'user';
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editPasswordConfirm').value = '';
 
     document.getElementById('editErrorMessage').style.display = 'none';
     document.getElementById('editSuccessMessage').style.display = 'none';
@@ -331,6 +333,8 @@ async function handleEditSubmit(e) {
     var businessNumber = document.getElementById('editBusinessNumber').value.trim();
     var customerNumber = document.getElementById('editCustomerNumber').value.trim();
     var role = document.getElementById('editRole').value;
+    var password = document.getElementById('editPassword').value;
+    var passwordConfirm = document.getElementById('editPasswordConfirm').value;
 
     var errorDiv = document.getElementById('editErrorMessage');
     var successDiv = document.getElementById('editSuccessMessage');
@@ -339,10 +343,15 @@ async function handleEditSubmit(e) {
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
 
-    if (!name || !email) {
-        errorDiv.textContent = '이름과 이메일은 필수 항목입니다.';
+    var showError = function(message) {
+        errorDiv.textContent = message;
         errorDiv.style.display = 'block';
-        return;
+    };
+
+    if (!name || !email) return showError('이름과 이메일은 필수 항목입니다.');
+    if (password || passwordConfirm) {
+        if (password.length < 8) return showError('새 비밀번호는 8자 이상이어야 합니다.');
+        if (password !== passwordConfirm) return showError('새 비밀번호와 확인 값이 일치하지 않습니다.');
     }
 
     submitBtn.disabled = true;
@@ -358,7 +367,8 @@ async function handleEditSubmit(e) {
                 phone: phone,
                 business_number: businessNumber,
                 customer_number: customerNumber,
-                role: role
+                role: role,
+                password: password || undefined
             })
         });
 
@@ -368,16 +378,19 @@ async function handleEditSubmit(e) {
             successDiv.textContent = result.message || '회원 정보가 수정되었습니다.';
             successDiv.style.display = 'block';
             setTimeout(function() {
+                if (result.reloginRequired) {
+                    // 본인 계정 이메일/비밀번호 변경: 서버가 세션을 종료했으므로 로그인 화면으로 이동
+                    window.location.href = '/?adminLogin=1';
+                    return;
+                }
                 closeEditModal();
                 loadUsers();
-            }, 1000);
+            }, result.reloginRequired ? 1800 : 1000);
         } else {
-            errorDiv.textContent = result.message || '수정에 실패했습니다.';
-            errorDiv.style.display = 'block';
+            showError(result.message || '수정에 실패했습니다.');
         }
     } catch (error) {
-        errorDiv.textContent = '서버 오류가 발생했습니다.';
-        errorDiv.style.display = 'block';
+        showError('서버 오류가 발생했습니다.');
     }
 
     submitBtn.disabled = false;

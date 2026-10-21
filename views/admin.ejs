@@ -236,6 +236,15 @@
                         <option value="admin">관리자</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">새 비밀번호</label>
+                    <input type="password" id="editPassword" class="form-input" minlength="8" autocomplete="new-password" placeholder="변경할 때만 입력 (8자 이상)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">새 비밀번호 확인</label>
+                    <input type="password" id="editPasswordConfirm" class="form-input" autocomplete="new-password" placeholder="새 비밀번호를 한 번 더 입력">
+                    <p style="margin:0.35rem 0 0;font-size:0.8rem;color:#64748b;">비워 두면 비밀번호는 그대로 유지됩니다. 본인 계정의 이메일·비밀번호를 바꾸면 다시 로그인해야 합니다.</p>
+                </div>
                 <div id="editErrorMessage" class="error-message" style="display: none;"></div>
                 <div id="editSuccessMessage" class="success-message" style="display: none;"></div>
                 <div class="modal-footer">
@@ -261,7 +270,7 @@
 
     <!-- JavaScript -->
     <script src="/js/main.js"></script>
-    <script src="/js/admin.js?v=2026.10.21"></script>
+    <script src="/js/admin.js?v=2026.10.21.v2"></script>
 
     <!-- 클라이언트 측 인증 및 권한 체크 -->
     <script>
