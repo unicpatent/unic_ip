@@ -86,7 +86,7 @@ module.exports = async (req, res) => {
             return await runTracked(req, res, '/search-application2', searchApplication2Handler);
         }
 
-        // 연락처 저장 (알림 신청 / 납부의뢰 시 이름·이메일)
+        // 연락처 저장 (연차료 납부의뢰 시 이름·이메일)
         if ((url === '/track/contact' || url === '/api/track/contact') && req.method === 'POST') {
             return await saveContact(req, res);
         }
@@ -326,9 +326,6 @@ module.exports = async (req, res) => {
             viewName = 'application2';
             title = 'Patent Applications';
             lang = 'en';
-        } else if (url === '/thanks') {
-            viewName = 'thanks';
-            title = '신청 완료';
         } else if (url === '/r_thanks' || url === '/r-thanks') {
             viewName = 'e_thanks';
             title = '연차료 납부의뢰 완료';
@@ -443,8 +440,10 @@ module.exports = async (req, res) => {
         
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        // 없는 주소는 404 상태로 응답 (검색엔진이 빈 페이지를 정상 페이지로 수집하지 않도록)
+        if (viewName === '404') res.status(404);
         res.send(html);
-        
+
     } catch (error) {
         console.error('Main route error:', error);
 

@@ -52,3 +52,20 @@ Thumbs.db
 test-*.js
 debug-*.js
 nul
+
+# 개인 메모·스크린샷·회원 데이터 (공개 저장소에 올리지 않음)
+/*.txt
+/*.TXT
+/*.ini
+/*.jpg
+/*.png
+/*.json
+!/package.json
+!/package-lock.json
+!/vercel.json
+/*.py
+/requirements.txt
+/README_Python.md
+
+# 로컬에 복사해 둔 프로젝트 사본
+/unic_ip/
