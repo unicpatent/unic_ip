@@ -57,12 +57,10 @@
                 <span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
-                <li id="loginLi"><a href="#" id="loginBtn"><%= lang === 'en' ? 'Login' : '로그인' %></a></li>
-                <li id="serviceApplicationLi"><a href="#" id="serviceApplicationBtn"><%= lang === 'en' ? 'Sign Up' : '서비스 이용신청' %></a></li>
                 <li><a href="#" id="registeredBtn"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a></li>
                 <li><a href="#" id="applicationBtn"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a></li>
                 <li><a href="https://www.unicpat.com" target="_blank"><%= lang === 'en' ? 'Unic Website' : '유니크 홈페이지' %></a></li>
-                <li id="myInfoLi" style="display:none;"><a href="#" id="myInfoBtn"><%= lang === 'en' ? 'My Profile' : '나의 정보 수정' %></a></li>
+                <li id="adminLi" style="display:none;"><a href="/admin"><%= lang === 'en' ? 'Admin' : '관리자' %></a></li>
                 <li id="logoutLi" style="display:none;"><a href="#" id="logoutBtn"><%= lang === 'en' ? 'Logout' : '로그아웃' %></a></li>
             </ul>
         </nav>
@@ -217,7 +215,7 @@
         <div class="modal-overlay" id="modalOverlay"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h3><%= lang === 'en' ? 'Login' : '로그인' %></h3>
+                <h3><%= lang === 'en' ? 'Admin Login' : '관리자 로그인' %></h3>
                 <button type="button" class="close-btn" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
@@ -235,11 +233,8 @@
                         <button type="submit" class="login-submit-btn"><%= lang === 'en' ? 'Login' : '로그인' %></button>
                     </div>
                 </form>
-                <div style="text-align: center; margin-top: 0.75rem;">
-                    <a href="#" onclick="event.preventDefault(); closeLoginModal(); showResetPasswordModal();" style="color: #6b7280; font-size: 0.85rem; text-decoration: underline;"><%= lang === 'en' ? 'Forgot your password?' : '패스워드를 잊으셨나요?' %></a>
-                </div>
                 <div class="service-notice">
-                    <p><%= lang === 'en' ? 'Please sign up to use the service.' : '서비스를 이용하기 위해서는 서비스 이용신청을 진행해주세요.' %></p>
+                    <p><%= lang === 'en' ? 'Patent search is available without login. This login is for administrators only.' : '특허 검색은 로그인 없이 이용하실 수 있습니다. 관리자 전용 로그인입니다.' %></p>
                 </div>
             </div>
         </div>
@@ -352,7 +347,6 @@
 
         // Modal elements
         const loginModal = document.getElementById('loginModal');
-        const loginBtn = document.getElementById('loginBtn');
         const closeModal = document.getElementById('closeModal');
         const modalOverlay = document.getElementById('modalOverlay');
         const loginForm = document.getElementById('loginForm');
@@ -361,12 +355,11 @@
         const registeredBtn = document.getElementById('registeredBtn');
         const applicationBtn = document.getElementById('applicationBtn');
 
-        // Show modal
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        // Show modal (관리자 로그인: /admin 접속 시 /?adminLogin=1 로 이동해 열림)
+        function openLoginModal() {
             loginModal.style.display = 'block';
             document.body.style.overflow = 'hidden';
-        });
+        }
 
         // Close modal
         function closeLoginModal() {
@@ -404,10 +397,13 @@
 
                 const result = await response.json();
 
-                if (result.success) {
+                if (result.success && result.user && result.user.role === 'admin') {
                     closeLoginModal();
-                    updateNavigation(true);
-                    window.location.href = _registeredPath;
+                    window.location.href = '/admin';
+                } else if (result.success) {
+                    // 일반 회원 로그인은 더 이상 필요 없음 (검색은 로그인 없이 이용)
+                    fetch('/api/logout').catch(function() {});
+                    showError(_lang === 'en' ? 'Login is for administrators only. You can search without logging in.' : '관리자 전용 로그인입니다. 특허 검색은 로그인 없이 이용하실 수 있습니다.');
                 } else {
                     showError(result.message || _t.loginFailed);
                 }
@@ -431,25 +427,11 @@
             errorMessage.style.display = 'block';
         }
 
-        // Update navigation based on login status
+        // Update navigation based on login status (관리자 로그인 시에만 관리자/로그아웃 메뉴 표시)
         const myInfoBtn = document.getElementById('myInfoBtn');
         function updateNavigation(isLoggedIn) {
-            var loginLi = document.getElementById('loginLi');
-            var serviceApplicationLi = document.getElementById('serviceApplicationLi');
-            var myInfoLi = document.getElementById('myInfoLi');
-            var logoutLi = document.getElementById('logoutLi');
-
-            if (isLoggedIn) {
-                loginLi.style.display = 'none';
-                serviceApplicationLi.style.display = 'none';
-                myInfoLi.style.display = '';
-                logoutLi.style.display = '';
-            } else {
-                loginLi.style.display = '';
-                serviceApplicationLi.style.display = '';
-                myInfoLi.style.display = 'none';
-                logoutLi.style.display = 'none';
-            }
+            document.getElementById('adminLi').style.display = isLoggedIn ? '' : 'none';
+            document.getElementById('logoutLi').style.display = isLoggedIn ? '' : 'none';
         }
 
         // Check login status on page load
@@ -461,15 +443,16 @@
                 history.replaceState(null, '', _homePath);
                 return;
             }
+            if (params.get('adminLogin') === '1') {
+                history.replaceState(null, '', _homePath);
+                openLoginModal();
+            }
 
             const cookies = document.cookie.split(';');
             const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
+            const adminCookie = cookies.find(cookie => cookie.trim() === 'userRole=admin');
 
-            if (loginCookie && loginCookie.includes('true')) {
-                updateNavigation(true);
-            } else {
-                updateNavigation(false);
-            }
+            updateNavigation(!!(loginCookie && loginCookie.includes('true') && adminCookie));
         }
 
         document.addEventListener('DOMContentLoaded', checkLoginStatus);
@@ -714,10 +697,12 @@
         }
 
         // 나의 정보 수정 버튼 클릭 핸들러
-        myInfoBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            showMyInfoModal();
-        });
+        if (myInfoBtn) {
+            myInfoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showMyInfoModal();
+            });
+        }
 
         // 나의 정보 수정 모달 표시
         function showMyInfoModal() {
@@ -1036,31 +1021,16 @@
             });
         }
 
-        // 로그인 상태 확인 함수
-        function isLoggedIn() {
-            const cookies = document.cookie.split(';');
-            const loginCookie = cookies.find(cookie => cookie.trim().startsWith('loginStatus='));
-            return loginCookie && loginCookie.includes('true');
-        }
-
-        // 등록특허 현황 클릭 핸들러
+        // 등록특허 현황 클릭 핸들러 (로그인 없이 바로 이동)
         registeredBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (isLoggedIn()) {
-                window.location.href = _registeredPath;
-            } else {
-                alert(_t.loginRequired);
-            }
+            window.location.href = _registeredPath;
         });
 
-        // 출원특허 현황 클릭 핸들러
+        // 출원특허 현황 클릭 핸들러 (로그인 없이 바로 이동)
         applicationBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (isLoggedIn()) {
-                window.location.href = _applicationPath;
-            } else {
-                alert(_t.loginRequired);
-            }
+            window.location.href = _applicationPath;
         });
 
         // 특허검색 버튼 클릭 핸들러
@@ -1068,8 +1038,7 @@
         if (ctaButton) {
             ctaButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                loginModal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
+                window.location.href = _registeredPath;
             });
         }
 

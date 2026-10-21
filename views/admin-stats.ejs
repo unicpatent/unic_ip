@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <title><%= title %> - 유니크 특허사무소</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/ejs-style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <style>
+        .stats-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+        .period-group { display: inline-flex; gap: 0.4rem; }
+        .period-btn { padding: 0.4rem 0.9rem; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .period-btn.active { background: #54B435; border-color: #54B435; color: #fff; font-weight: 600; }
+        .stat-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+        .stat-tile { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem 1.1rem; }
+        .stat-label { font-size: 0.8rem; color: #64748b; margin-bottom: 0.35rem; }
+        .stat-value { font-size: 1.6rem; font-weight: 700; color: #0F172A; line-height: 1.2; }
+        .stat-sub { font-size: 0.78rem; color: #94a3b8; margin-top: 0.25rem; }
+        .stats-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; }
+        .stats-card h2 { font-size: 1.05rem; color: #0F172A; margin: 0 0 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .chart { position: relative; display: flex; align-items: flex-end; gap: 2px; height: 180px; padding-top: 1.25rem; border-bottom: 1px solid #cbd5e1; }
+        .chart-col { flex: 1; height: 100%; display: flex; align-items: flex-end; cursor: default; }
+        .chart-bar { width: 100%; max-width: 28px; margin: 0 auto; background: #54B435; border-radius: 4px 4px 0 0; min-height: 0; }
+        .chart-col:hover .chart-bar { background: #3f8f26; }
+        .chart-axis { display: flex; justify-content: space-between; font-size: 0.72rem; color: #94a3b8; margin-top: 0.3rem; }
+        .chart-max { position: absolute; top: 0; left: 0; font-size: 0.72rem; color: #94a3b8; }
+        .chart-tip { position: absolute; pointer-events: none; background: #0F172A; color: #fff; font-size: 0.78rem; padding: 0.35rem 0.55rem; border-radius: 4px; white-space: nowrap; transform: translate(-50%, -110%); display: none; z-index: 2; }
+        .stats-table-wrap { overflow-x: auto; }
+        .stats-card .admin-table td, .stats-card .admin-table th { font-size: 0.85rem; white-space: nowrap; }
+        .action-tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: #f1f5f9; color: #334155; }
+        .muted { color: #94a3b8; }
+        .notice { padding: 0.9rem 1rem; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 6px; margin-bottom: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <header class="header admin-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    유니크<span>특허</span>
+                    <span class="admin-badge">관리자</span>
+                </a>
+                <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav class="nav-tabs" id="navTabs">
+                    <a href="/registered" class="nav-link">등록특허 현황</a>
+                    <a href="/application2" class="nav-link">출원특허 현황</a>
+                    <a href="/admin/stats" class="nav-link active">이용 통계</a>
+                    <a href="/admin" class="nav-link">기존 회원</a>
+                    <a href="javascript:void(0)" class="nav-link" id="logoutBtn">로그아웃</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title">
+                <h1>이용 통계</h1>
+                <p>회원가입 없이 이용한 검색 기록과 알림 신청·납부의뢰로 남긴 연락처를 확인합니다</p>
+            </div>
+
+            <div class="notice" id="errorNotice"></div>
+
+            <div class="stats-toolbar">
+                <div class="period-group" id="periodGroup">
+                    <button type="button" class="period-btn" data-days="7">7일</button>
+                    <button type="button" class="period-btn active" data-days="30">30일</button>
+                    <button type="button" class="period-btn" data-days="90">90일</button>
+                    <button type="button" class="period-btn" data-days="365">1년</button>
+                </div>
+                <span class="muted" id="updatedAt"></span>
+            </div>
+
+            <div class="stat-tiles">
+                <div class="stat-tile"><div class="stat-label">이용 건수</div><div class="stat-value" id="tileActions">-</div><div class="stat-sub" id="tileActionsSub"></div></div>
+                <div class="stat-tile"><div class="stat-label">이용자 수 (브라우저 기준)</div><div class="stat-value" id="tileVisitors">-</div><div class="stat-sub" id="tileVisitorsSub"></div></div>
+                <div class="stat-tile"><div class="stat-label">조회된 회사 수</div><div class="stat-value" id="tileCompanies">-</div><div class="stat-sub">검색한 고객번호/사업자번호 기준</div></div>
+                <div class="stat-tile"><div class="stat-label">남긴 연락처 (전체)</div><div class="stat-value" id="tileContacts">-</div><div class="stat-sub">알림 신청 + 납부의뢰</div></div>
+            </div>
+
+            <section class="stats-card">
+                <h2>일별 이용 건수</h2>
+                <div class="chart" id="dailyChart"></div>
+                <div class="chart-axis"><span id="axisStart"></span><span id="axisEnd"></span></div>
+            </section>
+
+            <section class="stats-card">
+                <h2>남긴 연락처 <button type="button" class="btn btn-secondary" id="contactsCsvBtn" style="padding:0.3rem 0.8rem;font-size:0.8rem;">CSV 다운로드</button></h2>
+                <div class="stats-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>최근 갱신</th><th>이름</th><th>이메일</th><th>연락처</th><th>고객번호</th><th>경로</th><th>최초 등록</th></tr></thead>
+                        <tbody id="contactsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="stats-card">
+                <h2>많이 조회된 회사 (상위 50)</h2>
+                <div class="stats-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>권리자/출원인</th><th>검색 번호</th><th>조회 수</th><th>이용자 수</th><th>최근 조회</th></tr></thead>
+                        <tbody id="companiesBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="stats-card">
+                <h2>최근 이용 기록 (최대 200건) <button type="button" class="btn btn-secondary" id="logsCsvBtn" style="padding:0.3rem 0.8rem;font-size:0.8rem;">CSV 다운로드</button></h2>
+                <div class="stats-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>일시</th><th>구분</th><th>검색 번호</th><th>조회 결과</th><th>건수</th><th>이용자</th><th>언어</th></tr></thead>
+                        <tbody id="logsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/admin-stats.js?v=2026.10.21"></script>
+    <script>
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch('/api/logout').finally(function() { window.location.href = '/?logout=1'; });
+    });
+    </script>
+</body>
+</html>

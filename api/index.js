@@ -4,42 +4,21 @@ const ejs = require('ejs');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const supabase = require('../lib/supabase');
+const { getSession, appendCookies, sessionCookies, clearSessionCookies } = require('../lib/auth');
+const { runTracked, saveContact } = require('../lib/tracking');
 
-// Helper functions for authentication
-function parseCookies(cookieHeader) {
-    const cookies = {};
-    if (cookieHeader) {
-        cookieHeader.split(';').forEach(cookie => {
-            const [name, value] = cookie.trim().split('=');
-            if (name && value) {
-                cookies[name] = decodeURIComponent(value);
-            }
-        });
-    }
-    return cookies;
-}
-
-// 세션 유지 시간: 30분 (1800초)
-const SESSION_MAX_AGE = 1800;
-
-function isAuthenticated(req) {
-    const cookies = parseCookies(req.headers.cookie);
-    return cookies.authToken === 'authenticated';
-}
-
-// 슬라이딩 세션: 사용자 활동 시 세션 만료 시간 갱신
+// 슬라이딩 세션: 로그인(관리자) 상태에서 활동 시 세션 만료 시간 갱신
 function refreshSession(req, res) {
-    const cookies = parseCookies(req.headers.cookie);
-    if (cookies.authToken === 'authenticated') {
-        const userEmail = cookies.userEmail || '';
-        const userRole = cookies.userRole || 'user';
-        res.setHeader('Set-Cookie', [
-            `authToken=authenticated; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
-            `loginStatus=true; Path=/; Max-Age=${SESSION_MAX_AGE}`,
-            `userEmail=${encodeURIComponent(userEmail)}; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
-            `userRole=${userRole}; Path=/; Max-Age=${SESSION_MAX_AGE}`
-        ]);
+    const session = getSession(req);
+    if (session) {
+        appendCookies(res, sessionCookies(session.email, session.role));
     }
+}
+
+function redirect(res, location) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('Location', location);
+    res.status(302).end();
 }
 
 async function serveIndexEjs(res, lang) {
@@ -80,13 +59,13 @@ module.exports = async (req, res) => {
         if (url === '/export-excel' || url === '/api/export-excel') {
             console.log('🔗 export-excel API 요청 감지, 라우팅 중...');
             const exportExcelHandler = require('../lib/export-excel.js');
-            return await exportExcelHandler(req, res);
+            return await runTracked(req, res, '/export-excel', exportExcelHandler);
         }
 
         if (url === '/search-registered' || url === '/api/search-registered') {
             console.log('🔗 search-registered API 요청 감지, 라우팅 중...');
             const searchRegisteredHandler = require('../lib/search-registered.js');
-            return await searchRegisteredHandler(req, res);
+            return await runTracked(req, res, '/search-registered', searchRegisteredHandler);
         }
 
         if (url === '/get-payment-history' || url === '/api/get-payment-history') {
@@ -104,7 +83,12 @@ module.exports = async (req, res) => {
         if (url === '/search-application2' || url === '/api/search-application2') {
             console.log('🔗 search-application2 API 요청 감지 (키프리스 스크래핑)');
             const searchApplication2Handler = require('../lib/search-application2.js');
-            return await searchApplication2Handler(req, res);
+            return await runTracked(req, res, '/search-application2', searchApplication2Handler);
+        }
+
+        // 연락처 저장 (알림 신청 / 납부의뢰 시 이름·이메일)
+        if ((url === '/track/contact' || url === '/api/track/contact') && req.method === 'POST') {
+            return await saveContact(req, res);
         }
 
         if (url === '/view-fulltext' || url === '/api/view-fulltext') {
@@ -138,64 +122,9 @@ module.exports = async (req, res) => {
             return await lookupCustomerHandler(req, res);
         }
 
-        // Register API (서비스 이용신청)
+        // 회원가입은 폐지됨 - 로그인 없이 누구나 이용 가능
         if ((url === '/register' || url === '/api/register') && req.method === 'POST') {
-            console.log('🔗 register API 요청 감지');
-
-            try {
-                const { name, email, password, phone, privacy_consent, business_number, customer_number } = req.body || {};
-
-                if (!name || !email || !password) {
-                    return res.status(400).json({ success: false, message: '이름, 이메일, 패스워드는 필수 입력항목입니다.' });
-                }
-
-                if (password.length < 6) {
-                    return res.status(400).json({ success: false, message: '패스워드는 6자 이상이어야 합니다.' });
-                }
-
-                // 이메일 중복 확인
-                const { data: existing } = await supabase
-                    .from('users')
-                    .select('email')
-                    .eq('email', email)
-                    .single();
-
-                if (existing) {
-                    return res.status(409).json({ success: false, message: '이미 등록된 이메일입니다.' });
-                }
-
-                // 패스워드 해싱 후 저장
-                const hashedPassword = await bcrypt.hash(password, 10);
-
-                // 사업자번호/고객번호 정리 (숫자만 추출)
-                const cleanBusinessNumber = business_number ? business_number.replace(/[^0-9]/g, '') : null;
-                const cleanCustomerNumber = customer_number ? customer_number.replace(/[^0-9]/g, '') : null;
-
-                const { error: insertError } = await supabase
-                    .from('users')
-                    .insert({
-                        name,
-                        email,
-                        password: hashedPassword,
-                        phone: phone || null,
-                        status: 'active',
-                        role: 'user',
-                        privacy_consent: privacy_consent || false,
-                        business_number: cleanBusinessNumber || null,
-                        customer_number: cleanCustomerNumber || null
-                    });
-
-                if (insertError) {
-                    console.error('회원가입 DB 오류:', insertError);
-                    return res.status(500).json({ success: false, message: '회원가입 처리 중 오류가 발생했습니다.' });
-                }
-
-                console.log('회원가입 성공:', email, { business_number: cleanBusinessNumber, customer_number: cleanCustomerNumber });
-                return res.json({ success: true, message: '서비스 이용신청이 완료되었습니다.' });
-            } catch (error) {
-                console.error('회원가입 처리 오류:', error);
-                return res.status(500).json({ success: false, message: '서비스 이용신청 처리 중 오류가 발생했습니다.' });
-            }
+            return res.status(410).json({ success: false, message: '회원가입 없이 바로 이용하실 수 있습니다.' });
         }
 
         // Login API
@@ -226,12 +155,7 @@ module.exports = async (req, res) => {
                 const passwordMatch = await bcrypt.compare(password, user.password);
 
                 if (passwordMatch) {
-                    res.setHeader('Set-Cookie', [
-                        `authToken=authenticated; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
-                        `loginStatus=true; Path=/; Max-Age=${SESSION_MAX_AGE}`,
-                        `userEmail=${encodeURIComponent(user.email)}; Path=/; HttpOnly; Max-Age=${SESSION_MAX_AGE}`,
-                        `userRole=${user.role}; Path=/; Max-Age=${SESSION_MAX_AGE}`
-                    ]);
+                    res.setHeader('Set-Cookie', sessionCookies(user.email, user.role));
                     return res.json({ success: true, message: '로그인 성공', user: { name: user.name, email: user.email, role: user.role } });
                 } else {
                     return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
@@ -320,65 +244,14 @@ module.exports = async (req, res) => {
             }
         }
 
-        // Reset Password API (패스워드 재설정)
+        // 패스워드 재설정은 폐지됨 (이메일+이름만으로 임시 패스워드를 화면에 보여주던 취약점)
         if ((url === '/reset-password' || url === '/api/reset-password') && req.method === 'POST') {
-            console.log('🔗 reset-password API 요청 감지');
-
-            try {
-                const { email, name } = req.body || {};
-
-                if (!email || !name) {
-                    return res.status(400).json({ success: false, message: '이메일과 이름을 입력해주세요.' });
-                }
-
-                // 이메일과 이름으로 사용자 확인
-                const { data: user, error: queryError } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('name', name)
-                    .eq('status', 'active')
-                    .single();
-
-                if (queryError || !user) {
-                    return res.status(404).json({ success: false, message: '일치하는 사용자 정보를 찾을 수 없습니다.' });
-                }
-
-                // 임시 패스워드 생성 (8자리 영숫자)
-                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-                let tempPassword = '';
-                for (let i = 0; i < 8; i++) {
-                    tempPassword += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-
-                // 임시 패스워드 해싱 후 저장
-                const hashedPassword = await bcrypt.hash(tempPassword, 10);
-                const { error: updateError } = await supabase
-                    .from('users')
-                    .update({ password: hashedPassword })
-                    .eq('id', user.id);
-
-                if (updateError) {
-                    console.error('패스워드 재설정 DB 오류:', updateError);
-                    return res.status(500).json({ success: false, message: '패스워드 재설정 처리 중 오류가 발생했습니다.' });
-                }
-
-                console.log('패스워드 재설정 성공:', email);
-                return res.json({ success: true, temp_password: tempPassword });
-            } catch (error) {
-                console.error('패스워드 재설정 처리 오류:', error);
-                return res.status(500).json({ success: false, message: '패스워드 재설정 처리 중 오류가 발생했습니다.' });
-            }
+            return res.status(410).json({ success: false, message: '패스워드 재설정은 관리자에게 문의해주세요.' });
         }
 
         // Logout API
         if (url === '/logout' || url === '/api/logout') {
-            res.setHeader('Set-Cookie', [
-                'authToken=; Path=/; HttpOnly; Max-Age=0',
-                'loginStatus=; Path=/; Max-Age=0',
-                'userEmail=; Path=/; HttpOnly; Max-Age=0',
-                'userRole=; Path=/; Max-Age=0'
-            ]);
+            res.setHeader('Set-Cookie', clearSessionCookies());
             res.json({ success: true, message: '로그아웃 되었습니다.' });
             return;
         }
@@ -388,6 +261,11 @@ module.exports = async (req, res) => {
             console.log('🔗 admin-users API 요청 감지, 라우팅 중...');
             const adminUsersHandler = require('../lib/admin-users.js');
             return await adminUsersHandler(req, res);
+        }
+
+        if (url === '/api/admin/stats') {
+            const adminStatsHandler = require('../lib/admin-stats.js');
+            return await adminStatsHandler(req, res);
         }
 
         // Static files handling
@@ -428,92 +306,21 @@ module.exports = async (req, res) => {
         let title = '페이지를 찾을 수 없습니다';
         let lang = 'ko';
 
-        // 사용자 사업자번호/고객번호 조회 함수
-        async function getUserNumbers(req) {
-            try {
-                const cookies = parseCookies(req.headers.cookie);
-                const userEmail = cookies.userEmail;
-                if (!userEmail) return { businessNumber: null, customerNumber: null };
-
-                const { data: user } = await supabase
-                    .from('users')
-                    .select('business_number, customer_number')
-                    .eq('email', userEmail)
-                    .single();
-
-                return {
-                    businessNumber: user?.business_number || null,
-                    customerNumber: user?.customer_number || null
-                };
-            } catch (error) {
-                console.error('사용자 번호 조회 오류:', error);
-                return { businessNumber: null, customerNumber: null };
-            }
-        }
-
-        // 사용자 번호 변수 초기화
-        let userBusinessNumber = null;
-        let userCustomerNumber = null;
-
-        // Authentication required routes
+        // 등록특허/출원특허 현황은 로그인 없이 누구나 이용 가능
         if (url === '/registered' || url === '/registered/') {
-            if (!isAuthenticated(req)) {
-                console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/?loginRequired=true');
-                res.status(302).end();
-                return;
-            }
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'registered';
             title = '등록특허 현황';
-            const userNumbers = await getUserNumbers(req);
-            userBusinessNumber = userNumbers.businessNumber;
-            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/en/registered' || url === '/en/registered/') {
-            if (!isAuthenticated(req)) {
-                console.log('🔒 Auth required: redirecting to login');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/en?loginRequired=true');
-                res.status(302).end();
-                return;
-            }
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'registered';
             title = 'Registered Patents';
             lang = 'en';
-            const userNumbers = await getUserNumbers(req);
-            userBusinessNumber = userNumbers.businessNumber;
-            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/application' || url === '/application/' || url === '/application2' || url === '/application2/') {
-            if (!isAuthenticated(req)) {
-                console.log('🔒 인증 필요: 로그인 페이지로 리다이렉트');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/?loginRequired=true');
-                res.status(302).end();
-                return;
-            }
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'application2';
             title = '출원특허 현황';
-            const userNumbers = await getUserNumbers(req);
-            userBusinessNumber = userNumbers.businessNumber;
-            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/en/application' || url === '/en/application/') {
-            if (!isAuthenticated(req)) {
-                console.log('🔒 Auth required: redirecting to login');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/en?loginRequired=true');
-                res.status(302).end();
-                return;
-            }
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
             viewName = 'application2';
             title = 'Patent Applications';
             lang = 'en';
-            const userNumbers = await getUserNumbers(req);
-            userBusinessNumber = userNumbers.businessNumber;
-            userCustomerNumber = userNumbers.customerNumber;
         } else if (url === '/thanks') {
             viewName = 'thanks';
             title = '신청 완료';
@@ -527,27 +334,20 @@ module.exports = async (req, res) => {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
             title = '서비스 이용신청 완료';
-        } else if (url === '/admin' || url === '/admin/') {
-            // 관리자 페이지 - 인증 및 권한 검증
-            if (!isAuthenticated(req)) {
+        } else if (url === '/admin' || url === '/admin/' || url === '/admin/stats' || url === '/admin/stats/') {
+            // 관리자 페이지 - 서명된 세션 토큰으로 인증 및 권한 검증
+            const session = getSession(req);
+            if (!session) {
                 console.log('🔒 관리자 페이지: 인증 필요');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/?loginRequired=true');
-                res.status(302).end();
-                return;
+                return redirect(res, '/?adminLogin=1');
             }
-            // 쿠키에서 역할 확인 (userRole)
-            const cookies = parseCookies(req.headers.cookie);
-            if (cookies.userRole !== 'admin') {
+            if (session.role !== 'admin') {
                 console.log('🔒 관리자 페이지: 권한 없음');
-                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-                res.setHeader('Location', '/?accessDenied=true');
-                res.status(302).end();
-                return;
+                return redirect(res, '/?accessDenied=true');
             }
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-            viewName = 'admin';
-            title = '회원 관리';
+            const isStats = url.startsWith('/admin/stats');
+            viewName = isStats ? 'admin-stats' : 'admin';
+            title = isStats ? '이용 통계' : '회원 관리';
         } else {
             console.log('❌ 알 수 없는 라우트:', url);
             viewName = '404';
@@ -625,8 +425,8 @@ module.exports = async (req, res) => {
         const html = await ejs.renderFile(viewPath, {
             title: title,
             lang: lang,
-            userBusinessNumber: userBusinessNumber || '',
-            userCustomerNumber: userCustomerNumber || '',
+            userBusinessNumber: '',
+            userCustomerNumber: '',
         }, ejsOptions);
         
         res.setHeader('Content-Type', 'text/html; charset=utf-8');

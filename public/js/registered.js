@@ -215,6 +215,15 @@ function displayResults(data) {
     }
 
     document.getElementById('resultRightHolderName').textContent = displayText;
+
+    // 연차료 납부기한 알림 신청 배너 표시
+    if (window.UnicTrack && filteredPatents.length > 0) {
+        const firstPatent = filteredPatents[0];
+        window.UnicTrack.showAlertCta({
+            customerNumber: searchType === '2' ? document.getElementById('searchInput').value.trim() : (firstPatent.applicantCd || '')
+        });
+    }
+
     // 필터링된 건수로 표시 (30, 40으로 시작하는 등록번호 제외 후)
     document.getElementById('resultTotalCount').textContent = filteredPatents.length;
 
