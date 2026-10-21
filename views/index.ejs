@@ -233,6 +233,24 @@
                         <button type="submit" class="login-submit-btn"><%= lang === 'en' ? 'Login' : '로그인' %></button>
                     </div>
                 </form>
+                <!-- 임시 비밀번호로 로그인한 관리자: 새 비밀번호 설정 단계 -->
+                <form id="setPasswordForm" style="display: none;" novalidate>
+                    <p style="margin: 0 0 1rem; padding: 0.75rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; color: #166534; font-size: 0.9rem; line-height: 1.5;"><%= lang === 'en'
+                        ? 'You signed in with a temporary password. Please set a new password.'
+                        : '임시 비밀번호로 로그인했습니다. 앞으로 사용할 새 비밀번호를 설정해주세요.' %></p>
+                    <div class="form-group">
+                        <label for="newPassword"><%= lang === 'en' ? 'New password (8+ characters)' : '새 비밀번호 (8자 이상)' %></label>
+                        <input type="password" id="newPassword" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPasswordConfirm"><%= lang === 'en' ? 'Confirm new password' : '새 비밀번호 확인' %></label>
+                        <input type="password" id="newPasswordConfirm" autocomplete="new-password">
+                    </div>
+                    <div id="setPasswordError" class="error-message" style="display: none;"></div>
+                    <div class="form-actions">
+                        <button type="submit" class="login-submit-btn" id="setPasswordBtn"><%= lang === 'en' ? 'Set password and log in' : '새 비밀번호 설정 후 로그인' %></button>
+                    </div>
+                </form>
                 <!-- 관리자 계정 복구: 정해진 복구용 메일 주소로 관리자 이메일 + 재설정 링크 발송 -->
                 <div style="text-align: center; margin-top: 0.75rem;">
                     <button type="button" id="recoveryToggle" style="background: none; border: none; color: #64748b; font-size: 0.85rem; text-decoration: underline; cursor: pointer;"><%= lang === 'en' ? 'Forgot your email or password?' : '이메일·비밀번호를 잊으셨나요?' %></button>
@@ -362,6 +380,9 @@
         const modalOverlay = document.getElementById('modalOverlay');
         const loginForm = document.getElementById('loginForm');
         const errorMessage = document.getElementById('errorMessage');
+        const setPasswordForm = document.getElementById('setPasswordForm');
+        let setupToken = null;   // 임시 비밀번호 로그인 시 받은 1회용 설정 토큰
+        let setupEmail = '';
         const logoutBtn = document.getElementById('logoutBtn');
         const registeredBtn = document.getElementById('registeredBtn');
         const applicationBtn = document.getElementById('applicationBtn');
@@ -378,6 +399,12 @@
             document.body.style.overflow = 'auto';
             errorMessage.style.display = 'none';
             loginForm.reset();
+            // 새 비밀번호 설정 단계였다면 로그인 단계로 되돌림
+            setPasswordForm.reset();
+            setPasswordForm.style.display = 'none';
+            document.getElementById('setPasswordError').style.display = 'none';
+            loginForm.style.display = '';
+            setupToken = null;
         }
 
         closeModal.addEventListener('click', closeLoginModal);
@@ -436,6 +463,14 @@
                 if (result.success && result.user && result.user.role === 'admin') {
                     closeLoginModal();
                     window.location.href = '/admin';
+                } else if (result.mustSetPassword) {
+                    // Supabase에서 넣어 둔 임시 비밀번호로 로그인 → 새 비밀번호 설정 단계
+                    setupToken = result.setupToken;
+                    setupEmail = email;
+                    errorMessage.style.display = 'none';
+                    loginForm.style.display = 'none';
+                    setPasswordForm.style.display = '';
+                    document.getElementById('newPassword').focus();
                 } else if (result.success) {
                     // 일반 회원 로그인은 더 이상 필요 없음 (검색은 로그인 없이 이용)
                     fetch('/api/logout').catch(function() {});
@@ -446,6 +481,47 @@
             } catch (error) {
                 console.error('Login error:', error);
                 showError(_t.loginError);
+            }
+        });
+
+        // 새 비밀번호 설정 → 저장 후 새 비밀번호로 바로 로그인
+        setPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('setPasswordError');
+            const btn = document.getElementById('setPasswordBtn');
+            const newPassword = document.getElementById('newPassword').value;
+            const fail = function(message) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+            };
+            errorDiv.style.display = 'none';
+            if (newPassword.length < 8) return fail(_lang === 'en' ? 'Password must be at least 8 characters.' : '새 비밀번호는 8자 이상이어야 합니다.');
+            if (newPassword !== document.getElementById('newPasswordConfirm').value) return fail(_lang === 'en' ? 'Passwords do not match.' : '새 비밀번호와 확인 값이 일치하지 않습니다.');
+
+            btn.disabled = true;
+            try {
+                const resetRes = await fetch('/api/admin/recovery/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: setupToken, password: newPassword })
+                });
+                const resetResult = await resetRes.json();
+                if (!resetResult.success) return fail(resetResult.message);
+
+                const loginRes = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: setupEmail, password: newPassword })
+                });
+                const loginResult = await loginRes.json();
+                if (loginResult.success) {
+                    window.location.href = '/admin';
+                } else {
+                    fail(loginResult.message || _t.loginFailed);
+                }
+            } catch (error) {
+                fail(_t.loginError);
             }
         });
 

@@ -3,6 +3,7 @@ const path = require('path');
 const ejs = require('ejs');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const supabase = require('../lib/supabase');
 const { getSession, appendCookies, sessionCookies, clearSessionCookies } = require('../lib/auth');
 const { runTracked, saveContact } = require('../lib/tracking');
@@ -148,6 +149,24 @@ module.exports = async (req, res) => {
                     .single();
 
                 if (queryError || !user) {
+                    return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
+                }
+
+                // Supabase에서 관리자가 password 칸에 임시 비밀번호(평문)를 직접 넣어 둔 경우:
+                // 임시 비밀번호가 맞으면 로그인 대신 새 비밀번호 설정 단계로 보냄 (1회용 토큰, 30분)
+                const stored = String(user.password || '');
+                if (!/^\$2[aby]\$\d{2}\$/.test(stored)) {
+                    const digest = v => crypto.createHash('sha256').update(String(v)).digest();
+                    if (user.role === 'admin' && stored && crypto.timingSafeEqual(digest(password), digest(stored))) {
+                        const { createResetToken } = require('../lib/admin-recovery.js');
+                        console.log('관리자 임시 비밀번호 로그인 → 새 비밀번호 설정 요청:', { userId: user.id });
+                        return res.json({
+                            success: false,
+                            mustSetPassword: true,
+                            setupToken: createResetToken(user),
+                            message: '임시 비밀번호로 로그인했습니다. 새 비밀번호를 설정해주세요.'
+                        });
+                    }
                     return res.status(401).json({ success: false, message: '이메일 또는 패스워드가 올바르지 않습니다.' });
                 }
 
