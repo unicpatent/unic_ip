@@ -354,7 +354,6 @@ async function sendSelected() {
     showNotice('resultNotice', `발송 완료 ${summary.sent}명` +
         (summary.failed ? ` · 실패 ${summary.failed}명` : '') + (summary.skipped ? ` · 건너뜀 ${summary.skipped}명` : '') + reportNote);
     if (problems.length) showNotice('errorNotice', problems.join('\n'));
-    if (document.getElementById('logsBody').dataset.loaded) loadLogs();
 }
 
 // ---------- 발송 내역 ----------
@@ -377,7 +376,6 @@ async function loadLogs() {
     body.innerHTML = '<tr><td colspan="7" class="muted" style="text-align:center;">불러오는 중...</td></tr>';
     try {
         const data = await api(`/api/admin/reminders/logs?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-        body.dataset.loaded = '1';
         const q = document.getElementById('logSearch').value.trim().toLowerCase();
         const logs = data.logs.filter(l => !q || [l.name, l.email].filter(Boolean).join(' ').toLowerCase().includes(q));
         const sent = logs.filter(l => l.status === 'sent');
@@ -390,6 +388,15 @@ async function loadLogs() {
         summary.textContent = '';
         body.innerHTML = '<tr><td colspan="7" class="text-err" style="text-align:center;">' + esc(e.message) + '</td></tr>';
     }
+}
+
+function openLogs() {
+    document.getElementById('logsModal').style.display = 'flex';
+    loadLogs();
+}
+
+function closeLogs() {
+    document.getElementById('logsModal').style.display = 'none';
 }
 
 function renderLogRows(l) {
@@ -419,6 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('memberSearch').addEventListener('input', render);
 
     setLogRange(7);
+    document.getElementById('logsOpenBtn').addEventListener('click', openLogs);
+    document.getElementById('logsClose').addEventListener('click', closeLogs);
+    document.getElementById('logsModal').addEventListener('click', e => { if (e.target.id === 'logsModal') closeLogs(); });
     document.getElementById('logSearchBtn').addEventListener('click', loadLogs);
     document.getElementById('logSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadLogs(); });
     document.querySelectorAll('[data-range]').forEach(btn => btn.addEventListener('click', () => {
