@@ -323,3 +323,33 @@
         min-width: 800px;
     }
 }
+
+/* 회원 모달 - 고객 상세정보 (2열) */
+.modal-content.modal-wide {
+    max-width: 680px;
+}
+
+.form-section-title {
+    margin: 1.5rem 0 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #92400E;
+}
+
+.customer-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+}
+
+.customer-fields .form-group-full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 576px) {
+    .customer-fields {
+        grid-template-columns: 1fr;
+    }
+}

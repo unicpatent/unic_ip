@@ -5,8 +5,71 @@ const itemsPerPage = 10;
 let currentSearch = '';
 let usersData = []; // 사용자 데이터 저장
 
+// 고객 상세정보 입력 항목 (users 테이블 컬럼, lib/admin-users.js의 CUSTOMER_FIELDS와 동일하게 유지)
+const CUSTOMER_FIELDS = [
+    { key: 'company_name',      label: '회사명' },
+    { key: 'name_en',           label: '영문고객명' },
+    { key: 'trade_name',        label: '상호' },
+    { key: 'representative',    label: '대표자' },
+    { key: 'corporate_number',  label: '법인등록번호', placeholder: '000000-0000000' },
+    { key: 'tel',               label: '전화번호', type: 'tel' },
+    { key: 'application_phone', label: '출원전화', type: 'tel' },
+    { key: 'business_type',     label: '업태' },
+    { key: 'business_item',     label: '종목' },
+    { key: 'business_address',  label: '사업장 주소', full: true },
+    { key: 'invoice_manager',   label: '계산서담당자' },
+    { key: 'invoice_email',     label: '계산서이메일', type: 'email' }
+];
+
+// 'create' / 'edit' 모달의 고객 상세정보 입력란 생성 (id: createCompanyName, editInvoiceEmail ...)
+function customerFieldId(prefix, key) {
+    return prefix + key.replace(/(^|_)([a-z])/g, function(m, sep, ch) { return ch.toUpperCase(); });
+}
+
+function renderCustomerFields(prefix) {
+    const container = document.getElementById(prefix + 'CustomerFields');
+    if (!container) return;
+    container.innerHTML = '';
+    CUSTOMER_FIELDS.forEach(function(field) {
+        const group = document.createElement('div');
+        group.className = 'form-group' + (field.full ? ' form-group-full' : '');
+
+        const label = document.createElement('label');
+        label.className = 'form-label';
+        label.textContent = field.label;
+        group.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = field.type || 'text';
+        input.id = customerFieldId(prefix, field.key);
+        input.className = 'form-input';
+        input.maxLength = field.full ? 500 : 200;
+        if (field.placeholder) input.placeholder = field.placeholder;
+        label.htmlFor = input.id;
+        group.appendChild(input);
+
+        container.appendChild(group);
+    });
+}
+
+function fillCustomerFields(prefix, user) {
+    CUSTOMER_FIELDS.forEach(function(field) {
+        document.getElementById(customerFieldId(prefix, field.key)).value = (user && user[field.key]) || '';
+    });
+}
+
+function readCustomerFields(prefix) {
+    const values = {};
+    CUSTOMER_FIELDS.forEach(function(field) {
+        values[field.key] = document.getElementById(customerFieldId(prefix, field.key)).value.trim();
+    });
+    return values;
+}
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    renderCustomerFields('create');
+    renderCustomerFields('edit');
     loadUsers();
 
     // 검색 폼 이벤트
@@ -87,7 +150,7 @@ async function loadUsers() {
     const emptyState = document.getElementById('emptyState');
     const totalCount = document.getElementById('totalCount');
 
-    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem;">로딩 중...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem;">로딩 중...</td></tr>';
 
     try {
         const params = new URLSearchParams({
@@ -124,7 +187,7 @@ async function loadUsers() {
         renderPagination(pagination);
     } catch (error) {
         console.error('회원 목록 로드 오류:', error);
-        tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: #ef4444;">' + escapeHtml(error.message) + '</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #ef4444;">' + escapeHtml(error.message) + '</td></tr>';
     }
 }
 
@@ -141,12 +204,17 @@ function renderUsers(users) {
         tdName.textContent = user.name || '-';
         row.appendChild(tdName);
 
+        // 회사명
+        const tdCompany = document.createElement('td');
+        tdCompany.textContent = user.company_name || '-';
+        row.appendChild(tdCompany);
+
         // 이메일
         const tdEmail = document.createElement('td');
         tdEmail.textContent = user.email || '-';
         row.appendChild(tdEmail);
 
-        // 전화번호
+        // 휴대폰
         const tdPhone = document.createElement('td');
         tdPhone.textContent = user.phone || '-';
         row.appendChild(tdPhone);
@@ -308,6 +376,7 @@ function openEditModal(user) {
     document.getElementById('editBusinessNumber').value = user.business_number || '';
     document.getElementById('editCustomerNumber').value = user.customer_number || '';
     document.getElementById('editRole').value = user.role || 'user';
+    fillCustomerFields('edit', user);
     document.getElementById('editPassword').value = '';
     document.getElementById('editPasswordConfirm').value = '';
 
@@ -361,7 +430,7 @@ async function handleEditSubmit(e) {
         var response = await fetch('/api/admin/users/' + userId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+            body: JSON.stringify(Object.assign({
                 name: name,
                 email: email,
                 phone: phone,
@@ -369,7 +438,7 @@ async function handleEditSubmit(e) {
                 customer_number: customerNumber,
                 role: role,
                 password: password || undefined
-            })
+            }, readCustomerFields('edit')))
         });
 
         var result = await response.json();
@@ -451,7 +520,7 @@ async function handleCreateSubmit(e) {
         var response = await fetch('/api/admin/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+            body: JSON.stringify(Object.assign({
                 name: name,
                 email: email,
                 phone: phone,
@@ -460,7 +529,7 @@ async function handleCreateSubmit(e) {
                 discount_type: discountType,
                 role: role,
                 password: role === 'admin' ? password : undefined
-            })
+            }, readCustomerFields('create')))
         });
 
         var result = await response.json();

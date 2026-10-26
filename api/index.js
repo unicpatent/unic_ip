@@ -140,11 +140,12 @@ module.exports = async (req, res) => {
                     return res.status(400).json({ success: false, message: '이메일과 패스워드를 입력해주세요.' });
                 }
 
-                // Supabase에서 사용자 조회
+                // Supabase에서 관리자 조회 (일반 회원은 이메일이 중복될 수 있고 로그인하지 않음)
                 const { data: user, error: queryError } = await supabase
                     .from('users')
                     .select('*')
                     .eq('email', email)
+                    .eq('role', 'admin')
                     .eq('status', 'active')
                     .single();
 
@@ -201,6 +202,7 @@ module.exports = async (req, res) => {
                     .from('users')
                     .select('*')
                     .eq('email', current_email)
+                    .eq('role', 'admin')
                     .eq('status', 'active')
                     .single();
 
@@ -216,13 +218,14 @@ module.exports = async (req, res) => {
                 // 변경할 데이터 구성
                 const updateData = {};
                 if (new_email) {
-                    // 새 이메일 중복 확인
+                    // 새 이메일 중복 확인 (관리자끼리만 중복 금지)
                     const { data: existing } = await supabase
                         .from('users')
                         .select('email')
                         .eq('email', new_email)
+                        .eq('role', 'admin')
                         .neq('id', user.id)
-                        .single();
+                        .maybeSingle();
                     if (existing) {
                         return res.status(409).json({ success: false, message: '이미 사용 중인 이메일입니다.' });
                     }
