@@ -61,10 +61,21 @@ function applyDefaultSelection(m) {
     else selected.delete(m.id);
 }
 
+// 이름·회사(권리자)명·이메일·고객번호·사업자번호 검색 ('-' 없이 비교)
+function matchesSearch(m) {
+    const q = document.getElementById('memberSearch').value.trim().toLowerCase();
+    if (!q) return true;
+    const qDigits = q.replace(/[^0-9]/g, '');
+    const text = [m.name, m.email, m.scan && m.scan.holderName].filter(Boolean).join(' ').toLowerCase();
+    if (text.includes(q)) return true;
+    return qDigits.length >= 3 && [m.searchValue, m.customerNumber, m.businessNumber].some(v => v && String(v).includes(qDigits));
+}
+
 function visibleMembers() {
     const type = document.getElementById('typeFilter').value;
     const onlyTargets = document.getElementById('onlyTargets').checked;
     return members.filter(m => {
+        if (!matchesSearch(m)) return false;
         if (onlyTargets && m.scan && !hasItems(m)) return false;
         if (type && !(hasItems(m) && m.scan.items.some(i => i.type === type))) return false;
         return true;
@@ -93,7 +104,7 @@ function render() {
     checkAll.checked = sendable.length > 0 && sendable.every(m => selected.has(m.id));
     checkAll.disabled = sendable.length === 0 || scanning;
 
-    const count = members.filter(m => selected.has(m.id) && isSendable(m)).length;
+    const count = sendTargets().length;
     const sendBtn = document.getElementById('sendBtn');
     sendBtn.textContent = `선택 회원에게 발송 (${count}명)`;
     sendBtn.disabled = count === 0 || scanning;
@@ -208,7 +219,8 @@ function setScanning(on) {
 }
 
 async function scanAll() {
-    const targets = members.filter(m => m.searchValue);
+    // 검색어가 있으면 검색된 회원만 조회
+    const targets = members.filter(m => m.searchValue && matchesSearch(m));
     if (targets.length === 0) {
         showNotice('errorNotice', '고객번호 또는 사업자번호가 등록된 회원이 없습니다.');
         return;
@@ -280,8 +292,13 @@ function closePreview() {
     document.getElementById('previewFrame').srcdoc = '';
 }
 
+// 발송 대상: 현재 화면(검색·필터)에 보이는 회원 중 선택한 회원만
+function sendTargets() {
+    return visibleMembers().filter(m => selected.has(m.id) && isSendable(m));
+}
+
 async function sendSelected() {
-    const ids = members.filter(m => selected.has(m.id) && isSendable(m)).map(m => m.id);
+    const ids = sendTargets().map(m => m.id);
     if (ids.length === 0) return;
     const itemCount = members.filter(m => ids.includes(m.id)).reduce((s, m) => s + m.scan.items.length, 0);
     if (!confirm(`선택한 회원 ${ids.length}명에게 납부기한 안내 메일(대상 특허 ${itemCount}건)을 발송합니다.\n계속하시겠습니까?`)) return;
@@ -292,6 +309,8 @@ async function sendSelected() {
     const progress = document.getElementById('progressText');
     const summary = { sent: 0, failed: 0, skipped: 0 };
     const problems = [];
+    const startedAt = new Date(Date.now() - 60000).toISOString();   // 서버·PC 시계 차이 여유
+    const attempted = [];
 
     for (let i = 0; i < ids.length; i += SEND_CHUNK) {
         const chunk = ids.slice(i, i + SEND_CHUNK);
@@ -302,6 +321,7 @@ async function sendSelected() {
                 summary[r.status] = (summary[r.status] || 0) + 1;
                 const m = members.find(x => x.id === r.userId);
                 if (r.status === 'sent' || r.status === 'failed') {
+                    attempted.push(r.userId);
                     if (m) m.lastSent = { at: r.sentAt, status: r.status, error: r.status === 'failed' ? r.message : null };
                 }
                 if (r.status === 'sent') selected.delete(r.userId);
@@ -316,11 +336,75 @@ async function sendSelected() {
         if (i + SEND_CHUNK < ids.length) await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
+    // 이번 발송 내역 전체를 총괄메일 1통으로
+    let reportNote = '';
+    const reportTo = document.getElementById('reportTo').value.trim();
+    if (attempted.length > 0 && reportTo) {
+        progress.textContent = '총괄메일 보내는 중...';
+        try {
+            const report = await api('/api/admin/reminders/report', { userIds: attempted, startedAt, to: reportTo });
+            if (!report.skipped) reportNote = ` · 총괄메일 발송 → ${report.to.join(', ')}`;
+        } catch (e) {
+            problems.push(e.message);
+        }
+    }
+
     progress.textContent = '';
     setScanning(false);
     showNotice('resultNotice', `발송 완료 ${summary.sent}명` +
-        (summary.failed ? ` · 실패 ${summary.failed}명` : '') + (summary.skipped ? ` · 건너뜀 ${summary.skipped}명` : ''));
+        (summary.failed ? ` · 실패 ${summary.failed}명` : '') + (summary.skipped ? ` · 건너뜀 ${summary.skipped}명` : '') + reportNote);
     if (problems.length) showNotice('errorNotice', problems.join('\n'));
+    if (document.getElementById('logsBody').dataset.loaded) loadLogs();
+}
+
+// ---------- 발송 내역 ----------
+function ymd(d) {
+    return d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });   // YYYY-MM-DD (한국 시간)
+}
+
+function setLogRange(days) {
+    const today = new Date();
+    document.getElementById('logTo').value = ymd(today);
+    document.getElementById('logFrom').value = ymd(new Date(today.getTime() - (days - 1) * 86400000));
+}
+
+async function loadLogs() {
+    const from = document.getElementById('logFrom').value;
+    const to = document.getElementById('logTo').value;
+    const body = document.getElementById('logsBody');
+    const summary = document.getElementById('logSummary');
+    if (!from || !to) { summary.textContent = '조회 기간을 입력해주세요.'; return; }
+    body.innerHTML = '<tr><td colspan="7" class="muted" style="text-align:center;">불러오는 중...</td></tr>';
+    try {
+        const data = await api(`/api/admin/reminders/logs?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+        body.dataset.loaded = '1';
+        const q = document.getElementById('logSearch').value.trim().toLowerCase();
+        const logs = data.logs.filter(l => !q || [l.name, l.email].filter(Boolean).join(' ').toLowerCase().includes(q));
+        const sent = logs.filter(l => l.status === 'sent');
+        summary.textContent = `${from} ~ ${to} · 발송 ${num(sent.length)}건 · 실패 ${num(logs.length - sent.length)}건 · 대상 특허 ${num(sent.reduce((s, l) => s + (l.itemCount || 0), 0))}건` +
+            (data.truncated ? ' (최근 2,000건까지만 표시)' : '');
+        body.innerHTML = logs.length === 0
+            ? '<tr><td colspan="7" class="muted" style="text-align:center;">해당 기간의 발송 내역이 없습니다.</td></tr>'
+            : logs.map(renderLogRows).join('');
+    } catch (e) {
+        summary.textContent = '';
+        body.innerHTML = '<tr><td colspan="7" class="text-err" style="text-align:center;">' + esc(e.message) + '</td></tr>';
+    }
+}
+
+function renderLogRows(l) {
+    const items = (l.items || []).map(i =>
+        `${esc(i.registrationNumber)} · ${i.annualYear}년차 · <span class="tag tag-${i.type}">${TYPE_LABELS[i.type] || ''}</span> ${esc(i.deadline)}` +
+        (i.fee != null ? ` · ${num(i.fee)}원` : '') + ` <span class="muted">${esc(i.title)}</span>`).join('<br>');
+    return `<tr>
+        <td>${fmtDateTime(l.at)}</td>
+        <td>${esc(l.name) || '-'}</td>
+        <td>${esc(l.email)}</td>
+        <td>${num(l.itemCount)}건</td>
+        <td class="rm-log-items">${items || '-'}</td>
+        <td><span class="tag tag-${l.status === 'sent' ? 'sent' : 'failed'}"${l.error ? ' title="' + esc(l.error) + '"' : ''}>${l.status === 'sent' ? '발송' : '실패'}</span>${l.error ? '<br><span class="text-err" style="font-size:0.75rem;">' + esc(l.error) + '</span>' : ''}</td>
+        <td class="muted">${esc(l.sentBy) || '-'}</td>
+    </tr>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -332,6 +416,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sendBtn').addEventListener('click', sendSelected);
     document.getElementById('typeFilter').addEventListener('change', render);
     document.getElementById('onlyTargets').addEventListener('change', render);
+    document.getElementById('memberSearch').addEventListener('input', render);
+
+    setLogRange(7);
+    document.getElementById('logSearchBtn').addEventListener('click', loadLogs);
+    document.getElementById('logSearch').addEventListener('keydown', e => { if (e.key === 'Enter') loadLogs(); });
+    document.querySelectorAll('[data-range]').forEach(btn => btn.addEventListener('click', () => {
+        setLogRange(Number(btn.dataset.range));
+        loadLogs();
+    }));
     document.getElementById('checkAll').addEventListener('change', e => {
         visibleMembers().filter(isSendable).forEach(m => e.target.checked ? selected.add(m.id) : selected.delete(m.id));
         render();

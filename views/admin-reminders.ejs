@@ -20,6 +20,12 @@
         .rm-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
         .rm-toolbar-group { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
         .rm-toolbar select { padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem; background: #fff; }
+        .rm-search { padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem; width: 200px; }
+        .rm-section-title { font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 2rem 0 0.75rem; }
+        .rm-log-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; color: #374151; }
+        .rm-log-filter input { padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem; }
+        .rm-card .admin-table td.rm-log-items { white-space: normal; font-size: 0.78rem; line-height: 1.6; min-width: 320px; }
+        .rm-report-to { padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem; width: 190px; }
         .rm-toolbar label { font-size: 0.85rem; color: #374151; display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; }
         .rm-btn { padding: 0.5rem 1rem; border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap; }
         .rm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -107,6 +113,7 @@
                     <span class="rm-progress" id="progressText"></span>
                 </div>
                 <div class="rm-toolbar-group">
+                    <input type="search" id="memberSearch" class="rm-search" placeholder="이름·회사명·고객번호 검색" aria-label="회원 검색">
                     <select id="typeFilter" aria-label="구분 필터">
                         <option value="">구분: 전체</option>
                         <option value="due">납부마감</option>
@@ -114,6 +121,8 @@
                         <option value="recovery">회복기간</option>
                     </select>
                     <label><input type="checkbox" id="onlyTargets" checked> 대상 있는 회원만</label>
+                    <label for="reportTo" title="발송할 때마다 이번 발송 내역 전체를 1통으로 모아 이 주소로 보냅니다 (비우면 보내지 않음)">총괄메일</label>
+                    <input type="text" id="reportTo" class="rm-report-to" value="ljunhyek@naver.com" placeholder="비우면 보내지 않음">
                     <button type="button" class="rm-btn rm-btn-primary" id="sendBtn" disabled>선택 회원에게 발송 (0명)</button>
                 </div>
             </div>
@@ -148,6 +157,29 @@
                     </table>
                 </div>
             </section>
+
+            <h2 class="rm-section-title">발송 내역</h2>
+            <section class="rm-card">
+                <div class="rm-log-filter">
+                    <input type="date" id="logFrom" aria-label="시작일"> ~ <input type="date" id="logTo" aria-label="종료일">
+                    <button type="button" class="rm-btn rm-btn-sm" data-range="1">오늘</button>
+                    <button type="button" class="rm-btn rm-btn-sm" data-range="7">최근 1주일</button>
+                    <button type="button" class="rm-btn rm-btn-sm" data-range="30">최근 1개월</button>
+                    <input type="search" id="logSearch" class="rm-search" placeholder="이름·이메일 (선택)" aria-label="발송 내역 검색">
+                    <button type="button" class="rm-btn rm-btn-dark rm-btn-sm" id="logSearchBtn">조회</button>
+                    <span class="rm-progress" id="logSummary"></span>
+                </div>
+                <div class="rm-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>발송 일시</th><th>회원명</th><th>이메일</th><th>특허</th><th>안내한 특허</th><th>결과</th><th>발송자</th></tr>
+                        </thead>
+                        <tbody id="logsBody">
+                            <tr><td colspan="7" class="muted" style="text-align:center;">기간을 선택하고 조회를 눌러주세요.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -165,7 +197,7 @@
     </div>
 
     <script src="/js/main.js"></script>
-    <script src="/js/admin-reminders.js?v=2026.10.21.v2"></script>
+    <script src="/js/admin-reminders.js?v=2026.10.26.v2"></script>
     <script>
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
         e.preventDefault();
