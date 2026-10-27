@@ -198,7 +198,8 @@ function displayResults(data) {
     // 검색 유형에 따라 권리자명 표시 방식 결정
     const searchType = document.querySelector('input[name="searchType"]:checked').value;
     const _isEn = window._lang === 'en';
-    const rightHolderToDisplay = data.rightHolderName || data.applicantName || (_isEn ? 'N/A' : '정보 없음');
+    const _engHolder = [data.rightHolderNameEng, data.applicantNameEng].find(n => n && n !== '-');
+    const rightHolderToDisplay = (_isEn && _engHolder) || data.rightHolderName || data.applicantName || (_isEn ? 'N/A' : '정보 없음');
 
     let displayText = rightHolderToDisplay;
 
@@ -302,10 +303,11 @@ function displayPaginatedResults() {
             return appNumber.substring(0, 2) + '-' + appNumber.substring(2, 6) + '-' + appNumber.substring(6);
         };
 
-        const applicantName = safeValue(patent.applicantName);
+        const _isEn = window._lang === 'en';
+        const applicantNameEng = safeValue(patent.applicantNameEng);
+        const applicantName = _isEn && applicantNameEng !== '-' ? applicantNameEng : safeValue(patent.applicantName);
         const inventionTitle = safeValue(patent.inventionTitle);
         const inventionTitleEng = safeValue(patent.inventionTitleEng);
-        const _isEn = window._lang === 'en';
 
         // 디버깅: 등록상태 확인
         console.log('🔍 특허 데이터 확인:', {

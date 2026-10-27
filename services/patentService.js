@@ -479,18 +479,22 @@ class PatentService {
 
                         // 출원인명 추출 (첫 번째)
                         let applicantName = '-';
+                        let applicantNameEng = cleanValue(item.APE) || '-';
                         if (info.applicant && Array.isArray(info.applicant) && info.applicant.length > 0) {
                             applicantName = info.applicant[0].applicantName || '-';
+                            applicantNameEng = info.applicant[0].applicantEngName || applicantNameEng;
                         }
 
                         // 권리자 정보 (콤마 구분 문자열)
                         let rightHolderInfo = '-';
+                        let rightHolderInfoEng = '-';
                         if (info.owner && Array.isArray(info.owner)) {
-                            const ownerNames = info.owner
-                                .filter(o => o.ownerName && o.finalOwnerYn === 'Y')
-                                .map(o => o.ownerName);
-                            if (ownerNames.length > 0) {
-                                rightHolderInfo = ownerNames.join(',');
+                            const finalOwners = info.owner.filter(o => o.ownerName && o.finalOwnerYn === 'Y');
+                            if (finalOwners.length > 0) {
+                                rightHolderInfo = finalOwners.map(o => o.ownerName).join(',');
+                                // 영문 권리자명은 이름 안에 쉼표가 있을 수 있어(Co.,Ltd) '|'로 연결
+                                const engNames = finalOwners.map(o => o.ownerEngName).filter(Boolean);
+                                if (engNames.length > 0) rightHolderInfoEng = engNames.join('|');
                             }
                         }
 
@@ -504,9 +508,10 @@ class PatentService {
                             applicationNumber: info.applNo || cleanValue(item.AN) || '-',
                             registrationNumber: info.rgstNo || registrationNumber,
                             applicantName: applicantName,
+                            applicantNameEng: applicantNameEng,
                             applicationDate: this.formatDateFromAPI(info.applDate),
                             inventionTitle: info.title || cleanValue(item.TL) || '-',
-                            inventionTitleEng: info.engTitle || cleanValue(item.ETL) || '-',
+                            inventionTitleEng: info.engTitle || cleanValue(item.TLEE) || '-',
                             registrationDate: this.formatDateFromAPI(info.rgstDate),
                             claimCount: info.claimCount || '-',
                             publicationNumber: info.pubNo || '-',
@@ -514,6 +519,7 @@ class PatentService {
                             expirationDate: this.formatDateFromAPI(info.cndrtExptnDate),
                             registrationStatus: registrationStatus,
                             rightHolderInfo: rightHolderInfo,
+                            rightHolderInfoEng: rightHolderInfoEng,
                             agentInfo: agentInfo,
                             businessNo: '-',
                             applicantCd: customerNumber,
@@ -528,9 +534,10 @@ class PatentService {
                             applicationNumber: cleanValue(item.AN) || '-',
                             registrationNumber: registrationNumber,
                             applicantName: cleanValue(item.AP) || '-',
+                            applicantNameEng: cleanValue(item.APE) || '-',
                             applicationDate: cleanValue(item.AD) || '-',
                             inventionTitle: cleanValue(item.TL) || '-',
-                            inventionTitleEng: cleanValue(item.ETL) || '-',
+                            inventionTitleEng: cleanValue(item.TLEE) || '-',
                             registrationDate: cleanValue(item.GD) || '-',
                             claimCount: '-',
                             publicationNumber: '-',
@@ -538,6 +545,7 @@ class PatentService {
                             expirationDate: '-',
                             registrationStatus: registrationStatus,
                             rightHolderInfo: cleanValue(item.RH) || '-',
+                            rightHolderInfoEng: cleanValue(item.RHE) || '-',
                             agentInfo: cleanValue(item.AG) || '-',
                             businessNo: '-',
                             applicantCd: customerNumber,
@@ -559,9 +567,10 @@ class PatentService {
                         applicationNumber: cleanValue(item.AN) || '-',
                         registrationNumber: registrationNumber,
                         applicantName: cleanValue(item.AP) || '-',
+                        applicantNameEng: cleanValue(item.APE) || '-',
                         applicationDate: cleanValue(item.AD) || '-',
                         inventionTitle: cleanValue(item.TL) || '-',
-                        inventionTitleEng: cleanValue(item.ETL) || '-',
+                        inventionTitleEng: cleanValue(item.TLEE) || '-',
                         registrationDate: cleanValue(item.GD) || '-',
                         claimCount: '-',
                         publicationNumber: '-',
@@ -569,6 +578,7 @@ class PatentService {
                         expirationDate: '-',
                         registrationStatus: registrationStatus,
                         rightHolderInfo: cleanValue(item.RH) || '-',
+                        rightHolderInfoEng: cleanValue(item.RHE) || '-',
                         agentInfo: cleanValue(item.AG) || '-',
                         businessNo: '-',
                         applicantCd: customerNumber,
@@ -591,6 +601,10 @@ class PatentService {
                 customerNumber: customerNumber,
                 applicantName: applicantName,
                 rightHolderName: rightHolderName,
+                applicantNameEng: patents.length > 0 ? patents[0].applicantNameEng : '-',
+                rightHolderNameEng: patents.length > 0 && patents[0].rightHolderInfoEng !== '-'
+                    ? patents[0].rightHolderInfoEng.split('|')[0]
+                    : (patents.length > 0 ? patents[0].applicantNameEng : '-'),
                 totalCount: patents.length,
                 patents: patents
             };
