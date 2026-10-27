@@ -37,13 +37,16 @@
         .stat-label { font-size: 0.8rem; color: #64748b; margin-bottom: 0.35rem; }
         .stat-value { font-size: 1.5rem; font-weight: 700; color: #0F172A; line-height: 1.2; }
         .rm-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem 1.1rem; }
-        .rm-table-wrap { overflow-x: auto; }
+        .rm-table-wrap { overflow-x: auto; container-type: inline-size; }
         .rm-card .admin-table td, .rm-card .admin-table th { font-size: 0.85rem; white-space: nowrap; vertical-align: middle; }
         .rm-card .admin-table select { padding: 0.25rem 0.4rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.8rem; max-width: 170px; }
         .rm-count { background: none; border: none; color: #166534; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: 0.85rem; padding: 0; }
         .rm-detail td { background: #f8fafc; white-space: normal !important; }
         .rm-detail table { width: 100%; border-collapse: collapse; margin: 0.25rem 0; }
-        .rm-detail th, .rm-detail td.cell { border: 1px solid #e5e7eb; padding: 0.35rem 0.5rem; font-size: 0.8rem; text-align: left; background: #fff; white-space: nowrap; }
+        /* 회원 표가 가로 스크롤될 만큼 넓어도 세부내역은 보이는 폭(100cqw)에 맞춰 왼쪽에 고정 */
+        .rm-card .admin-table td.rm-detail-cell { padding: 0; }
+        .rm-detail-inner { position: sticky; left: 0; width: 100cqw; box-sizing: border-box; padding: 0.5rem 0.75rem 0.5rem 2.5rem; overflow-x: auto; }
+        .rm-detail th, .rm-detail td.cell { border: 1px solid #e5e7eb; padding: 0.35rem 0.5rem; font-size: 0.8rem; text-align: left; background: #fff; white-space: nowrap !important; }
         .rm-detail td.cell-title { white-space: normal !important; min-width: 160px; }
         .rm-detail th { background: #f1f5f9; color: #334155; }
         .tag { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
@@ -206,7 +209,7 @@
     </div>
 
     <script src="/js/main.js"></script>
-    <script src="/js/admin-reminders.js?v=2026.10.26.v3"></script>
+    <script src="/js/admin-reminders.js?v=2026.10.27.v1"></script>
     <script>
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
         e.preventDefault();

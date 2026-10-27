@@ -162,7 +162,7 @@ function renderMemberRows(m) {
     </tr>`;
 
     if (!collapsed.has(m.id) && hasItems(m)) {
-        html += `<tr class="rm-detail"><td></td><td colspan="9">
+        html += `<tr class="rm-detail"><td colspan="10" class="rm-detail-cell"><div class="rm-detail-inner">
             <table>
                 <thead><tr><th>등록번호</th><th>발명의 명칭</th><th>연차</th><th>구분</th><th>기한</th><th>납부마감일</th><th>추납 마감</th><th>회복 마감</th><th>예상 연차료</th></tr></thead>
                 <tbody>${m.scan.items.map(i => `<tr>
@@ -177,7 +177,7 @@ function renderMemberRows(m) {
                     <td class="cell" style="text-align:right;">${num(i.fee)}원</td>
                 </tr>`).join('')}</tbody>
             </table>
-        </td></tr>`;
+        </div></td></tr>`;
     }
     return html;
 }
