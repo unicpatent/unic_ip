@@ -480,6 +480,14 @@
         return names[0] + ', ' + names[1] + ' ...';
     }
 
+    // 영문 발명자명: 이름 안에 쉼표가 있으므로(LEE, Jun Hyek) 파이프(|)로만 구분하고 '; '로 연결
+    function formatInventorNameEng(name) {
+        if (!name || name === '-') return '-';
+        var names = name.split('|').map(function(n) { return n.trim(); }).filter(Boolean);
+        if (names.length <= 2) return names.join('; ');
+        return names[0] + '; ' + names[1] + ' ...';
+    }
+
     // 전문보기 셀 생성 (서버 프록시 경유)
     function generateDownloadCell(patent) {
         if (patent.fullTextType && patent.fullTextType !== '-') {
@@ -513,7 +521,7 @@
             const response = await fetch('/api/search-application2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customerNumber })
+                body: JSON.stringify({ customerNumber, lang: window._lang })
             });
 
             const data = await response.json();
@@ -659,8 +667,8 @@
             var row = [
                 formatApplicationNumber(p.applicationNumber || '-'),
                 p.registrationNumber || '-',
-                '"' + (p.applicantName || '-').replace(/"/g, '""') + '"',
-                '"' + (p.inventorName || '-').replace(/"/g, '""') + '"',
+                '"' + ((_isEnX && p.applicantNameEng && p.applicantNameEng !== '-' ? p.applicantNameEng : p.applicantName) || '-').replace(/"/g, '""') + '"',
+                '"' + (_isEnX && p.inventorNameEng && p.inventorNameEng !== '-' ? p.inventorNameEng.split('|').join('; ') : (p.inventorName || '-')).replace(/"/g, '""') + '"',
                 p.applicationDate || '-',
                 '"' + (p.inventionTitle || '-').replace(/"/g, '""') + '"',
                 _isEnX ? translateAppStatus(p.currentStatus || '-') : (p.currentStatus || '-')
@@ -703,12 +711,16 @@
             }
 
             var statusDisplay = _isEnP ? translateAppStatus(safeValue(patent.currentStatus)) : safeValue(patent.currentStatus);
+            var applicantEng = safeValue(patent.applicantNameEng);
+            var applicantDisplay = _isEnP && applicantEng !== '-' ? applicantEng : safeValue(patent.applicantName);
+            var inventorEng = safeValue(patent.inventorNameEng);
+            var inventorDisplay = _isEnP && inventorEng !== '-' ? formatInventorNameEng(inventorEng) : formatInventorName(safeValue(patent.inventorName));
 
             row.innerHTML =
                 '<td class="patent-number">' + formatApplicationNumber(safeValue(patent.applicationNumber)) + '</td>' +
                 '<td class="patent-number">' + safeValue(patent.registrationNumber) + '</td>' +
-                '<td class="applicant-name-clean applicant-name">' + safeValue(patent.applicantName) + '</td>' +
-                '<td>' + formatInventorName(safeValue(patent.inventorName)) + '</td>' +
+                '<td class="applicant-name-clean applicant-name">' + applicantDisplay + '</td>' +
+                '<td>' + inventorDisplay + '</td>' +
                 '<td>' + formatDate(patent.applicationDate) + '</td>' +
                 titleCell +
                 '<td>' + statusDisplay + '</td>' +

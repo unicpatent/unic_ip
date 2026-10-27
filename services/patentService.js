@@ -56,6 +56,29 @@ class PatentService {
         }
     }
 
+    // 등록번호로 영문 제목 조회 (출원특허 페이지 등록 건 영문 제목 확보용)
+    async getPatentEngTitle(registrationNumber) {
+        try {
+            const cleanRgstNo = String(registrationNumber).replace(/-/g, '');
+            if (!cleanRgstNo || cleanRgstNo === '-') return null;
+            const isUM = cleanRgstNo.startsWith('20');
+            const apiEndpoint = isUM
+                ? 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getUtilityModelHistory'
+                : 'https://apis.data.go.kr/1430000/PttRgstRtInfoInqSvc/getPatentRegisterHistory';
+            const response = await axios.get(apiEndpoint, {
+                params: { serviceKey: process.env.PATENT_OFFICE_API_KEY, type: 'json', rgstNo: cleanRgstNo },
+                httpsAgent: this.httpsAgent,
+                timeout: 10000
+            });
+            if (response.data && response.data.resultCode === '000' && response.data.items) {
+                return response.data.items.engTitle || null;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
     // 영문 페이지 전용: KIPRIS 스크래핑 방식으로 등록특허 검색 (engTitle 포함)
     async searchRegisteredWithKipris(searchValue, searchType = '2') {
         try {
