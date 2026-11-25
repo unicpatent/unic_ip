@@ -58,7 +58,7 @@
                 <nav class="nav-tabs" id="navTabs">
                     <a href="<%= _en ? '/en/registered' : '/registered' %>" class="nav-link"><%= _en ? 'Registered Patents' : '등록특허 현황' %></a>
                     <a href="<%= _en ? '/en/application' : '/application2' %>" class="nav-link"><%= _en ? 'Patent Applications' : '출원특허 현황' %></a>
-                    <a href="https://www.unicpat.com" class="nav-link" target="_blank"><%= _en ? 'Unic Website' : '유니크 홈페이지' %></a>
+                    <a href="<%= _en ? 'https://www.unicpat.com/en' : 'https://www.unicpat.com' %>" class="nav-link" target="_blank"><%= _en ? 'Unic Website' : '유니크 홈페이지' %></a>
                     <% if (!_en) { %><a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank">유니크 블로그</a><% } %>
                 </nav>
             </div>
