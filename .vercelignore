@@ -7,6 +7,7 @@
 node_modules
 *.log
 *.txt
+!public/robots.txt
 *.hwp
 *.pptx
 *.ini
