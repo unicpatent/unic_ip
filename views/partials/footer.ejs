@@ -1,10 +1,11 @@
+<% const _enF = (typeof lang !== 'undefined' && lang === 'en'); -%>
 </main>
 
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-text">
-                    <strong>유니크 특허사무소</strong> - 특허 현황 조회 시스템
+                    <strong><%= _enF ? 'Unic Patent Office' : '유니크 특허사무소' %></strong> - <%= _enF ? 'Patent Status Inquiry System' : '특허 현황 조회 시스템' %>
                 </div>
                 <div class="footer-contact">
                     <a href="tel:010-3131-7960">📞 010-3131-7960</a>

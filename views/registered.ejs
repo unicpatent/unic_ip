@@ -73,7 +73,7 @@
                     <a href="<%= lang === 'en' ? '/en/registered' : '/registered' %>" class="nav-link"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a>
                     <a href="<%= lang === 'en' ? '/en/application' : '/application2' %>" class="nav-link"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a>
                     <a href="https://www.unicpat.com" class="nav-link" target="_blank"><%= lang === 'en' ? 'Unic Website' : '유니크 홈페이지' %></a>
-                    <a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank"><%= lang === 'en' ? 'Unic Blog' : '유니크 블로그' %></a>
+                    <% if (lang !== 'en') { %><a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank">유니크 블로그</a><% } %>
                 </nav>
             </div>
         </div>
@@ -475,7 +475,7 @@ console.log('🔄 등록특허 스크립트 로드됨 - 버전: 2025.09.24.v1');
 
 <!-- 등록특허 검색 기능 및 연차료 계산 기능 -->
 <script src="/js/annuity.js?v=2026.10.21"></script>
-<script src="/js/registered.js?v=2026.10.27.v1"></script>
+<script src="/js/registered.js?v=2026.11.25.v1"></script>
 
 <!-- 인라인 검색 기능 (백업용) -->
 <script>
@@ -764,7 +764,7 @@ if (typeof handleSearch === 'undefined') {
                     </div>
                     <form action="https://api.web3forms.com/submit" method="POST" id="renewalRequestForm">
                         <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
-                        <input type="hidden" name="redirect" value="${window.location.origin}/r_thanks">
+                        <input type="hidden" name="redirect" value="${window.location.origin}${window._lang === 'en' ? '/en' : ''}/r_thanks">
                         <input type="hidden" name="subject" value="${_isEn ? 'Annuity Payment Request' : '연차료 납부의뢰'}">
 
                         <div style="margin-bottom: 1rem;">

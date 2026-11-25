@@ -1,13 +1,14 @@
 <%- await include('partials/header') %>
+<% const _en = (typeof lang !== 'undefined' && lang === 'en'); -%>
 
 <section class="thanks-wrap">
     <div class="thanks-card">
         <div class="thanks-icon" aria-hidden="true">✓</div>
-        <h1>신청해주셔서 감사합니다.</h1>
-        <p>서비스 이용 신청이 정상적으로 완료되었습니다.<br>빠른 시일 내에 확인 후 연락드리겠습니다.</p>
+        <h1><%= _en ? 'Thank you for your request.' : '신청해주셔서 감사합니다.' %></h1>
+        <p><%= _en ? 'Your service request has been completed.' : '서비스 이용 신청이 정상적으로 완료되었습니다.' %><br><%= _en ? 'We will confirm it and contact you shortly.' : '빠른 시일 내에 확인 후 연락드리겠습니다.' %></p>
         <div class="thanks-actions">
-            <a href="/registered" class="thanks-btn thanks-btn-primary">등록특허 조회하러 가기</a>
-            <a href="/" class="thanks-btn thanks-btn-secondary">메인으로</a>
+            <a href="<%= _en ? '/en/registered' : '/registered' %>" class="thanks-btn thanks-btn-primary"><%= _en ? 'Search Registered Patents' : '등록특허 조회하러 가기' %></a>
+            <a href="<%= _en ? '/en' : '/' %>" class="thanks-btn thanks-btn-secondary"><%= _en ? 'Home' : '메인으로' %></a>
         </div>
     </div>
 </section>

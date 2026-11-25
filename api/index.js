@@ -357,13 +357,25 @@ module.exports = async (req, res) => {
         } else if (url === '/r_thanks' || url === '/r-thanks') {
             viewName = 'e_thanks';
             title = '연차료 납부의뢰 완료';
+        } else if (url === '/en/r_thanks' || url === '/en/r-thanks') {
+            viewName = 'e_thanks';
+            title = 'Annuity Payment Request Received';
+            lang = 'en';
         } else if (url === '/p_thanks' || url === '/p-thanks') {
             viewName = 'p_thanks';
             title = 'PCT 납부의뢰 완료';
+        } else if (url === '/en/p_thanks' || url === '/en/p-thanks') {
+            viewName = 'p_thanks';
+            title = 'PCT Request Received';
+            lang = 'en';
         } else if (url === '/s_thanks' || url === '/s-thanks') {
             console.log('✅ s_thanks 라우트 매칭됨');
             viewName = 's_thanks';
             title = '서비스 이용신청 완료';
+        } else if (url === '/en/s_thanks' || url === '/en/s-thanks') {
+            viewName = 's_thanks';
+            title = 'Service Request Received';
+            lang = 'en';
         } else if (url === '/admin/reset-password') {
             // 복구 메일의 비밀번호 재설정 링크 (토큰 검증은 저장 시 API에서)
             viewName = 'admin-reset';

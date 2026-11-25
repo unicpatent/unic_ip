@@ -1,12 +1,13 @@
+<% const _en = (typeof lang !== 'undefined' && lang === 'en'); -%>
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="<%= _en ? 'en' : 'ko' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><%= title %> - 유니크 특허사무소</title>
-    <meta name="description" content="유니크 특허사무소 <%= title %> 안내 페이지입니다.">
-    <meta name="author" content="유니크 특허사무소">
+    <title><%= title %> - <%= _en ? 'Unic Patent Office' : '유니크 특허사무소' %></title>
+    <meta name="description" content="<%= _en ? 'Unic Patent Office - ' + title : '유니크 특허사무소 ' + title + ' 안내 페이지입니다.' %>">
+    <meta name="author" content="<%= _en ? 'Unic Patent Office' : '유니크 특허사무소' %>">
     <!-- 신청 완료 안내 페이지: 검색 결과에 노출하지 않음 -->
     <meta name="robots" content="noindex, follow">
 
@@ -42,23 +43,23 @@
 <body>
     <header class="header">
         <div class="lang-bar" style="display:block;text-align:right;width:100%;box-sizing:border-box;padding:4px 2rem;font-size:0.78rem;background:#f8f9fa;border-bottom:1px solid #e9ecef;">
-            <a href="/" class="active">한국어</a>
+            <a href="/" class="<%= _en ? '' : 'active' %>">한국어</a>
             <span style="color:#ccc;margin-left:10px;">|</span>
-            <a href="/en">English</a>
+            <a href="/en" class="<%= _en ? 'active' : '' %>">English</a>
         </div>
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">
-                    Unic<span>특허</span>
+                <a href="<%= _en ? '/en' : '/' %>" class="logo">
+                    Unic<span><%= _en ? 'Patent' : '특허' %></span>
                 </a>
-                <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                <button class="hamburger" id="hamburgerBtn" aria-label="<%= _en ? 'Open menu' : '메뉴 열기' %>">
                     <span></span><span></span><span></span>
                 </button>
                 <nav class="nav-tabs" id="navTabs">
-                    <a href="/registered" class="nav-link">등록특허 현황</a>
-                    <a href="/application2" class="nav-link">출원특허 현황</a>
-                    <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 홈페이지</a>
-                    <a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank">유니크 블로그</a>
+                    <a href="<%= _en ? '/en/registered' : '/registered' %>" class="nav-link"><%= _en ? 'Registered Patents' : '등록특허 현황' %></a>
+                    <a href="<%= _en ? '/en/application' : '/application2' %>" class="nav-link"><%= _en ? 'Patent Applications' : '출원특허 현황' %></a>
+                    <a href="https://www.unicpat.com" class="nav-link" target="_blank"><%= _en ? 'Unic Website' : '유니크 홈페이지' %></a>
+                    <% if (!_en) { %><a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank">유니크 블로그</a><% } %>
                 </nav>
             </div>
         </div>
