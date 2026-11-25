@@ -5,39 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><%= title %> - 유니크 특허사무소</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="유니크 특허사무소 특허 현황 조회 시스템">
-    <meta name="keywords" content="특허, 특허사무소, 특허 현황, 등록특허, 출원특허, 유니크">
+    <meta name="description" content="유니크 특허사무소 <%= title %> 안내 페이지입니다.">
     <meta name="author" content="유니크 특허사무소">
+    <!-- 신청 완료 안내 페이지: 검색 결과에 노출하지 않음 -->
     <meta name="robots" content="noindex, follow">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="<%= title %> - 유니크 특허사무소">
-    <meta property="og:description" content="유니크 특허사무소 특허 현황 조회 시스템">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.ipbot1.com/">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/style.css">
-    
+
+    <!-- CSS (등록특허·출원특허 페이지와 동일) -->
+    <link rel="stylesheet" href="/css/ejs-style.css">
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
     <link rel="alternate icon" href="/images/favicon.svg">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+
+    <style>
+    .thanks-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 320px); padding: 3rem 1rem; }
+    .thanks-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); max-width: 520px; width: 100%; padding: 3rem 2rem; text-align: center; }
+    .thanks-icon { width: 72px; height: 72px; margin: 0 auto 1.5rem; border-radius: 50%; background: #EDFBE2; color: #54B435; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 700; }
+    .thanks-card h1 { color: #0F172A; font-size: 1.75rem; font-weight: 700; margin: 0 0 1rem; }
+    .thanks-card p { color: #2F3B40; font-size: 1rem; line-height: 1.8; margin: 0 0 2rem; }
+    .thanks-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+    .thanks-btn { display: inline-block; padding: .75rem 1.5rem; border-radius: 8px; font-weight: 600; text-decoration: none; transition: background .2s, color .2s; }
+    .thanks-btn-primary { background: #54B435; color: #fff; }
+    .thanks-btn-primary:hover { background: #469b2d; }
+    .thanks-btn-secondary { background: #fff; color: #2F3B40; border: 1px solid #d1d5db; }
+    .thanks-btn-secondary:hover { background: #f3f4f6; }
+    @media (max-width: 600px) { .thanks-card { padding: 2.25rem 1.25rem; } .thanks-card h1 { font-size: 1.4rem; } }
+    </style>
 </head>
 <body>
     <header class="header">
+        <div class="lang-bar" style="display:block;text-align:right;width:100%;box-sizing:border-box;padding:4px 2rem;font-size:0.78rem;background:#f8f9fa;border-bottom:1px solid #e9ecef;">
+            <a href="/" class="active">한국어</a>
+            <span style="color:#ccc;margin-left:10px;">|</span>
+            <a href="/en">English</a>
+        </div>
         <div class="container">
             <div class="header-content">
                 <a href="/" class="logo">
-                    유니크<span>특허</span>
+                    Unic<span>특허</span>
                 </a>
-                <nav><ul class="nav-menu"><li><a href="/registered">등록특허 현황</a></li><li><a href="/application2">출원특허 현황</a></li><li><a href="https://www.unicpat.com" target="_blank">유니크 홈페이지</a></li></ul></nav>
+                <button class="hamburger" id="hamburgerBtn" aria-label="메뉴 열기">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav class="nav-tabs" id="navTabs">
+                    <a href="/registered" class="nav-link">등록특허 현황</a>
+                    <a href="/application2" class="nav-link">출원특허 현황</a>
+                    <a href="https://www.unicpat.com" class="nav-link" target="_blank">유니크 홈페이지</a>
+                    <a href="https://blog.naver.com/unicpat" class="nav-link" target="_blank">유니크 블로그</a>
+                </nav>
             </div>
         </div>
     </header>
+
+<main class="main-content">
