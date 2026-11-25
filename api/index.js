@@ -437,6 +437,8 @@ module.exports = async (req, res) => {
 
                 // Try multiple path resolutions
                 const pathsToTry = [
+                    // EJS가 이미 절대경로로 풀어서 넘겨주는 경우 그대로 사용
+                    ...(path.isAbsolute(parsedPath) ? [parsedPath] : []),
                     path.join(viewsDir, parsedPath + '.ejs'),
                     path.join(viewsDir, parsedPath),
                     path.join(process.cwd(), 'views', parsedPath + '.ejs'),
@@ -448,7 +450,7 @@ module.exports = async (req, res) => {
                 for (const tryPath of pathsToTry) {
                     if (fs.existsSync(tryPath)) {
                         console.log('✅ Include found at:', tryPath);
-                        return { filename: tryPath };
+                        return { filename: tryPath, template: fs.readFileSync(tryPath, 'utf8') };
                     }
                 }
 
@@ -505,6 +507,7 @@ module.exports = async (req, res) => {
                     cache: false,
                     includer: function(originalPath, parsedPath) {
                         const pathsToTry = [
+                            ...(path.isAbsolute(parsedPath) ? [parsedPath] : []),
                             path.join(viewsDir, parsedPath + '.ejs'),
                             path.join(viewsDir, parsedPath),
                             path.join(process.cwd(), 'views', parsedPath + '.ejs'),
@@ -515,7 +518,7 @@ module.exports = async (req, res) => {
 
                         for (const tryPath of pathsToTry) {
                             if (fs.existsSync(tryPath)) {
-                                return { filename: tryPath };
+                                return { filename: tryPath, template: fs.readFileSync(tryPath, 'utf8') };
                             }
                         }
 
