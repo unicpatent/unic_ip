@@ -4,27 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <% if (lang === 'en') { %>
-    <title>Unic Patent Office - AI Patent Search System | Real-time Patent Status</title>
-    <meta name="description" content="Unic Patent Office's real-time AI patent search system. Search and manage registered patents, annual fee status, and pending applications using your business number or patent customer number.">
-    <meta name="keywords" content="patent search, registered patent, patent application, annual fee, patent management, Unic Patent Office, AI patent search">
-    <meta property="og:title" content="Unic Patent Office - AI Patent Search System">
-    <meta property="og:description" content="Search and manage registered patents, annual fee status, and pending applications in one place.">
+    <title>Korean Patent Annuity &amp; Status Lookup by Business No. | Unic Patent Office</title>
+    <meta name="description" content="Look up your company's Korean registered patents, annuity (renewal fee) due dates and amounts, and pending application status in real time with KIPO data — just enter your business registration number or KIPO customer number. No sign-up required.">
+    <meta name="keywords" content="Korean patent annuity, Korea patent renewal fee, KIPO patent status, Korean patent search, patent annuity calculator, registered patent lookup, patent application status, Unic Patent Office">
+    <meta property="og:title" content="Korean Patent Annuity & Status Lookup | Unic Patent Office">
+    <meta property="og:description" content="Check registered patents, annuity due dates and pending applications in Korea with your business number or KIPO customer number.">
     <meta property="og:locale" content="en_US">
     <% } else { %>
-    <title>유니크 특허사무소 - AI 특허 검색 시스템 | 실시간 등록특허 출원특허 조회</title>
-    <meta name="description" content="유니크 특허사무소의 실시간 AI 특허 검색 시스템입니다. 사업자번호와 특허고객번호로 등록특허, 연차료 납부상황, 출원특허를 한번에 통합 검색하고 관리하세요.">
-    <meta name="keywords" content="특허검색, 등록특허, 출원특허, 연차료, 특허관리, 유니크특허사무소, 특허사무소, AI특허검색, 실시간특허조회">
-    <meta property="og:title" content="유니크 특허사무소 - AI 특허 검색 시스템">
-    <meta property="og:description" content="사업자번호와 특허고객번호로 등록특허, 연차료 납부상황, 출원특허를 한번에 통합 검색하고 관리할 수 있는 실시간 특허 검색 플랫폼입니다.">
+    <title>특허 연차료 조회·등록특허 검색 | 사업자번호로 실시간 조회 - 유니크 특허사무소</title>
+    <meta name="description" content="사업자번호 또는 특허고객번호만 입력하면 우리 회사의 등록특허 목록, 특허 연차료 납부기한과 금액, 출원특허 진행상황을 특허청 데이터로 실시간 조회합니다. 회원가입 없이 연차료 계산부터 납부 의뢰까지 한 번에.">
+    <meta name="keywords" content="특허 연차료 조회, 특허 연차료 계산, 특허 등록료 납부, 연차료 납부기한, 등록특허 조회, 출원특허 조회, 사업자번호 특허 조회, 특허고객번호, 특허 존속기간 만료일, 특허 추가납부, 특허관리, 특허사무소, 유니크 특허사무소">
+    <meta property="og:title" content="특허 연차료 조회·등록특허 검색 - 유니크 특허사무소">
+    <meta property="og:description" content="사업자번호 또는 특허고객번호로 등록특허, 연차료 납부기한·금액, 출원특허 진행상황을 실시간으로 한 번에 조회하세요.">
     <meta property="og:locale" content="ko_KR">
     <% } %>
     <meta name="author" content="유니크 특허사무소">
     <link rel="canonical" href="https://www.ipbot1.com/<%= lang === 'en' ? 'en' : '' %>">
     <link rel="alternate" hreflang="ko" href="https://www.ipbot1.com/">
     <link rel="alternate" hreflang="en" href="https://www.ipbot1.com/en">
+    <link rel="alternate" hreflang="x-default" href="https://www.ipbot1.com/">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ipbot1.com/<%= lang === 'en' ? 'en' : '' %>">
+    <meta property="og:image" content="https://www.ipbot1.com/images/icon-512x512.png">
+    <meta name="twitter:card" content="summary">
     <meta property="og:site_name" content="유니크 특허사무소">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "LegalService",
+          "@id": "https://www.ipbot1.com/#organization",
+          "name": "<%= lang === 'en' ? 'Unic Patent Office' : '유니크 특허사무소' %>",
+          "alternateName": ["유니크 특허사무소", "Unic Patent Office", "유니크특허"],
+          "url": "https://www.unicpat.com",
+          "logo": "https://www.ipbot1.com/images/icon-512x512.png",
+          "image": "https://www.ipbot1.com/images/icon-512x512.png",
+          "telephone": "+82-10-3131-7960",
+          "email": "ljunhyek@naver.com",
+          "areaServed": "KR",
+          "knowsAbout": ["<%= lang === 'en' ? 'Patents' : '특허' %>", "<%= lang === 'en' ? 'Patent annuity' : '특허 연차료' %>", "<%= lang === 'en' ? 'Patent applications' : '특허 출원' %>"],
+          "sameAs": ["https://www.unicpat.com", "https://blog.naver.com/unicpat"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.ipbot1.com/#website",
+          "url": "https://www.ipbot1.com/",
+          "name": "<%= lang === 'en' ? 'Unic Patent Office - Patent Status Lookup' : '유니크 특허사무소 특허 현황 조회' %>",
+          "inLanguage": ["ko-KR", "en"],
+          "publisher": { "@id": "https://www.ipbot1.com/#organization" }
+        },
+        {
+          "@type": "WebApplication",
+          "name": "<%= lang === 'en' ? 'Patent Annuity & Status Lookup' : '특허 연차료·등록특허 조회 서비스' %>",
+          "url": "https://www.ipbot1.com/<%= lang === 'en' ? 'en' : '' %>",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "inLanguage": "<%= lang === 'en' ? 'en' : 'ko-KR' %>",
+          "description": "<%= lang === 'en' ? 'Look up Korean registered patents, annuity due dates and amounts, and pending applications by business number or KIPO customer number.' : '사업자번호 또는 특허고객번호로 등록특허, 연차료 납부기한·금액, 출원특허 진행상황을 조회하는 서비스' %>",
+          "provider": { "@id": "https://www.ipbot1.com/#organization" }
+        }
+      ]
+    }
+    </script>
+    <style>
+    .seo-guide { padding: 4rem 0; background: #fff; }
+    .seo-guide .container { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+    .seo-guide h2 { color: #0F172A; font-size: 1.6rem; font-weight: 800; text-align: center; margin: 0 0 .75rem; }
+    .seo-guide .seo-lead { color: #2F3B40; text-align: center; line-height: 1.8; margin: 0 auto 2.5rem; max-width: 760px; }
+    .seo-guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+    .seo-guide-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem 1.25rem 1rem; }
+    .seo-guide-card h3 { color: #0F172A; font-size: 1.1rem; margin: 0 0 .5rem; }
+    .seo-guide-card h3 a { color: inherit; text-decoration: none; }
+    .seo-guide-card h3 a:hover { color: #54B435; }
+    .seo-guide-card p, .seo-guide-card li { color: #2F3B40; font-size: .95rem; line-height: 1.7; }
+    .seo-guide-card ul { margin: .25rem 0 0; padding-left: 1.1rem; }
+    .seo-faq h2 { margin-bottom: 1.5rem; }
+    .seo-faq details { border-bottom: 1px solid #e5e7eb; padding: 1rem .25rem; }
+    .seo-faq summary { cursor: pointer; color: #0F172A; font-weight: 700; font-size: 1rem; }
+    .seo-faq details p { color: #2F3B40; line-height: 1.8; margin: .75rem 0 0; }
+    @media (max-width: 600px) { .seo-guide { padding: 2.5rem 0; } .seo-guide h2 { font-size: 1.3rem; } }
+    </style>
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="PKZLgjFaj9UD2qw93XhI2wCPWORLW7oFHt0Ypne3h7Y" />
     <meta name="naver-site-verification" content="3b649a15c022c58ce4938ec678bd5f61fb80b531" />
@@ -57,8 +117,8 @@
                 <span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="#" id="registeredBtn"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a></li>
-                <li><a href="#" id="applicationBtn"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a></li>
+                <li><a href="<%= lang === 'en' ? '/en/registered' : '/registered' %>" id="registeredBtn"><%= lang === 'en' ? 'Registered Patents' : '등록특허 현황' %></a></li>
+                <li><a href="<%= lang === 'en' ? '/en/application' : '/application2' %>" id="applicationBtn"><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></a></li>
                 <li><a href="https://www.unicpat.com" target="_blank"><%= lang === 'en' ? 'Unic Website' : '유니크 홈페이지' %></a></li>
                 <li><a href="https://blog.naver.com/unicpat" target="_blank"><%= lang === 'en' ? 'Unic Blog' : '유니크 블로그' %></a></li>
                 <li id="adminLi" style="display:none;"><a href="/admin"><%= lang === 'en' ? 'Admin' : '관리자' %></a></li>
@@ -142,6 +202,104 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="seo-guide" id="guide">
+            <div class="container">
+                <% if (lang === 'en') { %>
+                <h2>Check Your Korean Patents and Annuity Fees in One Place</h2>
+                <p class="seo-lead">Enter your business registration number or KIPO applicant (customer) number to see every registered patent your company owns, the next annuity (renewal fee) due date and amount, and the current status of pending applications — using live data from the Korean Intellectual Property Office (KIPO). No sign-up required.</p>
+                <div class="seo-guide-grid">
+                    <div class="seo-guide-card">
+                        <h3><a href="/en/registered">Registered Patent &amp; Annuity Lookup</a></h3>
+                        <ul>
+                            <li>Search by business number (10 digits) or customer number (12 digits)</li>
+                            <li>Registration no., expiry date and status (active / expired / fee unpaid)</li>
+                            <li>Current annuity year, fee amount and payment deadline</li>
+                            <li>Late-payment and restoration deadlines</li>
+                            <li>Annuity calculator, payment request and Excel export</li>
+                        </ul>
+                    </div>
+                    <div class="seo-guide-card">
+                        <h3><a href="/en/application">Patent Application Status Lookup</a></h3>
+                        <ul>
+                            <li>Search pending applications by customer number</li>
+                            <li>Application no., applicant, inventor and filing date</li>
+                            <li>Current prosecution status, filtered by status</li>
+                            <li>Full-text view and Excel export</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="seo-faq">
+                    <h2>Frequently Asked Questions</h2>
+                    <details>
+                        <summary>Do I need to sign up or log in?</summary>
+                        <p>No. Anyone can search with a business number or KIPO customer number without creating an account.</p>
+                    </details>
+                    <details>
+                        <summary>I don't know my KIPO customer number. What can I do?</summary>
+                        <p>Registered patents can be searched with your 10-digit business registration number. You can also use the "Find Customer No." button on each search page to look up your customer number.</p>
+                    </details>
+                    <details>
+                        <summary>Where does the data come from?</summary>
+                        <p>Patent information is retrieved in real time from the Korean Intellectual Property Office (KIPO / KIPRIS), so you always see the latest status.</p>
+                    </details>
+                    <details>
+                        <summary>What if an annuity payment deadline has passed?</summary>
+                        <p>The registered patent page shows the late-payment and restoration deadlines for each patent. If you are still within those periods, you can ask Unic Patent Office to handle the payment using the "Payment Request" button.</p>
+                    </details>
+                </div>
+                <% } else { %>
+                <h2>우리 회사 특허와 연차료, 한 번에 확인하세요</h2>
+                <p class="seo-lead">사업자번호 또는 특허고객번호만 입력하면 회사가 보유한 등록특허 전체 목록과 다음 연차료(특허 등록료) 납부기한·금액, 출원 중인 특허의 진행상황을 특허청 데이터로 실시간 조회할 수 있습니다. 회원가입 없이 누구나 이용할 수 있습니다.</p>
+                <div class="seo-guide-grid">
+                    <div class="seo-guide-card">
+                        <h3><a href="/registered">등록특허·연차료 조회</a></h3>
+                        <ul>
+                            <li>사업자번호(10자리) 또는 특허고객번호(12자리)로 검색</li>
+                            <li>등록번호, 존속기간 만료일, 등록상태(등록유지·존속기간 만료·등록료 불납)</li>
+                            <li>해당 연차수, 연차료 금액, 납부마감일, 미납 여부</li>
+                            <li>추가납부(추납)·회복기간 마감일 안내</li>
+                            <li>연차료 계산, 납부 의뢰, 엑셀 다운로드</li>
+                        </ul>
+                    </div>
+                    <div class="seo-guide-card">
+                        <h3><a href="/application2">출원특허 진행상황 조회</a></h3>
+                        <ul>
+                            <li>특허고객번호로 출원 중인 특허 목록 검색</li>
+                            <li>출원번호, 출원인, 발명자, 출원일, 발명의 명칭</li>
+                            <li>심사 진행 현재상태 및 상태별 보기</li>
+                            <li>특허 전문보기, 엑셀 다운로드</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="seo-faq">
+                    <h2>자주 묻는 질문</h2>
+                    <details>
+                        <summary>회원가입이나 로그인이 필요한가요?</summary>
+                        <p>아니요. 사업자번호 또는 특허고객번호만 있으면 회원가입 없이 누구나 바로 조회할 수 있습니다.</p>
+                    </details>
+                    <details>
+                        <summary>특허고객번호를 모르는데 조회할 수 있나요?</summary>
+                        <p>등록특허는 사업자번호(10자리)로도 검색할 수 있습니다. 각 조회 화면의 '고객번호 찾기' 버튼으로 특허고객번호를 확인할 수도 있습니다.</p>
+                    </details>
+                    <details>
+                        <summary>조회되는 특허 정보는 어디에서 가져오나요?</summary>
+                        <p>특허청(KIPRIS)과 실시간으로 연동해 정보를 가져오므로 항상 최신 등록·출원 상태를 확인할 수 있습니다.</p>
+                    </details>
+                    <details>
+                        <summary>연차료 납부기한을 놓쳤으면 어떻게 하나요?</summary>
+                        <p>등록특허 현황에서 특허별 추가납부(추납)기간과 회복기간 마감일을 함께 보여드립니다. 기간 안이라면 '납부의뢰' 버튼으로 유니크 특허사무소에 연차료 납부를 맡기실 수 있습니다.</p>
+                    </details>
+                    <details>
+                        <summary>연차료는 얼마인지 미리 계산할 수 있나요?</summary>
+                        <p>네. 등록특허 현황의 '연차료 계산' 기능으로 특허별 해당 연차수와 연차료 금액, 납부마감일을 바로 계산해 볼 수 있습니다.</p>
+                    </details>
+                </div>
+                <% } %>
             </div>
         </section>
 

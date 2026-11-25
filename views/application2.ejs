@@ -7,24 +7,30 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <% if (lang === 'en') { %>
-    <title>Patent Applications - Unic Patent Office</title>
-    <meta name="description" content="Unic Patent Office patent status inquiry system">
-    <meta name="keywords" content="patent, patent office, patent status, registered patent, patent application, Unic">
+    <title>Korean Patent Application Status Lookup - Unic Patent Office</title>
+    <meta name="description" content="Check the status of your company's pending Korean patent applications with a KIPO customer number. See application number, applicant, inventor, filing date, title and current prosecution status in real time.">
+    <meta name="keywords" content="Korean patent application status, KIPO application lookup, pending patent applications, KIPO customer number, patent prosecution status, Unic Patent Office">
     <meta name="author" content="Unic Patent Office">
-    <meta property="og:title" content="Patent Applications - Unic Patent Office">
-    <meta property="og:description" content="Unic Patent Office patent status inquiry system">
+    <meta property="og:title" content="Korean Patent Application Status Lookup - Unic Patent Office">
+    <meta property="og:description" content="Check pending patent applications and their current status by KIPO customer number.">
     <% } else { %>
-    <title><%= title %> - 유니크 특허사무소</title>
-    <meta name="description" content="유니크 특허사무소 특허 현황 조회 시스템">
-    <meta name="keywords" content="특허, 특허사무소, 특허 현황, 등록특허, 출원특허, 유니크">
+    <title>출원특허 조회·특허 심사 진행상황 확인 - 유니크 특허사무소</title>
+    <meta name="description" content="특허고객번호로 우리 회사가 출원한 특허 목록과 심사 진행상황을 실시간으로 조회하세요. 출원번호, 출원인, 발명자, 출원일, 발명의 명칭, 현재상태를 한눈에 확인하고 엑셀로 내려받을 수 있습니다.">
+    <meta name="keywords" content="출원특허 조회, 특허 출원 진행상황, 특허 심사 진행상황, 출원번호 조회, 특허고객번호, 특허 출원 현황, 유니크 특허사무소">
     <meta name="author" content="유니크 특허사무소">
-    <meta property="og:title" content="<%= title %> - 유니크 특허사무소">
-    <meta property="og:description" content="유니크 특허사무소 특허 현황 조회 시스템">
+    <meta property="og:title" content="출원특허 조회·특허 심사 진행상황 확인 - 유니크 특허사무소">
+    <meta property="og:description" content="특허고객번호로 출원 중인 특허 목록과 현재 심사 상태를 실시간으로 확인하세요.">
     <% } %>
     <link rel="alternate" hreflang="ko" href="https://www.ipbot1.com/application2">
     <link rel="alternate" hreflang="en" href="https://www.ipbot1.com/en/application">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://unicpat.com">
+    <link rel="canonical" href="https://www.ipbot1.com<%= lang === 'en' ? '/en/application' : '/application2' %>">
+    <link rel="alternate" hreflang="x-default" href="https://www.ipbot1.com/application2">
+    <meta property="og:url" content="https://www.ipbot1.com<%= lang === 'en' ? '/en/application' : '/application2' %>">
+    <meta property="og:image" content="https://www.ipbot1.com/images/icon-512x512.png">
+    <meta property="og:site_name" content="유니크 특허사무소">
+    <meta property="og:locale" content="<%= lang === 'en' ? 'en_US' : 'ko_KR' %>">
+    <meta name="robots" content="index, follow">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,7 +98,7 @@
     <div class="container">
         <div class="page-title">
             <h1><%= lang === 'en' ? 'Patent Applications' : '출원특허 현황' %></h1>
-            <p><%= lang === 'en' ? 'Look up pending patent applications by Customer No.' : '고객번호로 출원 중인 특허 목록을 조회합니다' %></p>
+            <p><%= lang === 'en' ? 'Look up pending patent applications and their current status by customer number' : '특허고객번호로 출원 중인 특허 목록과 심사 진행상황을 조회합니다' %></p>
         </div>
 
         <!-- 검색 섹션 -->
